@@ -1,0 +1,139 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+-actor_level l01_escape
+-actor_level l02_garbage
+-actor_level l03_agroprom
+-actor_level l03u_agr_underground
+-actor_level l04_darkvalley
+-actor_level l04u_labx18
+-actor_level l05_bar
+-actor_level l06_rostok
+-actor_level l07_military
+-actor_level l08_yantar
+-actor_level l10_radar
+-actor_level l11_pripyat
+-actor_level l12_stancia
+-actor_level l12_stancia_2
+-actor_level l12u_control_monolith
+-actor_level l12u_sarcofag
+-actor_level l08u_brainlab
+
+[smart_terrains]
+none = true
+
+[logic]
+active = remark
+danger = danger_condition
+combat_ignore = combat_ignore
+
+[remark]
+anim                = wait
+on_timer = 20000 | walker
+
+[walker]
+path_walk = esc
+combat_ignore_cond = always
+
+[combat_ignore]
+
+[danger_condition]
+ignore_distance = 0
+ignore_distance_corpse = 0
+
+Параметры перса
+[logic]
+active = nil
+[spawner]
+cond = {+322tutorial}
+cond = {=is_day};спавнить монстра только днем (если надо ночью, то пишем {!is_day})
+[dont_spawn_character_supplies]
+[dont_spawn_loot]
+[known_info]
+esc_tutorial_secret
+
+[spawn]
+wpn_binoc
+detector_simple
+novice_outfit
+device_torch
+
+[smart_terrains]
+none = true
+esc_lager = {-agroprom_military_case_have -esc_fanat_spawn} 
+
+
+
+Схема радио
+[collide]
+ignore_static
+
+[logic]
+active = ph_sound
+
+[ph_sound]
+snd = radio_music
+on_hit = hit
+on_info = {+esc_radio_off} nil
+[hit]
+on_info = %+esc_radio_off%
+
+
+smart_terrain respawn
+[smart_terrain]
+type = general_lager
+communities = stalker
+capacity = 4
+respawn = my_respawn_items
+
+[respawn]
+respawn_section = mil_stalker_respawn_2,mil_stalker_respawn_3
+max_spawn = 2
+idle_spawn = medium
+conditions = {+322esc_kill_bandits_quest_kill} 80, 0
+
+[respawn]
+respawn_section = wpn_pm,2,vodka,2,medkit,1,energy_drink,2,ammo_9x18_fmj,3
+idle_spawn = -1
+parent = 2000
+item_spawn = true
+max_count = 7
+
+[ph_door@open]
+locked = false
+closed = false
+on_use = ph_door@closed
+snd_open_start = trader_door_open_start
+snd_close_start = trader_door_close_start
+snd_close_stop = trader_door_close_stop
+show_tips = true
+
+[ph_door@closed]
+locked = false
+closed = true
+on_use = ph_door@open
+snd_open_start = trader_door_open_start
+snd_close_start = trader_door_close_start
+snd_close_stop = trader_door_close_stop
+show_tips = true
+
+wpn_ak103 = 1, grenade_launcher \n	
+wpn_ak103 = 1, silencer \n	
+wpn_ak103 = 1, scope \n
+
+[pt_move_if_reject]
+path = esc_way_if_reject
+
+l13_atp-l14_village
+[l13_atp]
+texture	    	= map\map_mp_atp
+bound_rect		= 24.216, -147.719, 270.589, 98.760
+global_rect		= 572,2248, 652,2328  
+weathers		= default
+music_tracks    = l01_escape_musics
+
+[l14_village]
+texture         = map\map_mp_lost_village
+bound_rect		= -137.794, -109.345, 198.546, 134.706
+global_rect		= 279.0,1244.0, 390.0,1327.0 
+weathers		= default
+music_tracks    = l04_darkvalley_musics
