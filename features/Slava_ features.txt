@@ -1,23 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-
--actor_level l01_escape
--actor_level l02_garbage
--actor_level l03_agroprom
--actor_level l03u_agr_underground
--actor_level l04_darkvalley
--actor_level l04u_labx18
--actor_level l05_bar
--actor_level l06_rostok
--actor_level l07_military
--actor_level l08_yantar
--actor_level l10_radar
--actor_level l11_pripyat
--actor_level l12_stancia
--actor_level l12_stancia_2
--actor_level l12u_control_monolith
--actor_level l12u_sarcofag
--actor_level l08u_brainlab
-
+;базовая логика
 [smart_terrains]
 none = true
 
@@ -40,14 +22,17 @@ combat_ignore_cond = always
 ignore_distance = 0
 ignore_distance_corpse = 0
 
-Параметры перса
+;Параметры перса
 [logic]
 active = nil
+
 [spawner]
 cond = {+322tutorial}
 cond = {=is_day};спавнить монстра только днем (если надо ночью, то пишем {!is_day})
+
 [dont_spawn_character_supplies]
 [dont_spawn_loot]
+
 [known_info]
 esc_tutorial_secret
 
@@ -98,6 +83,7 @@ parent = 2000
 item_spawn = true
 max_count = 7
 
+;Логика двери
 [ph_door@open]
 locked = false
 closed = false
@@ -120,6 +106,7 @@ wpn_ak103 = 1, grenade_launcher \n
 wpn_ak103 = 1, silencer \n	
 wpn_ak103 = 1, scope \n
 
+;переход
 [pt_move_if_reject]
 path = esc_way_if_reject
 
