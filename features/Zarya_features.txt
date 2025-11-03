@@ -1,0 +1,185 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+
+========================================== База и видео ===========================================================================
+Всім прывэт. Я - Заря, и в этом файле будет свалка моих находок которые я открыл во время изучения моддинга, ну по крайней мере то что я вспомню.
+
+Для начала хочу перечислить свои видеоролики по модострою
+
+1. https://youtu.be/mvzxkzveca0 (гайд по создаванию движковых слотов на XE, без редактирования двигла_
+2. https://youtu.be/X7WK5Pj_NP8 (гайд по отмене стандартной системе обновления торговли, когда ассортимент обновляется после перезагрузки. Теперь это делается по инфопоршню)
+3. https://youtu.be/DrOrSEOJQuE (обзор на простенькую прогу UI creator - позволяет создавать гуи интерфейсы для сталкера, удобно и быстро) 
+4. https://youtu.be/m1kV1svwoAM (гайд по создаванию сохраняемых таймеров. На ютубе Славы тоже есть видео на такую тему, я даже рекомендую лучше использовать его способ, так как он проще и удобнее. А это так, запасной варик).
+
+===================================================================================================================================
+
+======================================= Скриптовые модули для sak.script =========================================================
+
+Так же вот мои скриптовые модули которые я вписал в sak.script
+"
+
+-- спавн предмета в рюкзак герою
+function create_items_actor_without_sms(section)
+	return alife():create(section, vector(), 0, 0, db.actor:id())
+end
+
+-- удалить предмет из рюкзака геро¤
+function out_item_namber_without_sms(section)
+	alife():release(alife():object(db.actor:object(section):id()), true)
+end
+
+                                                                        "
+
+эти скрипты позволяют спавнить и отнимать предметы из рюкзака героя без вывода сообщения.
+
+=================================================================================================================================
+
+================================ создавание предметов в items.ltx ===============================================================
+
+Разберем дефолтное создавание предметов в игре, навык простой но очень важный...
+
+У каждого предмета есть свой класс, который описан в двигле игры 
+
+вот самые базовые классы:
+
+II_ATTCH
+II_FOOD
+II_MEDKI
+
+класс влияет на текст при нажатии на правую кнопки мыши по предмету. 
+
+II_ATTCH - это просто предмет, вы можете использовать его в скриптах и ТД. Но в игре с ним нельзя никак взаимодействовать
+II_FOOD - применяемый предмет, при нажатии правой кнопкой мыши появляется текст "Сьесть"
+II_MEDKI - то же самое что и II_FOOD, но вместо "сьесть" - "использовать"
+
+Применяемые предметы обладают дополнительными параметрами. Вот пример каждого класса:
+
+
+II_ATTCH:
+
+[Pda]:identity_immunities
+GroupControlSection		= spawn_group
+discovery_dependency	=
+$spawn					= "food and drugs\guitar_a"
+cform                   = skeleton
+class					= II_ATTCH
+visual				= equipments\item_pda.ogf
+description			= enc_equipment_devic_device-pda1
+cost					= 250
+inv_name			= PDA
+inv_name_short		= PDA
+inv_weight				= 0.5
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 10
+inv_grid_y         = 28
+attach_angle_offset		= -1.651084, -1.341824, 1.200789
+attach_position_offset	= 0.077492, -0.030020, 0.090059
+attach_bone_name		= bip01_l_hand
+auto_attach				= false
+
+II_FOOD:
+
+[bread]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 				= "food and drugs\bread"
+;$prefetch 			= 32
+class				= II_FOOD
+cform				= skeleton
+visual				= weapons\bred\bred.ogf
+description			= enc_equipment_food_bread1
+
+inv_name			= Bread
+inv_name_short		= Bread
+inv_weight			= 0.3	;0.2
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 11
+inv_grid_y			= 9
+cost				= 20
+
+attach_angle_offset		= -0.287979, 1.560923, 1.544060
+attach_position_offset	= 0.096910, -0.013594, 0.107925
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+// should be deleted after update
+bone_name				= bip01_r_hand
+position_offset			 = 0.0,0.0,0.0
+angle_offset			 = 1.570790,1.570790,3.92699
+
+; eatable item
+eat_health = 0.05
+eat_satiety = 0.2
+eat_power = 0
+eat_radiation = 0
+wounds_heal_perc = 0
+eat_portions_num = -1
+
+; food item
+slot				= 4
+animation_slot		= 4
+
+;hud item
+hud = wpn_vodka_hud
+
+II_MEDKI:
+
+[medkit]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 				= "food and drugs\medkit"
+$prefetch 			= 8
+class				= II_MEDKI
+cform				= skeleton
+visual				= equipments\item_aptechka.ogf
+description			= enc_equipment_medi_medkit1
+inv_name			= Medkit
+inv_name_short		= Medkit
+inv_weight			= 0.3	;0.2
+
+inv_grid_width		= 2
+inv_grid_height		= 1
+inv_grid_x			= 6
+inv_grid_y			= 14
+cost				= 150
+
+; eatable item
+eat_health			= 0.6
+eat_satiety			= 0
+eat_power			= 0.0
+eat_radiation		= -0.1
+wounds_heal_perc	= 0.3
+eat_portions_num	= 1
+eat_max_power		= 0.1
+
+; food item
+animation_slot		= 4
+
+;hud item
+hud = wpn_vodka_hud
+
+===========================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
