@@ -1,0 +1,246 @@
+Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой.
+
+Файл с названиями анимаций, которые указываются в логике:
+"\gamedata\scripts\state_lib.script"
+
+Файл где эти анимации собираются из нескольких:
+"\gamedata\scripts\state_mgr_animation_list.script"
+
+Логика нпс чтобы стоял в одной точке:
+[smart_terrains]
+none = true
+
+[logic]
+active = walker
+
+[walker]
+path_walk = vill_st_walk
+path_look = vill_st_look
+
+В СДК открываем точку "vill_st_look" и в параметре Name пишем это: "name00|a=ward|s=state"
+про параметр "|a=ward" это анимация, а "|s=" это использование звуковой схемы. Более подробно описано в: https://drive.google.com/open?id=1mAiXFIG4txUN6hMo3RSyRQQezmZTYJ8X&usp=drive_fs
+
+В точке path_walk анимацию в этом случае указывать нельзя, не забываем ставить 0-вые флажки в точку "look" и "walk", чтобы не было вылета, в асдс выглядит так p1:flags = 0x1, благодаря этим флажкам можно сделать несколько направлений взгляда и использовать параметр "|t=",указывается время в миллисекундах, которое персонаж должен смотреть в заданную точку, допустимы значения в диапазоне [1000, 30000].
+
+Логика при использовании маршрута, в этом случае анимка указывается прямо в нейм точкам:
+[smart_terrains]
+none = true
+
+[logic]
+active = walker
+
+[walker]
+path_walk = vill_st_way
+
+В параметре Name пишем это:	name00|a=raid, для name01|a=raid также и так далее.
+
+Ещё в логике можно использовать секцию "meet" и проигрывать анимации в ней, например:
+[meet]
+meet_state		= 15|guard@wait
+
+15 это дистанция до актора, "guard" это анимка из state_lib, а "wait" это звуковая схема.
+Более подробно описано в: https://drive.google.com/open?id=1mAiXFIG4txUN6hMo3RSyRQQezmZTYJ8X&usp=drive_fs
+
+Свои анимации в state_lib.script
+	-- Стоячие состояния
+	--Стоит пьяный
+	drunk_idle  = {weapon = "strapped",
+				movement = move.stand,
+				mental = anim.free,
+				bodystate = move.standing,
+				animstate = "stand",
+				animation = "drunk_idle"
+			},
+	--Курит стоя
+	kurit = {	weapon = "strapped",
+				movement = move.stand,
+				mental = anim.free,
+				bodystate = move.standing,
+				animstate = "stand",
+				animation = "kurit"
+			},	
+	--Стоит сложа руки
+	stend = {	weapon = "strapped",
+				movement = move.stand,
+				mental = anim.free,
+				bodystate = move.standing,
+				animstate = "stand",
+				animation = "stend"
+			},		
+
+	-- Ходячие состояния
+	--Пьяная походка
+	drunk = {	weapon = "strapped",
+				movement = move.walk,
+				mental = anim.free,
+				bodystate = move.standing,
+				animstate = "stand",
+				animation = "drunk_walk"
+			},
+			
+В state_mgr_animation_list.script			
+
+		drunk_walk	= {	prop	= { maxidle = 0,
+									sumidle = 0,
+									rnd = 100 },
+						into	= nil,
+						out		= nil,
+						idle	= {	[0]	= "drunk_walk_0",
+									[1]	= "drunk_walk_0" },
+						rnd		= { [0]	= {	"drunk_walk_0"},
+									[1]	= {	"drunk_walk_0" } } },		
+									
+		drunk_idle	= {	prop	= { maxidle = 0,
+									sumidle = 0,
+									rnd = 80 },
+						into	= { [0]	= {"drunk_idle_0"}},
+						out		= { [0]	= {"drunk_idle_0"}},
+						idle	= { [0]	= {"drunk_idle_0"}},
+						rnd		= { [0]	= {"drunk_idle_0"}}},
+											
+		kurit	= {	prop	= { maxidle = 5,
+									sumidle = 10,
+									rnd = 100 },
+						into	= nil,
+						out		= nil,
+						idle	= nil,
+						rnd		= {	[0]	= {	"stoya_kurit_2_ 0" }}},
+
+		stend	= {	prop	= { maxidle = 5,
+									sumidle = 10,
+									rnd = 100 },
+						into	= nil,
+						out		= nil,
+						idle	= nil,
+						rnd		= {	[0]	= {	"stend" }}},				
+		
+Анимации которые можно использоватьв логике из state_lib.script
+Ходят:
+patrol – просто идет
+run - бежит          
+walk – ходит без оружия
+assault – бежит в денжере
+raid – идет опустив ствол
+raid_fire – идет в денжере
+sprint – бежит в денжере
+patrol_fire – патрулирует с оружие в руках
+aneak_no_wpn сидя крадется без оружия
+sneak_run сидя бежит с опущенной волыной
+sneak – сидя крадется в денжере
+rush – бежит и машет валыной
+СТОИТ:
+wait – просто стоит, дефолт
+wait_trade – стоит и часто потирает руки, переминается
+wait_na – стоит боком, типа недоверчиво
+guard – валыну в руках крутит
+guard_na – стоит на изготовке с оружием в руках
+guard_fire – целиться куда смотрел при подходе, при разговоре поворачивается
+threat – целиться куда смотрел
+threat_heli – целиться в ГГ и при разговоре
+threat_na – целиться но при разговоре убирает ствол
+threat_fire – целиться куда смотрел
+hide – целиться в валыну и играет ей
+caution – руки облокотил на колени
+choose – стоит свободно переминается, короче как обычный человек
+press – тычит пальцем
+ward – руки за спиной голова вниз
+search – стоит, садиться и чтото ищет и опять заново
+salut – стоит смирно, харя довольная
+salut_free – подставляет руку в виску
+prisoner – сидит как пленник типа Шустрый
+hide_no_wpn – сидит руки на земле чето высматривает
+hello – машет одной рукой (без валыны)
+hello_wpn – в одной руке оружие а другой машет
+refuse – пожимает плечами и разводит руки
+claim – в одной руке оружие а другой подзывает, типа иди сюда
+backoff – держит оружие в руках и машет рукой типа убери оружие, а потом показывает фак
+suicide – сидит на коленях и пушка в руке у виска
+punch – типа ударяет рукой
+hide_s_left – сидтся в одной руке валына а другой показывает тихо!
+hide_s_right – сидит в одной руке оружие а другой чето делает
+dynamite – закладывает динамит
+binocular – смотрит в бинокль
+hide_rac – сидит в одной руке оружие в другой рация
+wait_rac – стоя говорит в рацию
+guard_rac – стоит в одной руке оружие в другой рация
+probe – смотрит на прибор который держит в руках
+probe_1 - смотрит на прибор который держит в руках
+probe_2 - смотрит на прибор который держит в руках
+probe_3 - смотрит на прибор который держит в руках
+hands_up – руки вверх
+Сидят:
+sit
+sit_knee
+sit_ass
+sleep
+sleep_sit
+eat_bread
+eat_vodka
+eat_energy
+eat_kolbasa
+guitar
+Раненный:
+Wounded – сидит и держиться за грудь
+wounded_heavy – лежит как раненный
+wounded_heavy_2 – лежит и держиться
+wounded_heavy_3 – лежит скрючевшись
+wounded_zombie – очень низко сидит одной рукой упирается в землю другой держиться за грудь
+help_me - очень низко сидит одной рукой упирается в землю другой держиться за грудь, потом рукой машет
+trans_0 – сидит на коленях, там же руки и покачивается
+trans_1 – сидит на коленях руки там же и крутит торсом
+trans_zombied - сидит на коленях руки там же и машет головой (короткая)
+Пси раненный:
+psy_pain – сидит на коленях, руки за голову, мотает ,бьет себя по голове
+psy_armed – сидит на коленях, руки за голову, мотает ,бьет себя по голове только с оружием
+psycho_pain – держиться за голову
+psycho_shoot - опирается рукой в землю потом стреляет себе в висок и умирает
+bar_fas– стоит облокотившись типа на стойку
+bar_left – стоит облокотившись левой рукой на стойку
+bar_head – стоит локтями уперся на стоику в одной руке держит голову типа спит
+bar_sleep – руки сложены на стойке голова опущена
+bar_right – правая рука на стойке а на руке голова, левая на стойке
+doctor_wakeup – когда доктор склоняется над Стрелком и базарит
+
+Скорость зомбированного для обычного нпс \config\creatures\m_stalker.ltx
+
+[stalker_my]:stalker
+$spawn = "stalkers\stalker_my"			; option for Level Editor
+
+;---MOVEMENT----------------------------------------------------------
+movement_speeds					= stalker_my_movement_speeds;
+
+[stalker_my_movement_speeds]
+; my stalkers can't crouch or run
+	; danger
+	;; crouch
+	;;; walk
+	danger_crouch_walk_forward	= 0.8
+	danger_crouch_walk_backward	= 0.575
+	danger_crouch_walk_left		= 0.8
+	danger_crouch_walk_right	= 0.8
+	;;; run						  
+	danger_crouch_run_forward	= 0.8
+	danger_crouch_run_backward	= 0.575
+	danger_crouch_run_left		= 0.8
+	danger_crouch_run_right		= 0.8
+	;; stand
+	;;; walk
+	danger_stand_walk_forward	= 0.8
+	danger_stand_walk_backward	= 0.8
+	danger_stand_walk_left		= 0.8
+	danger_stand_walk_right		= 0.8
+	;;; run
+	danger_stand_run_forward	= 0.8
+	danger_stand_run_backward	= 0.8
+	danger_stand_run_left		= 0.8
+	danger_stand_run_right		= 0.8
+	; free
+	;; stand
+	;;; forward
+	free_stand_walk_forward		= 0.8
+	free_stand_run_forward		= 0.8
+	; panic
+	;; stand
+	;;; run
+	;;;; forward
+	panic_stand_run_forward		= 7.0

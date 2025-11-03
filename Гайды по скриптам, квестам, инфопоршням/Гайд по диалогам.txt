@@ -1,0 +1,465 @@
+﻿Всех приветствую, вот основные пункты создания диалогов, данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой:
+---------------------------------------------------------------------
+1.Используем Диалог Эдитор или Dialog Editor by Ray of Hope для удобного написания диалога:
+https://youtu.be/xBiJemOekDw
+https://youtu.be/c2BPlFVoQO0
+---------------------------------------------------------------------
+2.Добавляем нашему нпс диалог \gamedata\config\gameplay\character_desc_escape.xml
+	<actor_dialog>my_kvest_dialog</actor_dialog>
+актор будет говорить  первую фразу, этот диалог так и написан
+
+если нужно чтобы первую фразу говорил нпс:
+<start_dialog>id_диалога</start_dialog>
+---------------------------------------------------------------------
+3. Диалог вставляем в файл: \gamedata\config\gameplay\dialogs_escape.xml
+---------------------------------------------------------------------
+Сам диалог. Его можно потестить в геймдате "Gamedata из гайда по квесту". Начинаем его мы, то есть актор, а при соблюдении определённых условий появляются новые фразы и разветвления диалога
+---------------------------------------------------------------------
+    <dialog id="my_kvest_dialog">
+        <phrase_list>
+            <phrase id="12111">
+                <text>my_kvest_dialog_12111</text>
+            </phrase>
+            <phrase id="21">
+                <text>my_kvest_dialog_21</text>
+            </phrase>
+            <phrase id="22">
+                <text>my_kvest_dialog_22</text>
+                <action>dialogs.break_dialog</action>
+            </phrase>
+            <phrase id="101">
+                <text>my_kvest_dialog_101</text>
+                <next>102</next>
+            </phrase>
+            <phrase id="102">
+                <text>my_kvest_dialog_102</text>
+            </phrase>
+            <phrase id="131">
+                <text>my_kvest_dialog_131</text>
+            </phrase>
+            <phrase id="211">
+                <text>my_kvest_dialog_211</text>
+                <next>11</next>
+            </phrase>
+            <phrase id="10">
+                <text>my_kvest_dialog_10</text>
+                <next>101</next>
+            </phrase>
+            <phrase id="9">
+                <text>my_kvest_dialog_9</text>
+                <next>91</next>
+            </phrase>
+            <phrase id="91">
+                <text>my_kvest_dialog_91</text>
+            </phrase>
+            <phrase id="0">
+                <text>my_kvest_dialog_0</text>
+                <next>1</next>
+                <next>2</next>
+            </phrase>
+            <phrase id="1">
+                <text>my_kvest_dialog_1</text>
+                <dont_has_info>my2_kvest_done</dont_has_info>
+                <next>11</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+            <phrase id="11">
+                <text>my_kvest_dialog_11</text>
+                <next>111</next>
+                <next>12</next>
+                <next>13</next>
+            </phrase>
+            <phrase id="111">
+                <text>my_kvest_dialog_111</text>
+                <dont_has_info>my_kvest_start</dont_has_info>
+                <next>1111</next>
+                <next>1112</next>
+            </phrase>
+            <phrase id="1111">
+                <text>my_kvest_dialog_1111</text>
+                <next>11111</next>
+            </phrase>
+            <phrase id="11111">
+                <text>my_kvest_dialog_11111</text>
+                <next>11112</next>
+            </phrase>
+            <phrase id="11112">
+                <text>my_kvest_dialog_11112</text>
+                <give_info>my_kvest_start</give_info>
+                <next>211</next>
+            </phrase>
+            <phrase id="11113">
+                <text>my_kvest_dialog_11113</text>
+            </phrase>
+            <phrase id="1112">
+                <text>my_kvest_dialog_1112</text>
+            </phrase>
+            <phrase id="12">
+                <text>my_kvest_dialog_12</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <has_info>my_kvest_start</has_info>
+                <next>121</next>
+                <next>1211</next>
+            </phrase>
+            <phrase id="121">
+                <text>my_kvest_dialog_121</text>
+                <precondition>sak.prov</precondition>
+                <next>122</next>
+            </phrase>
+            <phrase id="122">
+                <text>my_kvest_dialog_122</text>
+                <action>sak.nagrada</action>
+                <action>sak.zabral</action>
+                <give_info>my_kvest_done</give_info>
+                <next>11</next>
+            </phrase>
+            <phrase id="1211">
+                <text>my_kvest_dialog_1211</text>
+                <next>12111</next>
+            </phrase>
+            <phrase id="13">
+                <text>my_kvest_dialog_13</text>
+                <has_info>my_kvest_done</has_info>
+                <next>131</next>
+            </phrase>
+            <phrase id="2">
+                <text>my_kvest_dialog_2</text>
+                <has_info>my2_kvest_done</has_info>
+                <next>21</next>
+                <next>22</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+        </phrase_list>
+    </dialog>
+---------------------------------------------------------------------------------------------------
+Скажу прямо, на глаз разобраться трудно, смотрим мой урок по Диалог_Эдитор и открываем диалог в проге и ознакамливаемся нормально.
+Разберём:
+---------------------------------------------------------------------------------------------------
+Диалог поделён на две секции, 0 фраза, её говорим МЫ, вторая ветка по сути не дописана, это бонус так сказать)
+---------------------------------------------------------------------------------------------------
+<dialog id="my_kvest_dialog"> Это шапка диалога его айди
+---------------------------------------------------------------------------------------------------
+            <phrase id="0">
+                <text>my_kvest_dialog_0</text>
+                <next>1</next>
+                <next>2</next>
+            </phrase>
+Начало диалога, мы говорим Привет, и Сидор нам ответит либо фразу 1, либо 2, в зависимости от условий их появления.			
+---------------------------------------------------------------------------------------------------
+            <phrase id="1">
+                <text>my_kvest_dialog_1</text>
+                <dont_has_info>my2_kvest_done</dont_has_info>
+                <next>11</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+
+<dont_has_info>my2_kvest_done</dont_has_info> первая ветка диалога работает сразу и до получения "my2_kvest_done"
+---------------------------------------------------------------------------------------------------
+Дальше про конкретные участки 
+--------------------------------------------------------------------------------------------------- 
+            <phrase id="111">
+                <text>my_kvest_dialog_111</text>
+                <dont_has_info>my_kvest_start</dont_has_info>
+                <next>1111</next>
+                <next>1112</next>
+            </phrase>
+
+<dont_has_info>my_kvest_start</dont_has_info> После получения инфопоршня "my_kvest_start" ветка диалога уберается из игры, пока не будет  сделан disable инфопоршня. То есть та ветка, в которой мы соглашаемся выполнить квест.
+---------------------------------------------------------------------------------------------------
+            <phrase id="11112">
+                <text>my_kvest_dialog_11112</text>
+                <give_info>my_kvest_start</give_info>
+                <next>211</next>
+            </phrase>
+
+<give_info>my_kvest_start</give_info> Это выдача инфопоршня, который запускает квест "my_kvest", и после этого 111 фраза больше не доступна
+---------------------------------------------------------------------------------------------------
+            <phrase id="12">
+                <text>my_kvest_dialog_12</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <has_info>my_kvest_start</has_info>
+                <next>121</next>
+                <next>1211</next>
+            </phrase>
+
+<has_info>my_kvest_start</has_info> проверка того что игрок получил инфопоршень my_kvest_start, пока он не получен ветка диалога не появляется, сама ветка нужна чтобы пока мы не выполнили подзадание в диалоге была затычка.
+
+<dont_has_info>my_kvest_done</dont_has_info> после получения инфопоршня "my_kvest_done" ветка диалога уберается из игры. Та в которой мы завершили квест.
+---------------------------------------------------------------------------------------------------
+            <phrase id="121">
+                <text>my_kvest_dialog_121</text>
+                <precondition>sak.prov</precondition>
+                <next>122</next>
+            </phrase>
+
+<precondition>sak.prov</precondition> проверка нужных предметов для того, чтобы фраза в диалоге о том что мы выполнили подзадание стала доступна
+---------------------------------------------------------------------------------------------------
+            <phrase id="122">
+                <text>my_kvest_dialog_122</text>
+                <action>sak.nagrada</action>
+                <action>sak.zabral</action>
+                <give_info>my_kvest_done</give_info>
+                <next>11</next>
+            </phrase>
+
+<give_info>my_kvest_done</give_info> собствено сам инфопоршень о завершении квеста
+<action>sak.nagrada</action> Это функция где нам дают награду
+<action>sak.zabral</action> Это функция где у нас забирают предмет
+---------------------------------------------------------------------------------------------------
+            <phrase id="2">
+                <text>my_kvest_dialog_2</text>
+                <has_info>my2_kvest_done</has_info>
+                <next>21</next>
+                <next>22</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+
+<has_info>my2_kvest_done</has_info> При получении "my2_kvest_done" вторая ветка диалога появляется и открывает путь к новым вариациям диалога.
+---------------------------------------------------------------------------------------------------	
+Диалог на русском в файле, просто вставляем \gamedata\config\text\rus\stable_dialogs_escape.xml
+---------------------------------------------------------------------------------------------------
+    <string id="my_kvest_dialog_0">
+        <text>Привет</text>
+    </string>
+    <string id="my_kvest_dialog_1">
+        <text>Чего пришёл?</text>
+    </string>
+    <string id="my_kvest_dialog_10">
+        <text>Есть полезная информация?</text>
+    </string>
+    <string id="my_kvest_dialog_101">
+        <text>Чувак я что информационное бюро?</text>
+    </string>
+    <string id="my_kvest_dialog_102">
+        <text>Ладно</text>
+    </string>
+    <string id="my_kvest_dialog_11">
+        <text>Хочу поговорить о работе</text>
+    </string>
+    <string id="my_kvest_dialog_111">
+        <text>Да нужно сходить кое-куда, и принести мне кое-что</text>
+    </string>
+    <string id="my_kvest_dialog_1111">
+        <text>Да интересно слушаю тебя!</text>
+    </string>
+    <string id="my_kvest_dialog_11111">
+        <text>Тут не подалеку, артефакт, принеси его, а?</text>
+    </string>
+    <string id="my_kvest_dialog_11112">
+        <text>Да конечно чувак!</text>
+    </string>
+    <string id="my_kvest_dialog_11113">
+        <text>Не буду я искать тебе арт.</text>
+    </string>
+    <string id="my_kvest_dialog_1112">
+        <text>Не, это не по мне</text>
+    </string>
+    <string id="my_kvest_dialog_12">
+        <text>Где мой арт мен?</text>
+    </string>
+    <string id="my_kvest_dialog_121">
+        <text>Нашёл его держи друг</text>
+    </string>
+    <string id="my_kvest_dialog_1211">
+        <text>Ещё нет.</text>
+    </string>
+    <string id="my_kvest_dialog_12111">
+        <text>Дуй работать чувак!</text>
+    </string>
+    <string id="my_kvest_dialog_122">
+        <text>Держи награду чувак!</text>
+    </string>
+    <string id="my_kvest_dialog_13">
+        <text>Да есть ещё дельце, готов?</text>
+    </string>
+    <string id="my_kvest_dialog_131">
+        <text>Выкладывай</text>
+    </string>
+    <string id="my_kvest_dialog_2">
+        <text>Слушай есть супер задание для тебя, готов?</text>
+    </string>
+    <string id="my_kvest_dialog_21">
+        <text>Конечно выкладывай</text>
+    </string>
+    <string id="my_kvest_dialog_211">
+        <text>Жду выполнения</text>
+    </string>
+    <string id="my_kvest_dialog_22">
+        <text>Не, в другой раз</text>
+    </string>
+    <string id="my_kvest_dialog_9">
+        <text>Вояки не заявлялись сюда?</text>
+    </string>
+    <string id="my_kvest_dialog_91">
+        <text>Нет, но не думаю, что это исключено</text>
+    </string>
+---------------------------------------------------------------------------------------------------	
+в \gamedata\config\gameplay\info_portions.xml вставляем наши инфопоршни
+
+  <info_portion id="my_kvest_start">
+    <task>my_kvest</task>
+  </info_portion>
+ 
+  <info_portion id="my_kvest_done"></info_portion>
+---------------------------------------------------------------------------------------------------
+И наконец файл \gamedata\scripts\sak.script
+
+-- Это функция проверки наличия у нас медузы
+function prov() 
+return sak.have_item_namber("af_medusa",1) ~= false
+end
+
+-- У нас забирают вещь
+function zabral()
+sak.out_item_namber("af_medusa",1)
+end
+
+-- Дают награду
+function nagrada()
+sak.create_items_actor("medkit",3)
+sak.create_items_actor("bandage",5)
+end
+---------------------------------------------------------------------------------------------------
+Чтобы диалог  выглядел  как с представителем  О-СОЗНАНИЯ нужно в файле m_stalker.ltx
+создать новую секцию
+[stalker_my]:stalker
+$spawn = "stalkers\stalker_my"
+need_osoznanie_mode = true
+
+или при спавне нпс её указать.
+---------------------------------------------------------------------
+Если в начале диалога сделать так:
+    <dialog id="my_kvest_dialog" priority="2">
+	<has_info>my_kvest_start</has_info>
+	<dont_has_info>my_kvest_done</dont_has_info>
+	<precondition>sak.prov</precondition>
+        <phrase_list>
+            <phrase id="12111">
+                <text>my_kvest_dialog_12111</text>
+            </phrase>
+---------------------------------------------------------------------
+<dialog id="my_kvest_dialog" priority="2"> priority 2, чем меньше число, тем приоритетнее диалог
+---------------------------------------------------------------------
+<has_info>my_kvest_start</has_info> проверка того что игрок получил инфопоршень my_kvest_start, пока он не получен диалог не появляется.
+---------------------------------------------------------------------
+<dont_has_info>my_kvest_done</dont_has_info> после получения инфопоршня "my_kvest_done" диалог уберается из игры, если сделать disable инфо, то диалог снова появится.
+---------------------------------------------------------------------
+<precondition>sak.prov</precondition> Пока не будет выполнено условие указанной функции диалог не появится
+---------------------------------------------------------------------
+Как ещё может начинаться диалог:
+    <dialog id="my_kvest_dialog" priority="2">
+	<has_info>my_kvest_start</has_info>
+	<dont_has_info>my_kvest_done</dont_has_info>
+	<precondition>sak.prov</precondition>
+        <phrase_list>
+            <phrase id="0">
+                <text />
+                <next>12</next>
+                <next>13</next>
+                <next>14</next>
+                <next>15</next>
+                <next>18</next>
+                <next>19</next>
+                <next>17</next>
+                <next>20</next>
+                <next>30</next>
+                <next>66</next>
+            </phrase>
+            <phrase id="13">
+                <text />
+                <precondition>escape_dialog.trader_dont_give_job</precondition>
+                <precondition>bar_dialogs.hasnt_darklab_documents</precondition>
+                <has_info>esc_return</has_info>
+                <next>4</next>
+            </phrase>
+            <phrase id="18">
+                <text />
+                <dont_has_info>esc_return</dont_has_info>
+                <dont_has_info>tutorial_wounded_give_info</dont_has_info>
+                <has_info>tutorial_wounded_start</has_info>
+                <next>181</next>
+            </phrase>
+            <phrase id="66">
+                <text />
+                <dont_has_info>esc_return</dont_has_info>
+                <has_info>agroprom_military_case</has_info>
+                <next>661</next>
+            </phrase>
+            <phrase id="20">
+                <text />
+                <precondition>escape_dialog.trader_give_extra_job</precondition>
+                <precondition>escape_dialog.is_not_tutorial</precondition>
+                <next>200</next>
+            </phrase>
+            <phrase id="17">
+                <text />
+                <precondition>escape_dialog.is_not_tutorial</precondition>
+                <precondition>escape_dialog.trader_dont_give_job</precondition>
+                <dont_has_info>esc_return</dont_has_info>
+                <next>171</next>
+            </phrase>
+            <phrase id="15">
+                <text />
+                <precondition>escape_dialog.is_tutorial</precondition>
+                <dont_has_info>esc_trader_can_leave</dont_has_info>
+                <dont_has_info>esc_return</dont_has_info>
+                <has_info>esc_trader_tutorial_chosen</has_info>
+                <next>321</next>
+            </phrase>
+            <phrase id="14">
+                <text />
+                <precondition>escape_dialog.trader_alredy_give_job</precondition>
+                <dont_has_info>esc_return</dont_has_info>
+                <dont_has_info>esc_trader_direct</dont_has_info>
+                <dont_has_info>agroprom_military_case</dont_has_info>
+                <has_info>tutorial_wounded_give_info</has_info>
+                <next>5</next>
+            </phrase>
+            <phrase id="12">
+                <text />
+                <precondition>escape_dialog.is_tutorial</precondition>
+                <dont_has_info>esc_return</dont_has_info>
+                <dont_has_info>esc_trader_tutorial_chosen</dont_has_info>
+                <next>3</next>
+            </phrase>
+            <phrase id="30">
+                <text />
+                <precondition>escape_dialog.trader_need_extra_job</precondition>
+                <precondition>escape_dialog.is_not_tutorial</precondition>
+                <has_info>esc_trader_return</has_info>
+                <next>300</next>
+            </phrase>
+            <phrase id="19">
+                <text />
+                <precondition>bar_dialogs.have_darklab_documents</precondition>
+                <precondition>escape_dialog.is_not_tutorial</precondition>
+                <dont_has_info>bar_darklab_document_done</dont_has_info>
+                <dont_has_info>esc_darklab_documents_read</dont_has_info>
+                <has_info>esc_return</has_info>
+                <next>191</next>
+            </phrase>
+---------------------------------------------------------------------
+Можно сделать появление диалога у персонажа только в определённое время, например ночью или днем
+смотри, чтобы поставить ограничение на диалог, делаем так и это позволит диалогу показываться только днем
+
+    <dialog id="escape_lager_volk_info">
+  <precondition>xr_conditions.is_day</precondition>
+        <phrase_list>
+
+если нужно только ночью, то откроем 
+C:\X-Ray_test\gamedata\scripts\xr_conditions.script
+
+и вставить в самое начало
+
+function is_night (actor, npc)
+    return level.get_time_hours() >= 21 and level.get_time_hours() < 6
+end  
+
+и тогда в диалоге 
+    <dialog id="escape_lager_volk_info">
+  <precondition>xr_conditions.is_night</precondition>
+        <phrase_list>			

@@ -1,0 +1,156 @@
+Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой. 
+
+Инфопоршни создаются например в \gamedata\config\gameplay\info_portions.xml
+
+
+В ДИАЛОГАХ:
+
+
+Выдаются 
+<give_info>my_kvest_start</give_info>
+	пример			
+            <phrase id="11112">
+                <text>my_kvest_dialog_11112</text>
+                <give_info>my_kvest_start</give_info>
+                <next>211</next>
+            </phrase>
+
+Забираются
+<disable_info>esc_return</disable_info>
+	пример
+            <phrase id="19111">
+                <text>escape_trader_start_dialog_19111</text>
+                <action>escape_dialog.give_documents_reward</action>
+                <disable_info>esc_return</disable_info>
+            </phrase>
+
+Фраза или диалог будет убран после получения указанного инфо
+<dont_has_info>tutorial_wounded_help</dont_has_info>
+
+	пример с диалогом
+    <dialog id="escape_lager_volk_info">
+        <dont_has_info>escape_blockpost_case_done</dont_has_info>
+        <phrase_list>
+			
+	пример с фразой		
+            <phrase id="213">
+                <text>escape_lager_volk_talk_213</text>
+                <dont_has_info>esc_kill_bandits_quest_kill</dont_has_info>
+                <next>2131</next>
+            </phrase>
+
+Фраза или диалог не появятся до получения указанного инфо 
+<has_info>tutorial_wounded_help</has_info>
+	пример с диалогом
+    <dialog id="escape_trader_talk_level" priority="2">
+        <precondition>escape_dialog.trader_alredy_give_job</precondition>
+        <has_info>tutorial_end</has_info>
+        <phrase_list>
+		
+	пример с фразой	
+            <phrase id="212">
+                <text>escape_lager_volk_talk_212</text>
+                <dont_has_info>esc_bandits_start</dont_has_info>
+                <has_info>esc_kill_bandits_quest_kill</has_info>
+                <next>2121</next>
+            </phrase>
+
+
+В СКРИПТАХ:
+
+
+Чтобы инфопоршень был выдан с самого налача игры, нужно его выдать в \gamedata\scripts\bind_stalker.script
+находим
+ 		if not has_alife_info("level_changer_icons") then
+			self.object:give_info_portion("level_changer_icons")
+		end
+		
+и делаем так:		
+ 		if not has_alife_info("level_changer_icons") then
+			self.object:give_info_portion("level_changer_icons")
+			self.object:give_info_portion("my_kvest_start") -- добавили выдачу инфо
+		end
+
+В функции proceed() из файла \gamedata\scripts\escape_tasks.script
+запущена постоянная проверка на соблюдение условий
+function proceed()
+    local actor = db.actor
+
+	if has_alife_info("tutorial_artefact_start") and not has_alife_info("tutorial_artefact_gain")
+		and actor:object("af_blood_tutorial") ~= nil 
+	then		
+		actor:give_info_portion("tutorial_artefact_gain")
+	end
+
+Если получен инфо "tutorial_artefact_start" и не получен инфо "tutorial_artefact_gain" и в инвентаре есть предмет "af_blood_tutorial", тогда будет выдан инфо "tutorial_artefact_gain" и закроет проверку.
+
+Свои проверки так же начинаем с if и заканчиваем end
+
+НО там же есть функция process_info_portion(info_id) 
+Вот пример
+ elseif info_id == "esc_tutorial_secret_place_found" then 
+  level_tasks.remove_location(025, "green_location")
+
+Это значит, что при получении инфо "esc_tutorial_secret_place_found" будет выполнено действие, и как можете заметить никакого более условия нет и не нужно
+
+Проверка наличия
+if has_alife_info("escape_factory_assault_say_hello") then
+Проверка отсутствия
+if not has_alife_info("tutorial_artefact_start") then
+
+Выдаются
+db.actor:give_info_portion("tutorial_artefact_gain")
+Забираются:
+db.actor:disable_info_portion("esc_trader_direct")
+В логике:
+НПС\МУТАНТ заспавнится если был получен name_info
+[spawner]
+cond = {+name_info}
+
+в указании смартов у нпс esc_lager работает до получения agroprom_military_case_have esc_fanat_spawn
+mil_lager начинает работать с получения agroprom_military_case_have esc_fanat_spawn
+[smart_terrains]
+esc_lager = {-agroprom_military_case_have -esc_fanat_spawn}
+mil_lager = {+agroprom_military_case_have}, {+esc_fanat_spawn}
+
+
+Эта штука позволяет при обыске непися получить инфо, но функции лучше не запихивать, вызывает 2 раза.
+[known_info]
+esc_tutorial_secret
+
+В логиках рестрикторов и прочего инфопоршни
+Выдаются
+= %+my_info%
+
+Забираются
+= %-my_info%
+
+Проверка наличия
+= {+my_info}
+
+Проверка отсутствия
+= {-my_info}
+
+Вариации инфопоршней в \gamedata\config\gameplay\info_portions.xml
+1.Инфопоршень name_info выдаёт квест my_quest
+	<info_portion id="name_info">
+		<task>name_info</task>
+	</info_portion>
+	
+2.Пустой обычный инфопоршень "name_info", используется в скриптах в проверках на его наличие
+<info_portion id="name_info"></info_portion>
+
+3.Этот выдает заметку в ПДА например из storyline_info_escape.xml
+	<info_portion id="name_info">
+		<article>sl_beginning</article>
+	</info_portion>
+	
+4.Этот инфопоршень забирает инфопоршень "escape_lager_spawn_killers" и его можно использовать заного в другой схеме.
+	<info_portion id="name_info">
+		<disable>escape_lager_spawn_killers</disable>
+	</info_portion>	
+	
+5.Выполняет функцию give_weapon_to_actor из файла \gamedata\scripts\escape_dialog.script
+  <info_portion id="name_info">
+	<action>escape_dialog.give_weapon_to_actor</action>
+  </info_portion>

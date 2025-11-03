@@ -1,0 +1,336 @@
+Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой.
+
+Рестриктор, он же зона влияния, в основном выдает и забирает поршни, а так же может выполнять функции, представляет из себя сферическую или кубическую область.
+
+например спустя 10000 мс вызвать функцию:
+[logic]
+active = sr_idle1
+
+[sr_idle1]
+on_timer = 10000 | %=название_функции%
+
+например %=run_postprocess(agr_u_fade)%, но в любом случае функции должны быть из "\gamedata\scripts\xr_effects.script"
+
+Чтобы рестриктор удалился после своего выполнения добавим в самое начало "xr_effects.script" функцию:
+
+function remove_object(actor, obj)
+local sobj = obj and alife():object(obj:id())
+	if sobj then
+		alife():release(sobj)
+	end
+end
+
+используется так
+[sr_idle2]
+on_info = nil %=sms1 =remove_object%
+
+%=название_функции =remove_object%
+
+"название_функции" может быть и таким: "имя_скрипта.название_функции", например, "sak.nagrada", иногда не удобно кидать свои функции в "xr_effects.script", для этого требуются правки в "xr_logic.script", подробнее в конце файла https://drive.google.com/open?id=1wLfXchCSoIbu4K85eIDtaLMqhZKiENTt&usp=drive_fs
+
+Так можно использовать функции проверок из \gamedata\scripts\xr_conditions.script
+
+[logic]
+active = sr_idle1
+
+[sr_idle1]
+on_info = {=название_функции} sr_idle
+
+[sr_idle]
+
+
+Ещё есть способ спавна рестрикторов без "all.spawn" для этого нужен "spawn_restrictor.script": https://drive.google.com/open?id=1m9lLXTt9TtQLmaNm83Z3p6Fv4WSYuzCm&usp=drive_fs
+И лучше глянуть: https://youtube.com/watch?v=OTM1pl4Vf18
+
+В логике рестрикторов и прочего инфопоршни выдаются таким образом:
+= %+my_info%
+
+Забираются
+= %-my_info%
+
+
+Виды Custom data для рестриктора
+0.Логику можно писать как в сдк так и вынести в отдельный файл
+[logic]
+cfg = scripts\sar_monolith.ltx
+
+
+1.Если игрок внутри, то выдан инфопоршень "name_info"
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_inside = nil %+name_info%
+
+1.0.Если игрок внутри, то выполнится функция test1 из xr_effects.script
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_inside = nil %=test1%
+
+1.1.Если игрок внутри, то выдан инфопоршень "my_info", а когда мы выйдем из рестриктора, то этот инфо заберётся.
+[logic]
+active = sr_idle@tutorial
+
+[sr_idle@tutorial]
+on_actor_inside = %+my_info% sr_idle@tutorial2
+
+[sr_idle@tutorial2]
+on_actor_outside = %-my_info% nil
+
+2.Можно сделать чуть сложнее, пока не выполнено условие в on_info, то есть пока не получен инфопоршень "name_info", рестриктор не будет работать
+Если нужно разные условия наделать, это это так делается:
+on_info
+on_info2
+on_info3
+on_info4
+
+[logic]
+active = sr_idle1
+
+[sr_idle1]
+on_info = {+name_info} sr_idle
+
+[sr_idle]
+on_actor_inside = nil %+name_info2%
+
+3.Рестриктор, который проверяет жив ли лагерь, если уже нет, то будет выдан инфопоршень "name_info"
+
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_inside = {=gulag_population_le(esc_my:0)} nil %+name_info%
+
+4.Если получен esc_return схема переходит на sr_idle@killers и если получен escape_lager_spawn_killers, то запускается sr_idle@killers_wait в нем таймер на 60000 миллисекунд
+
+[logic]
+active = sr_idle@wait
+
+[sr_idle@wait]
+on_info = {+esc_return} sr_idle@killers
+
+[sr_idle@killers]
+on_info = {+escape_lager_spawn_killers} sr_idle@killers_wait
+
+[sr_idle@killers_wait]
+on_timer = 60000 | nil %+esc_killers_raid%
+
+4.1.Запуск таймера при получении инфопоршня, а после выполнится функция hit_nanesti из xr_effects.script
+[logic]
+active = sr_idle@tutorial
+
+[sr_idle@tutorial]
+on_info = {+level_changer_icons} sr_idle@tutorial2
+
+[sr_idle@tutorial2]
+on_timer = 10000 | %=hit_nanesti%
+
+5.Запуск сна start_x18_dream из xr_effects.script
+
+[logic]
+active = sr_idle@ready
+
+[sr_idle@ready]
+on_actor_inside = sr_idle@wait_dream %=run_cam_effector(radar_stop:2506:false)%
+
+[sr_idle@wait_dream]
+on_timer  = 9000 | sr_idle@wait_dream_2 %=disable_ui =run_postprocess(agr_u_fade)%
+
+[sr_idle@wait_dream_2]
+on_timer = 3000 | sr_idle@dream %=stop_cam_effector(1974) =start_x18_dream%
+
+[sr_idle@dream]
+on_info  = sr_idle@wait_stand %=run_cam_effector(prison_1:2506:false)%
+
+[sr_idle@wait_stand]
+on_timer = 3000 | sr_idle@wait_sound %=enable_ui%
+
+[sr_idle@wait_sound]
+
+6.Звук при заходе в рестриктор
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_inside = sr_sound
+
+[sr_sound]
+snd = characters_voice\scenario\aes\aes2\aes2_trader_ask
+position = aes_sidorovich_snd
+on_signal = sound_end | %+aes2_teleport_trader% nil
+
+;position = <имя_пути> - задает имя пути, в вершинах которого может отыграться звук.
+
+7.Рестриктор смс. РАБОТАЕТ ТОЛЬКО ПРИ ЗАХОДЕ В РЕСТРИКТОР, ОНА НЕ ПРОИГРАЕТ СМС ЕСЛИ МЫ НЕ В РЕСТРИКТОРЕ!!!
+
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_inside = sr_tip
+
+[sr_tip]
+name = escape_trader_talk_level_2
+type = tips
+sender = trader
+single = true
+on_signal = tip_sended| nil ;sr_idle2
+
+[sr_idle2]
+on_info = nil %=sms1%
+
+D:\X-Ray_test\gamedata\scripts\xr_effects.script
+
+function sms1()
+	news_manager.send_tip( db.actor, "escape_trader_talk_level_2", nil, "trader", nil )
+  --news_manager.send_tip( db.actor, "escape_trader_talk_level_2", nil, "trader", nil )
+end
+
+8.Рестриктор проверяющий на сколько мы далеко\близко
+
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_dist_ge_nvis = 20 | sr_idle2 %=sms%
+
+[sr_idle2]
+on_info = {=dist_to_actor_le(7)} sr_idle %=sms2%
+
+9.Рестриктор телепорт
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_inside = %=teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)%
+
+
+--------------------------------------------------------------------------
+Ещё есть такая подсказка
+--------------------------------------------------------------------------
+on_actor_dist_le = <number>|<название_схемы> - если дистанция в метрах до игрока меньше либо равно number.
+on_actor_dist_le_nvis = <number>|<название_схемы> - если дистанция в метрах до игрока меньше либо равно number без проверки на видимость.
+on_actor_dist_ge = <number>|<название_схемы> - если дистанция в метрах до игрока больше number.
+on_actor_dist_ge_nvis = <number>|<название_схемы> - если дистанция в метрах до игрока больше number без проверки на видимость.
+on_signal = <имя_сигнала>|<название_схемы> - срабатывает по приходу сигнала имя_сигнала от текущей активной схемы.
+on_info = <название_схемы> - срабатывает всегда.
+on_timer = <number>|<название_схемы> - срабатывает через number миллисекунд после включения схемы.
+on_game_timer = <number>|<название_схемы> – срабатывает через number секунд игрового времени, после включения схемы.
+on_actor_in_zone = <имя_зоны>|<название_схемы> – если актер в находится в указанной зоне (указывается имя рестриктора).
+on_actor_not_in_zone = <имя_зоны>|<название_схемы> – если актер не в указанной зоне (указывается имя рестриктора).
+on_npc_in_zone = <number>|<имя_зоны>|<название_схемы> – если NPC со story_id равному number, в указанной зоне.
+on_npc_not_in_zone = <number>|<имя_зоны>|<название_схемы> - если NPC со story_id равному number, не в указанной зоне.
+on_actor_inside = <название_схемы> - зона проверяет, находится ли игрок внутри нее (используется со space_restrictor).
+on_actor_outside = <название_схемы> - зона проверяет, находится ли игрок за ее пределами (используется со space_restrictor).
+--------------------------------------------------------------------------
+Условия могут быть следующими:
++infoportion - требуется присутствие инфопорции "infoportion" у актора;
+-infoportion - требуется отсутствие инфопорции "infoportion" у актора;
+=function - требуется, чтобы функция "function" вернула true;
+!function - требуется, чтобы функция "function" вернулся false;
+~number - вероятность выполнения условия.
+---------------------------------------------------------------------------
+в % % происходит выполнение
+в { } происходит проверка
+
+Функции проверки должны лежать в \gamedata\scripts\xr_conditions.script
+
+Функции типа %=% должны лежать в \gamedata\scripts\xr_effects.script
+
+КАСАЕТСЯ ТОЛЬКО ФУНКЦИЙ ТИПА %=%. По другому их вызывать нельзя, то есть: "%=название_скрипта.название_функции%", НО если внести некоторые правки, то можно.
+
+Для этого нужно открыть \gamedata\scripts\xr_logic.script
+
+и где-то с 578-й строки вместо этого:
+
+		if infop_conditions_met then
+			-- Условия выполнены. Независимо от того, задана ли секция, нужно проставить требуемые
+			-- infoportions:
+			for inum, infop in pairs(cond.infop_set) do
+				if db.actor == nil then
+					abort("TRYING TO SET INFOS THEN ACTOR IS NIL")
+				end
+				if infop.func then
+					if not xr_effects[infop.func] then
+						abort("object '%s': pick_section_from_condlist: function '%s' is " ..
+							"not defined in xr_effects.script", if_then_else(npc, npc:name(), "nil"), infop.func)
+					end
+					if infop.params then
+						xr_effects[infop.func](actor, npc, infop.params)
+					else
+						xr_effects[infop.func](actor, npc)
+					end
+				elseif infop.required then
+					if not has_alife_info(infop.name) then
+						actor:give_info_portion(infop.name)
+					end
+				else
+					if has_alife_info(infop.name) then
+						actor:disable_info_portion(infop.name)
+					end
+				end
+			end
+			if cond.section == "never" then
+				return nil
+			else
+				return cond.section
+			end
+		end
+	end
+
+	--printf("_bp: pick_section_from_condlist: nil")
+	return nil
+end
+
+Надо написать вот это:
+		if infop_conditions_met then
+			-- Условия выполнены. Независимо от того, задана ли секция, нужно проставить требуемые
+			-- infoportions:
+			for inum, infop in pairs(cond.infop_set) do
+				if db.actor == nil then
+					abort("TRYING TO SET INFOS THEN ACTOR IS NIL")
+				end
+				if infop.func then
+					local func=nil
+					local module,fname=string.match(infop.func,"(.+)[.](.+)")
+    
+				if not fname then
+					func=xr_effects[infop.func]
+				elseif _G[module] and _G[module][fname] then
+					func=_G[module][fname]
+				end
+    
+				if not func then
+					abort("object '%s': pick_section_from_condlist: function '%s' is " ..
+					"not defined in xr_effects.script", iif(npc, npc:name(), "nil"), infop.func)
+				end
+
+				if infop.params then
+					func(db.actor, npc, infop.params)
+				else
+					func(db.actor, npc)
+				end
+
+				elseif infop.required then
+				if not has_alife_info(infop.name) then
+				   actor:give_info_portion(infop.name)
+				end
+				else
+				if has_alife_info(infop.name) then
+				   actor:disable_info_portion(infop.name)
+				end
+			end
+		end
+			if cond.section == "never" then
+				return nil
+			else
+				return cond.section
+			end
+		end
+	end
+
+	-- printf("_bp: pick_section_from_condlist: nil")
+	return nil
+end

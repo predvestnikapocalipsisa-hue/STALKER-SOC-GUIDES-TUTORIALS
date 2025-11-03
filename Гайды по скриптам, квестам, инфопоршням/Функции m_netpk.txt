@@ -1,0 +1,475 @@
+-- Комплект мультиплатформенных модулей для S.T.A.L.K.E.R. SoC/CS/CoP
+-- Автор: @Artos (+ по рекурсии те авторы, работы которых Artos использовал, см. readme к соотв. модулям)
+-- Доработка модулей и синхронизация их между собой: @Kirgudu
+-- Исправление найденных в некоторых модулях ошибок: @Charsi, @Kirgudu, @naxac, @dsh
+-- https://www.amk-team.ru/forum/topic/13216-sborochnyj-ceh/?do=findComment&comment=971137
+
+-- Скопировать m_netpk.script в папку скриптов установленной игры.
+-- Скопировать m_netpk.ltx в папку конфигов игры
+   
+-- Если делаете на оригинале то в \gamedata\scripts\_g.script
+
+-- если нет такой функции, то добавим 
+
+function ASSERT(cond, ...)
+	if not cond then
+		abort(...)
+	end
+end
+
+-- Дописать строку в конце функции 'start_game_callback'. Подключение первичной инициализации модуля при старте игры
+   
+function start_game_callback()
+	--/#+# [m_netpk] ---------------------------------------------------
+	m_netpk.attach() -- инициализация модуля m_netpk
+	--/< ---------------------------------------------------------------
+end
+
+-- Далее ниже "sak." это мой скрипт "sak.script", котором лежат эти функции, вместо него указывайте свой файл в который будете класть функции.
+
+-- Спавн аномалий, общая функция
+function spawn_anomaly( section, pos, lv, gv, shape )
+	local sobj = alife():create( section, pos, lv, gv )
+	ASSERT( sobj, "Can't generate_anomaly [%s], [%s], [%s], [%s]", section or "nil", pos or "nil", lv or "nil", gv or "nil")
+    local pk = get_netpk( sobj, 1 )
+    ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+    local data = pk:get()
+    if shape.shtype == 0 then
+      data.shapes:addSphere(
+        shape.radius, vector():set( unpack( shape.center ) )
+      )
+    else
+		data.shapes:addBox(
+        vector():set( unpack( shape.v1 ) ),
+        vector():set( unpack( shape.v2 ) ),
+        vector():set( unpack( shape.v3 ) ),
+        vector():set( unpack( shape.offset ) )
+		)
+    end
+	--level.map_add_object_spot(sobj.id, "green_location", sobj:name())
+    pk:set( data )
+	return sobj
+end
+
+-- Спавн конкретной аномалии оформляем так:
+function spawn_witches_galantine()
+	sak.spawn_anomaly("zone_witches_galantine_weak",vector():set(-152.0,-18.0,-144.3),98126,45,{shtype=0,radius=2.1,center={ 0, 0, 0 }})
+end
+
+-- Спавн костра + свет + моделька по желинию
+function create_campfire(pos, lvid, gvid, vis, lamp_height)
+    -- кострище
+    if vis then
+        local sobj = alife():create("physic_object", pos, lvid, gvid)
+        local pk = get_netpk(sobj, 1)
+        ASSERT(pk and pk:isOk(), "can't read netpacket of %s", sobj:name())
+        local data = pk:get()
+        data.visual_name = vis
+        data.physic_type = 3
+        data.mass = 10
+        data.fixed_bones = "link"
+		data.custom_data:setString("[collide]\nignore_static\n")
+        pk:set(data)
+        sobj = alife():object(sobj.id)
+    end
+    -- аномалия
+    local sobj = sak.spawn_anomaly("zone_flame_small", pos, lvid, gvid, {shtype = 0,radius = 1,center = { 0, 0, 0 }})
+    -- лампочка
+    local sobj = alife():create("lights_hanging_lamp", vector():set(pos.x, pos.y + (lamp_height or 0), pos.z),lvid, gvid)
+    local pk = get_netpk(sobj, 1)
+    ASSERT(pk and pk:isOk(), "can't read netpacket of %s", sobj:name())
+    local data = pk:get()
+    local props = {
+        ["main_color"] = tonumber("fffab807", 16),
+        ["main_brightness"] = 0.7,
+        ["main_color_animator"] = "koster",
+        ["main_range"] = 6,
+        ["light_flags"] = tonumber("2a", 16),
+        ["health"] = 100,
+        ["main_virtual_size"] = 0.1,
+        ["ambient_radius"] = 10,
+        ["ambient_power"] = 0.40000001,
+        ["main_cone_angle"] = 2.0943952,
+        ["glow_radius"] = 0.69999999
+    }
+    for k, v in pairs(props) do
+        data[k] = v
+    end
+    pk:set(data)
+end
+
+-- Пример вызова
+function spawn_campfire()
+	sak.create_campfire(vector():set(-152.0,-18.0,-144.3),98126,45,"physics\\large_trash\\aes_zabor",5) -- 5 это на сколько будет выше свет
+	sak.create_campfire(vector():set(-152.0,-18.0,-144.3),98126,45,nil,5) -- без модельки
+end
+
+-- Спавн источника освещения
+function spawn_hanging_lamp()
+	local sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45) -- координаты
+    local pk = get_netpk(sobj, 1)
+    ASSERT(pk and pk:isOk(), "can't read netpacket of %s", sobj:name())
+    local data = pk:get()
+    local props = {
+        ["main_color"] = tonumber("ffffffff", 16),
+        ["main_brightness"] = 1,
+        ["main_color_animator"] = "light\\light_omni_blue_idle",
+        ["main_range"] = 6,
+        ["light_flags"] = tonumber("2a", 16),
+        ["health"] = 100,
+        ["main_virtual_size"] = 0.1,
+        ["ambient_radius"] = 10,
+        ["ambient_power"] = 0.5,
+        ["main_cone_angle"] = 2.0943952,
+        ["glow_radius"] = 0.69999999
+    }
+    for k, v in pairs(props) do
+        data[k] = v
+    end
+    pk:set(data)
+	sobj.angle = vector():set(0,1,0) --наклон
+end
+
+-- спавн "physic_destroyable_object" или "physic_object"
+function create_object()
+    local sobj = alife():create("physic_destroyable_object",vector():set(-152.0,-18.0,-144.3),98126,45)
+    local pk   = get_netpk( sobj, 1 )
+    ASSERT( pk and pk:isOk(), "can't read netpacket of %s", sobj:name() )
+    local data = pk:get()
+    data.visual_name = "physics\\large_trash\\military_wall_brick_in" --визуал
+    data.custom_data:setString("[logic]\nactive = ph_idle\n[ph_idle]\ntips = tip_my\non_use = nil %=give_item(wpn_ak74)%\n[collide]\nignore_static\n") -- логика
+	-- Если вдруг нужно иначе
+	-- data.custom_data:setTable( {
+								-- ["logic"] = {
+								-- ["active"] = "ph_idle"},
+								-- ["ph_idle"] = {
+								-- ["tips"] = "tip_my",
+								-- ["on_use"] = "nil %=give_item(wpn_ak74)%"},
+								-- ["collide"] = {"ignore_static"}
+								-- } ) 
+	data.physic_type = 3
+    data.mass        = 10
+    data.fixed_bones = "link"
+    pk:set( data )
+end
+
+-- СПАВН БТР И ВЕРТОЛЕТА с логикой
+-- Функция спавна, её кладем куда вам удобно. у меня лежит в "sak.script"
+function spawn_military_tech_pack(obj, spawn_item, spawn_item_logic)
+    local pk = get_netpk(obj, 1)
+    ASSERT((pk and pk:isOk()), "can't read netpacket of %s", obj:name())
+    local data = pk:get()
+    data.custom_data:setString("[logic]\ncfg = " .. spawn_item_logic)
+    if spawn_item == "helicopter" then
+        data.engine_sound = "alexmx\\helicopter"
+    elseif spawn_item == "m_car" then
+        data.health = 1
+    end
+    pk:set(data)
+    return obj
+end
+
+-- Спавн БТР
+function spawn_btr()
+	sak.spawn_military_tech_pack(alife():create("m_car",vector():set(-129.5,-9.56,-147.3),122325,44) ,"m_car", "scripts\\esc_blockpost_btr.ltx")
+end
+-- если у вас в \gamedata\config\system.ltx
+-- в секции [m_car] нет параметра "visual", то добавим
+visual			= physics\vehicles\btr\veh_btr_script_u_01.ogf
+
+-- Спавн вертолёта
+function spawn_helicopter()
+	sak.spawn_military_tech_pack(alife():create("helicopter",vector():set(-152.0,-18.0,-144.3),98126,45) ,"helicopter", "scripts\\esc_blockpost_btr.ltx")
+end
+
+-- Спавн нпс, который всегда будет в онлайне
+function spawn_no_offline(section,pos,lv,gv)
+	local sobj = alife():create(section,pos,lv,gv)
+	if sobj then
+    local pk = get_netpk(sobj)
+		if pk:isOk() then
+			local data = pk:get()
+			data.object_flags = bit_and( data.object_flags, bit_not( object_flags.OfflineNoMove ) ) -- снять флаг OfflineNoMove
+			data.object_flags = bit_and( data.object_flags, bit_not( object_flags.SwitchOffline ) ) -- снять флаг SwitchOffline
+			pk:set(data)
+		end
+    end
+end
+
+-- Вызов
+function spawn_npc_no_offline()
+	sak.spawn_no_offline("gar_dolg_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
+end
+
+-- Спавн без привязки к АИ сетке
+function spawn_not_UsedAI(section,pos,lv,gv)
+	local sobj = alife():create(section,pos,lv,gv)
+	if sobj then
+    local pk = get_netpk(sobj)
+		if pk:isOk() then
+			local data = pk:get()
+			data.object_flags = bit_and(data.object_flags, bit_not(object_flags.UsedAI_Locations))
+			pk:set(data)
+		end
+    end
+end
+
+-- Вызов
+function spawn_npc_not_UsedAI()
+	sak.spawn_not_UsedAI("wpn_ak74",vector():set(-152.0,-18.0,-144.3),98126,45)
+end
+
+-- Убить нпс, который в оффлайне
+function kill_offline_npc(obj)
+	if not obj then return end
+	ASSERT( IsStalker(obj) or IsMonster(obj), "" )
+	local pk = get_netpk(obj)
+	ASSERT( pk:isOk(), "can't read netpacket of %s", obj:name() )
+	local data = pk:get()
+	data.health = 0
+	data.upd.health = 0
+	pk:set(data)
+	obj.offline_dead = 1
+	smart_terrain.on_death( obj.id )
+end
+
+-- Вызов
+function kill_my_npc()
+	local obj = alife():object("esc_bridge_soldier5") -- Кузнецов
+	sak.kill_offline_npc(obj)
+end
+
+--Фиксим флаги, из-за них нпс не могут ходить между смартами в оффлайне и тд
+-- Все флаги:
+   -- UseSwitches
+    -- SwitchOnline
+    -- SwitchOffline
+    -- Interactive
+    -- VisibleForAI
+    -- UsefulForAI
+    -- OfflineNoMove
+    -- UsedAI_Locations
+    -- UseGroupBehaviour
+    -- CanSave
+    -- VisibleForMap
+    -- UseSmartTerrains
+    -- CheckForSeparator
+    -- CorpseRemoval
+function fix_flags()
+    local sobj = alife():object("АЙДИ_НПС")
+    if sobj then
+		local pk = get_netpk( sobj, 1 )
+		ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+		local data = pk:get()
+		data.object_flags = bit_and( data.object_flags, bit_not( object_flags.OfflineNoMove ) ) -- снять флаг OfflineNoMove
+		data.object_flags = bit_or( data.object_flags, object_flags.Interactive ) -- установить флаг Interactive
+		pk:set( data )
+	end
+end
+
+--Убрать ограничения на выход из рестрикторов.
+function fix_base_restrictors()
+	local sobj = alife():object( "esc_fox" ) --айди нпс
+	if sobj then
+    local pk = get_netpk( sobj )
+    ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+    local data = pk:get()
+		if data.base_out_restrictors ~= "" then
+			data.base_out_restrictors = ""
+			pk:set( data )
+		end
+	end
+end
+
+-- Функция для очистки всех параметров нпс(custom_data,story_id,base_in-out_restrictors), стори айди обнуляется после сейв лоада
+function make_enemy_free( sobj )
+  local pk = get_netpk( sobj, 1 )
+  ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+  local data = pk:get()
+  data.base_in_restrictors  = ""
+  data.base_out_restrictors = ""
+  data.custom_data:setTable( {} )
+  data.story_id = -1
+  pk:set( data )
+  smart_terrain.unregister_npc( sobj )
+  sobj.smart_terrain_conditions = nil
+  sobj:brain():can_choose_alife_tasks( false )
+end
+
+-- Пример использования
+function make_free()
+	local sobj = alife():object("esc_wolf")
+	sak.make_enemy_free(sobj)
+end
+
+-- возвращает уровень здоровья НПС, для проверки в оффлайне жив/мёртв НПС
+function check_offline_npc(obj)
+	if not obj then return end
+	ASSERT( IsStalker(obj) or IsMonster(obj), "" )
+	local pk = get_netpk(obj, 2)
+	ASSERT( pk:isOk(), "can't read netpacket of %s", obj:name() )
+	local data = pk:get()
+	--log3("Data of [%s]: %s", obj:name(), data)
+	return data.upd.health > 0
+end
+
+-- Спавн с указанной анимацией
+function create_stat_pkm_on_actor()
+  local level_vertex_id = db.actor:level_vertex_id()
+  local game_vertex_id = db.actor:game_vertex_id()
+  local position = db.actor:position()
+  local sim = alife()
+  local se_obj = alife():create("stationary_pkm", position:add(vector():set(0,1.05,0)), level_vertex_id, game_vertex_id)
+  se_obj.setup_direction = device().cam_dir
+  local pk = get_netpk(se_obj, 1)
+  ASSERT( pk:isOk(), "can't read netpacket of %s", se_obj:name() )
+  local data = pk:get()
+  data.startup_animation = 'idle'
+  data.engine_sound = '$no_sound'
+  pk:set(data)
+end
+
+--/ Переносим вентилятор из каморки Сидоровича на тумбочку в подвальчике деревни новичков (на Кордоне)
+function test_abstract()
+  local sobj = alife():object("trader_ventilyator_0000") --/ находим в игре серверный объект вентилятора
+  if sobj then --/ нашли?
+    local pk = get_netpk(sobj,0) --/ или m_netpk.net_cse_abstract(sobj)
+    if pk:isOk() then
+      local vPos = vector():set(-212.8,-22.28,-127.20) --/ координаты 'на тумбочке в подвальчике'
+      local vDir = vector():set(0,3.14,0) --/ направление: 'лопастями от стены'
+      --/ var-1: установка колбэка с таблицей
+      local status = pk:setCallback( { position = vPos, direction = vDir } )
+      --[[ --/ var-2: установка колбэка с функцией
+      local status = pk:setCallback( function(data)
+        data.position  = vPos --/ change property 'position' in 'cse_abstract'
+        data.direction = vDir --/ change property 'direction' in 'cse_abstract'
+      end )
+      --]]
+    end
+  end
+end
+
+function test_netpk()
+  local spawn_section = "exo_outfit"
+  local pos,dir = db.actor:position(),db.actor:direction()
+  local lvid,gvid = db.actor:level_vertex_id(),db.actor:game_vertex_id()
+  local sobj = alife():create(spawn_section, pos:add(dir), lvid, gvid)
+  local pk = get_netpk(sobj) --/ запрос нет-пакета ('full')
+  if pk:isOk() then --/ получен доступ к нет-пакету объекта?
+    local data = pk:get() --/ читаем данные из нет-пакета
+  end
+  --
+  spawn_section = "wpn_ak74"
+  sobj = alife():create(spawn_section, pos:add(dir), lvid, gvid)
+  local pk = get_netpk(sobj,0) --/ m_netpk.net_cse_abstract(sobj)
+  if pk:isOk() then
+    --/ var-1: function
+    local func = function(data)
+      data.direction = vector():set(1,1,1) --/ изменение параметра в 'cse_abstract'
+    end
+    local status = pk:setCallback(func)
+    --[[ --/ var-2: table
+    local params = { ["direction"] = vector():set(1,1,1) }
+    local status = pk:setCallback(params)
+    --]]
+  end
+end
+
+--Фикс кривого перехода Агропром - Свалка
+function fix_agr_exit_to_garbage_02()
+  local sobj = alife():object( "l03_agroprom_level_changer_to_garbage_00" )
+  -- log3( "~~[%s]: fix %s (%s)", script_name(), sobj:name(), sobj.level_name )
+  local pk = get_netpk( sobj, 1 )
+  ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+  local data = pk:get()
+  for i = data.shapes:count(), 1, -1 do
+    data.shapes:remove( i )
+  end
+  data.shapes:addBox(
+    vector():set( 6,  0,  0 ),
+    vector():set( 0, 10,  0 ),
+    vector():set( 0,  0,  10 ),
+    vector():set( 0,  0,  0 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.999998211860657, 0.00192213035188615, -3.03983688354492e-006 ),
+    vector():set( 0.0192213151603937, 9.99994373321533, -0.0274345614016056 ),
+    vector():set( -4.4703483581543e-005, -0.0548691377043724, -19.9999237060547 ),
+    vector():set( 5.94609069824219, 0.137861251831055, -11.7826995849609 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.999998211860657, 0.00192213035188615, -3.03983688354492e-006 ),
+    vector():set( 0.0192213151603937, 9.99994373321533, -0.0274345614016056 ),
+    vector():set( -4.4703483581543e-005, -0.0548691377043724, -19.9999237060547 ),
+    vector():set( -7.69921875, 0.16685152053833, -10.7760314941406 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.992545187473297, 0.00157347321510315, -0.12186735868454 ),
+    vector():set( 0.0192213151603937, 9.99994373321533, -0.0274345614016056 ),
+    vector():set( 3.65587329864502, -0.0887174755334854, -29.7762775421143 ),
+    vector():set( 8.01405334472656, 0.0668106079101563, -36.2319641113281 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.992545187473297, 0.00157347321510315, -0.12186735868454 ),
+    vector():set( 0.0192213151603937, 9.99994373321533, -0.0274345614016056 ),
+    vector():set( 3.65587329864502, -0.0887174755334854, -29.7762775421143 ),
+    vector():set( -5.59164428710938, 0.096707820892334, -34.866943359375 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.997562766075134, 0.00172608729917556, -0.0697547197341919 ),
+    vector():set( 0.0230655781924725, 11.9999332427979, -0.0329214707016945 ),
+    vector():set( 2.44123792648315, -0.100479662418365, -34.9146118164063 ),
+    vector():set( 11.7855072021484, -0.0275530815124512, -67.9852905273438 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.992545187473297, 0.00157347321510315, -0.12186735868454 ),
+    vector():set( 0.0230655781924725, 11.9999332427979, -0.0329214707016945 ),
+    vector():set( 4.26518535614014, -0.103503726422787, -34.7389907836914 ),
+    vector():set( -0.910614013671875, 0.00100851058959961, -66.4696960449219 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.984804749488831, 0.00236933608539402, 0.173649042844772 ),
+    vector():set( 0.0230655781924725, 11.9999332427979, -0.0329214707016945 ),
+    vector():set( -2.08385467529297, -0.028415909036994, -11.817645072937 ),
+    vector():set( 12.0570220947266, -3.79245758056641, -91.4453735351563 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.999998211860657, 0.00192214269191027, 1.49011611938477e-006 ),
+    vector():set( 0.0230655781924725, 11.9999332427979, -0.0329214707016945 ),
+    vector():set( -8.08238983154297e-005, -0.0329213812947273, -11.9999551773071 ),
+    vector():set( 1.0738525390625, -5.06755256652832, -90.059814453125 )
+  )
+  data.shapes:addBox(
+    vector():set( -0.173654526472092, -0.00236799265258014, -0.984803795814514 ),
+    vector():set( 0.0288319736719131, 14.9999160766602, -0.0411518402397633 ),
+    vector():set( 9.84804821014404, -0.023693360388279, -1.7364901304245 ),
+    vector():set( 6.04568481445313, -4.69500207901001, -96.5823364257813 )
+  )
+  pk:set( data )
+  sobj.position = vector():set( 285.096374511719, 4.81838512420654, 9.07176685333252 )
+  sobj.angle    = vector():set( -0.0027434597723186, 2.26892948150635, -0.00192214001435786 )
+  --sobj.custom_data = "" --Если раскомментировать - можно будет выходить за ворота
+end
+
+--Фикс кривого перехода Мертвый город - ПЖД
+function fix_dead_city_exit_to_pjd()
+  local sobj = alife():object( "l09_deadcity_level_changer_to_x9" )
+  if not sobj then return end
+
+  ogse.save_var("fix_dead_city_exit_to_pjd", true)
+  local pk = get_netpk( sobj, 1 )
+  ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+  local data = pk:get()
+  for i = data.shapes:count(), 1, -1 do
+    data.shapes:remove( i )
+  end
+  data.shapes:addBox(
+    vector():set( 2.70000004768372, 0, 0 ),
+    vector():set( 0, 1.50000004768372, 0 ),
+    vector():set( 0, 0, 1.35000002384186 ),
+    vector():set( 0,  0,  0 )
+  )
+  pk:set( data )
+  sobj.position = vector():set( -8.46000003814697, 9.5399995803833, 431.869995117188 )
+  sobj.angle    = vector():set( 0, 0, 0 )
+end

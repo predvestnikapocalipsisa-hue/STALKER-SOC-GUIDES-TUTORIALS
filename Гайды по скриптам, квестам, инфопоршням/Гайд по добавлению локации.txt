@@ -1,0 +1,167 @@
+﻿Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой. 
+
+Добавляем локацию "l01_marsh"
+
+Сборка в СДК
+Build
+
+
+Если на локации  не будет источников освещения, то у вас может не проходить  валидейт, поэтому  добавляем хотя бы по одному лайт и глоу на локацию.
+
+Для локации нужно прописать террейн в textures.ltx, иначе он будет вылетать по отсутствию шейдера "deffer_impl_flat.vs", или будет мутный\мыльный террейн, если даже если шейдер есть.
+C:\SDK_default\gamedata\textures\textures.ltx
+
+[association]
+        terrain\terrain_marsh            = detail\detail_grnd_grass, 144.000000, usage[diffuse]
+		
+[specification]
+        terrain\terrain_marsh            = bump_mode[none], material[1.00]
+        terrain\terrain_marsh_mask       = bump_mode[none], material[1.00]
+		
+[types]
+        terrain\terrain_marsh            = 4
+        terrain\terrain_marsh_mask       = 0		
+
+Если используете СДК от Яра, то террейн может стать расятнутым, для этого 144.000000 нужно менять на большее число, 200 к примеру. Но чтобы всё было хорошо в компиляторе ставим ключ -nosmg
+
+касаемо шейдера заглушки \gamedata\shaders\r2\deffer_impl_flat.vs
+Текст файла:
+// actually - bump-mapped, but only with detail-bump
+
+#define	USE_TDETAIL
+#include	"deffer_base_bump.vs"
+
+Если не сделать карту в ПДА, то будет вылет pLtx->section_exist(Level().name())
+C:\SDK_default\gamedata\config\game_maps_single.ltx
+
+l01_marsh
+
+[l01_marsh]
+texture         = map\map_marsh
+global_rect     = 22.0, 2113.0, 352.0, 2443.000000              
+bound_rect      = -445.000000,-445.000000,755.000000,755.000000  
+weathers		= pripyat
+music_tracks    = l04_darkvalley_musics
+
+Обязательно графы:
+C:\SDK_default\gamedata\config\game_graphs.ltx
+  018		   = "Болота"
+
+Лучше добавить лишним не будет, те кто через XrAi собирают им обязательно нужно добавить, кто через SkyLoader x64 тем не сильно важно, там программа сразу сканит папку, хотя опцию включить можно, чтобы брала все уровни из этого файла.
+C:\SDK_default\gamedata\config\game_levels.ltx
+	level21
+  
+ [level21]
+ name   = l01_marsh
+ caption = "l01_marsh"
+ offset  = 3000.0,	1000.0,	0.0
+ id   = 21
+
+Установим группировки и ранги нпс, которым можно занимать места в смартах:
+C:\X-Ray_test\gamedata_ogsr\config\misc\smart_terrain_presets.ltx
+[l01_marsh]
+stalker			= novice, experienced, veteran, master
+
+C:\X-Ray_test\gamedata_ogsr\config\misc\general_lager.ltx
+[l01_marsh]
+stalker			= novice, experienced, veteran, master
+
+Создадим скрипт гулага \gamedata\scripts\gulag_marsh.script:
+он нужен для тех кто собирается делать проработанные лагеря
+local t = {}
+
+function load_job(sj, gname, type, squad, groups)
+	if type == "marsh_smart" then
+	t = { section = "logic@marsh_smart_kamp",
+		idle = 0,
+		prior = 8, state = {0},
+		in_rest = "", out_rest = ""
+	}
+	table.insert(sj, t)
+	t = { section = "logic@marsh_smart_kamp",
+		idle = 0,
+		prior = 8, state = {0},
+		in_rest = "", out_rest = ""
+	}
+	table.insert(sj, t)
+	t = { section = "logic@marsh_smart_kamp",
+		idle = 0,
+		prior = 8, state = {0},
+		in_rest = "", out_rest = ""
+	}
+	table.insert(sj, t)
+	end
+
+
+end
+
+function load_states(gname, type)
+	if type == "marsh_smart" then
+		return function(gulag)
+			return 0
+		end
+	end	
+
+end
+
+--------------------------------------------------------------------------
+-- Dynamic ltx
+--------------------------------------------------------------------------
+function load_ltx(gname, type)
+	return nil
+end
+
+function checkStalker(npc_community, gulag_type)
+	if gulag_type == "marsh_smart" then
+		return npc_community == "mad"
+	end
+
+	return false
+end
+
+function checkMonster(npc_community, gulag_type)
+	-- if gulag_type == "yan_tonnel_snorks" then 
+		-- return npc_community == "snork"
+	-- end
+
+	return false
+end
+
+добавим скрипт в обработку
+\gamedata\scripts\xr_gulag.script
+level_gulags = {все остальные, gulag_marsh}
+
+level_groups = {все остальные, l01_marsh = 19}
+19 - это число которое следует после последнего, у вас может быть иначе
+
+внесём локацию в список групп на выбор group1, group3 
+\gamedata\scripts\smart_terrain.script
+local level_groups = {
+    l01_marsh = "group1",
+
+и такой коммент от разрабов:
+--подходит ли объект гулагу?
+1) если объект не согласен сюда идти, то smart terrain его не возьмёт
+2) если объект согласен идти куда угодно, то проверить, есть ли ещё места, подходит ли он гулагу,
+   подходит ли он хоть на одну работу
+3) если объект согласен идти только в этот смарт, то принимаем даже если нету места (он вытеснит кого-то), проверить,
+   подходит ли он гулагу, подходит ли он хоть на одну работу
+	
+Создадим файл логики гулагов:
+\gamedata\config\misc\gulag_marsh.ltx
+;-------------------------------------------------------------------------------------------------
+;--- Stalkers ------------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------------------------
+[logic@marsh_smart_kamp]
+active = kamp@marsh_smart_kamp
+
+[kamp@marsh_smart_kamp]
+center_point  = kamp
+path_walk = kamp_task
+;-------------------------------------------------------------------------------------------------
+;--- Monsters ------------------------------------------------------------------------------------
+;-------------------------------------------------------------------------------------------------
+
+Зарегистрируем этот файл
+\gamedata\config\misc\gulag_tasks.ltx
+#include "gulag_marsh.ltx"

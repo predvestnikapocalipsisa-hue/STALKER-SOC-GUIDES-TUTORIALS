@@ -1,0 +1,246 @@
+ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН "sak.script" из СБОРНИКА, его копируем себе в gamedata\scripts\
+--------------------------------------------------------------------------------------------------------------
+-- проверить значение if sak.counter_greater("name", cnt) then , cnt это число
+function counter_greater(name, cnt)
+	if name and cnt then
+		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
+		return c >= cnt
+	else
+		return false
+	end
+end
+-- Пример использования
+function name()
+   return sak.counter_greater("fff", 10)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка убийства лагеря, можно использовать в своих скриптах
+function escape_gulag_inactive()
+	return xr_conditions.gulag_population_active(db.actor, npc, {"esc_smart_terrain_vagon"}) == 0 -- "esc_smart_terrain_vagon" это название нашего лагеря
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка наличия предмета "wpn_mp5", 1 это количество 
+function prov_item() 
+	return sak.have_item_namber("wpn_mp5",1) ~= false 
+end
+-----------------------------------------------------------------------------------------------------------
+-- Функция проверки наличия нескольких предметов "af_medusa" и "medkit" по 1 штуке
+function prov_item1() 
+	return sak.have_item_namber("af_medusa",1) and sak.have_item_namber("medkit",1) ~= false 
+end
+-----------------------------------------------------------------------------------------------------------
+-- Функция проверки наличия одного из предметов, "af_medusa" или "medkit"
+function prov_item2() 
+	return sak.have_item_namber("af_medusa",1) or sak.have_item_namber("medkit",1) ~= false 
+end
+-----------------------------------------------------------------------------------------------------------
+--Функция проверки наличия нескольких предметов, просто в другом исполнении
+function prov_item3()
+	if sak.have_item_namber("af_medusa",1) and sak.have_item_namber("medkit",1) and sak.have_item_namber("vodka",1) then
+		return true
+	else
+		return false
+	end
+end
+-----------------------------------------------------------------------------------------------------------
+--Функция проверки наличия одного из предметов
+function prov_item4()
+	if sak.have_item_namber("af_medusa",1) or sak.have_item_namber("medkit",1) or sak.have_item_namber("vodka",1) then
+		return true
+	else
+		return false
+	end
+end
+-----------------------------------------------------------------------------------------------------------
+--Функция проверки на отсутвие какого-либо из квестовых предметов
+function prov_item5()
+	if sak.have_item_namber("af_medusa",1) or sak.have_item_namber("medkit",1) or sak.have_item_namber("vodka",1) then
+		return false
+	else
+		return true
+	end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка наличия указанных предметов с состоянием более 85%, настраивается в sak.script в функции "cond_cheking_item"
+function prov_item6() 
+	return sak.cond_have_item_namber("wpn_ak74u",3) ~= false
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка одного из двух инфопоршн
+function prov_info() 
+	if has_alife_info("infoportion_svib1") or has_alife_info("infoportion_svib2") then
+		return true 
+	else 
+		return false 
+	end 
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка: если есть инфо "storyline_actor_start" и нет "when_out_kordon", то будет выдан "infoportion_xxx"
+function prov_info1()
+	if has_alife_info("storyline_actor_start") and not has_alife_info("when_out_kordon") then
+		db.actor:give_info_portion("infoportion_xxx")
+	end 
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка наличия у нас денег
+function actor_have_money_500(actor,npc)
+	return db.actor:money() > 500
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка группировки актора, если "монолит", то например, диалог будет доступен.
+function check_community(actor, npc)
+	if db.actor then
+		return db.actor:character_community() == "monolith"
+	end
+	return false
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка очков нашего ранга
+function bar_actor_rank_stalker (actor,npc)
+	local actor = db.actor
+	if actor:character_rank() > 300 then
+		return true
+	end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Такой проверкой можно проверить жив ли нпс, если нет, то будет выполнено действие
+	local npc = alife():object("esc_vagon_wounded")
+	if npc ~= nil then
+		if not npc:alive() then
+			--ваше действие
+		end
+	end
+	
+-- если нужно проверить жив ли нпс, то if npc:alive() then
+--------------------------------------------------------------------------------------------------------------
+-- Если здоровье гг 10% то станет 60% или любое другое действие
+if db.actor.health < 0.1 then
+	db.actor.health = 0.60
+--------------------------------------------------------------------------------------------------------------
+-- Примерное оформление квеста на убийство нескольких нпс, можно поменять and на or, если для выполнения хватит смерти одного из двух нпс.
+function proverka_death_nps() 
+	if has_alife_info("first_die") and has_alife_info("second_die") then 
+		db.actor:give_info_portion("my_kvest_have") -- эту строку можно не указывать, она служит примером того, что после выполнения условия можно поставить своё действие
+		return true 
+		else 
+		return false 
+	end 
+end 
+
+-- где "first_die" и "second_die" инфопоршни выдаваемые при смерти нужных нпс, для этого в сделаем одному из нпс такую логику:
+[logic]
+on_death = death 
+
+[death] 
+on_info = %+first_die%
+--------------------------------------------------------------------------------------------------------------
+-- тут при сложности мастер, будет выдана истина\например, будет доступна фраза
+function prov_game_difficulty()
+	if level.get_game_difficulty() == 3
+	then
+		return true
+	else
+		return false
+	end
+end	
+--------------------------------------------------------------------------------------------------------------
+-- Устанавливаем что будет сделано при начале новой игры в зависимости от выбраной сложности
+-- D:\X-Ray_test\gamedata\scripts\bind_stalker.script
+
+		if not has_alife_info("global_dialogs") then
+			db.actor:give_info_portion("global_dialogs")  
+			if level.get_game_difficulty() == 0 then       
+				sak.create_items_actor("wpn_pm",1)
+				foksid_treasure.give_treasure()
+			end
+			if level.get_game_difficulty() == 1 then       
+				sak.create_items_actor("wpn_mp5",1)
+			end
+			if level.get_game_difficulty() == 2 then       
+				sak.create_items_actor("wpn_ak74u",1)
+			end
+			if level.get_game_difficulty() == 3 then       
+				sak.create_items_actor("wpn_ak74",1)
+			end
+		end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка на стельбу, самый оптимальный вариант использовать в логике рестриктора:
+[logic]
+active = sr_idle@tutorial
+
+[sr_idle@tutorial]
+on_actor_inside = {=check_shot}
+
+-- сама функция check_shot тогда должна лежать в xr_conditions.script в любом месте
+local prev_ammo = 0
+
+function check_shot()
+	local wpn = utils.wpn_info_get(db.actor)
+		if wpn["ammo"] ~= nil and wpn["ammo"] ~= 0 then
+			if prev_ammo > wpn["ammo"] then
+				news_manager.send_tip( db.actor, "mms", nil, "trader", nil ) -- выдача СМС от Сидора
+			end
+		end
+		
+		prev_ammo = wpn["ammo"] or 0
+end
+--------------------------------------------------------------------------------------------------------------
+-- Чтобы сообщение выдавало раз в 30 секунд делаем так в xr_conditions.script, логика рестриктора остается той же
+-- необходимо в любой файл с инфопоршнями например в \config\gameplay\info_portions.xml
+  <info_portion id="check_shot_info"></info_portion>
+--------------------------------------------------------------------------------------------------------------
+local prev_ammo = 0
+
+function check_shot()
+	local wpn = utils.wpn_info_get(db.actor)
+		if wpn["ammo"] ~= nil and wpn["ammo"] ~= 0 then
+			if not has_alife_info("check_shot_info") and (prev_ammo > wpn["ammo"]) then
+				news_manager.send_tip( db.actor, "mms", nil, "trader", nil )
+				xr_conditions.shot_timer()
+				db.actor:give_info_portion("check_shot_info")
+			end
+		end
+		
+		prev_ammo = wpn["ammo"] or 0
+end
+
+function shot_timer()
+   local iTimer = time_global() + 30*1000
+   local function check_timer()
+		return time_global() > iTimer
+   end
+   level.add_call(check_timer, check_shot2)
+end
+
+function check_shot2()
+db.actor:disable_info_portion("check_shot_info")		
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка на каком мы уровне, если свалка, то выдаётся инфопоршн
+function search_level(actor, npc) 
+	if db.actor ~= nil then 
+		if db.actor and (level.name() == "l02_garbage") then
+			db.actor:give_info_portion("infoportion_xxx") 
+			return true 
+		end 
+	end 
+	return false 
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверки из концовки игры:
+	if db.actor:money() >= 50000 then
+		game.start_tutorial("mov_desire_2")	
+		return
+	end
+	
+	--' Хорошая репутация
+	if db.actor:character_reputation() >= 1000 then
+		game.start_tutorial("mov_desire_1")	
+		return
+	end
+
+	--' плохая репутация
+	if db.actor:character_reputation() <= -1000 then
+		game.start_tutorial("mov_desire_4")	
+		return
+	end

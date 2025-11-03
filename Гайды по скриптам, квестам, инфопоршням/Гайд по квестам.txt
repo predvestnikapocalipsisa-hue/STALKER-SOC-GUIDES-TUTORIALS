@@ -1,0 +1,496 @@
+Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой. 
+
+Всех приветствую, вот основные пункты создания квестов:
+-Квест начитается с инфопоршня, и заканчивается полсе получения другого инфопоршня.
+-Каждое подзадание выполняется после получения инфопоршня
+
+Но также
+-Можно сделать чтоб квест завершался по условию из функции.
+-Например, после взятия предмета или уничтожения лагеря завершается квест или подзадание.
+
+0.Разберём то как можно будет выдавать квест:
+
+0.1.Через инфопоршень в \gamedata\config\gameplay\info_portions.xml
+
+  <info_portion id="my_kvest_start">
+    <task>my_kvest</task>
+  </info_portion>
+
+сам инфо можно выдавать в диалоге таким образом:
+            <phrase id="11112">
+                <text>my_kvest_dialog_11112</text>
+                <give_info>my_kvest_start</give_info>
+                <next>211</next>
+            </phrase>
+			
+0.2.Чтобы квест был с самого налача игры, нужно так же выдать этот инфо, это можно в \gamedata\scripts\bind_stalker.script
+находим
+ 		if not has_alife_info("level_changer_icons") then
+			self.object:give_info_portion("level_changer_icons")
+		end
+		
+и делаем так:		
+ 		if not has_alife_info("level_changer_icons") then
+			self.object:give_info_portion("level_changer_icons")
+			self.object:give_info_portion("my_kvest_start") -- добавили выдачу инфо
+		end
+		
+Если по какой-то причине у вас остались инфопоршни "storyline_actor_start" из "info_portions.xml", он тоже выдается в bind_stalker.script, но при условии, что игра начата на кордоне.
+или "esc_kill_gunslinger" из "info_l01escape.xml", он выдается в рестрикторе в бункере Сидоровича, вместе с потемнением экрана
+
+так вот в эти инфо также можно положить квест, если их выдача сохранилась.
+
+Приступим к написанию квеста
+
+Набрасаем сам квест:
+ 
+1.Открываем  gamedata/config/gameplay/tasks_escape.xml 
+
+Вставляем это
+---------------------------------------------------------------------------------------------------
+	<game_task id="my_kvest" prio="1">
+		<title>my_kvest</title>
+		<objective>
+			<text>my_kvest</text>
+			<icon>ui_iconsTotal_find_railroad_passage</icon>
+			<infoportion_complete>my_kvest_done</infoportion_complete>
+			<article>article_my_kvest</article>
+		</objective>
+		<objective>
+			<text>name_pod_kvest_1</text>
+			<function_complete>sak.prov</function_complete>
+		</objective>
+		<objective>
+			<text>name_pod_kvest_2</text>
+			<infoportion_complete>my_kvest_done</infoportion_complete>
+			<map_location_type hint="escape_trader">blue_location</map_location_type>
+			<object_story_id>Escape_Trader</object_story_id>
+		</objective>
+	</game_task>
+---------------------------------------------------------------------------------------------------	
+Открываем \gamedata\config\text\rus\string_table_tasks_escape.xml	
+Пишем следующее:
+	<string id="my_kvest">
+		<text>Поиск арта</text>
+	</string>
+	<string id="name_pod_kvest_1">
+		<text>Найти арт</text>
+	</string>
+	<string id="name_pod_kvest_2">
+		<text>Принести арт заказчику.</text>
+	</string>
+	<string id="article_my_kvest">
+		<text>Описание квеста</text>
+	</string>
+---------------------------------------------------------------------------------------------------
+Если кратко по заданию, его выдает Сидорович, нужно будет найти артефакт медузу, а потом вернуться к Сидору.
+---------------------------------------------------------------------------------------------------
+Разберём содержание квеста: 
+---------------------------------------------------------------------------------------------------
+	<game_task id="my_kvest" prio="1">
+		<title>my_kvest</title>
+		<objective>
+			<text>my_kvest</text>
+			<icon>ui_iconsTotal_find_railroad_passage</icon>
+			<infoportion_complete>my_kvest_done</infoportion_complete>
+			<article>article_my_kvest</article>
+		</objective>
+---------------------------------------------------------------------------------------------------
+<game_task id="my_kvest" prio="1">  где "my_kvest" это название квеста по конфигам
+---------------------------------------------------------------------------------------------------
+prio="1" - чем МЕНЬШЕ число тем квест ВЫШЕ в ПДА среди других квестов. 
+---------------------------------------------------------------------------------------------------
+<title>my_kvest</title> это название квеста для отображения статистики о выполненых квестах.
+---------------------------------------------------------------------------------------------------		
+Обджективы это подзадания, НО первый обджектив является основой квеста, и, если выполняется условие написанное в нем в данном случае наличие инфопоршня "my_kvest_done", то выполниться всё задание.
+<objective> 	
+<icon>ui_iconsTotal_find_railroad_passage</icon> Это иконка из \gamedata\config\ui\ui_iconstotal.xml
+---------------------------------------------------------------------------------------------------		
+<article>article_my_kvest</article> Это описание квеста, создается в файле \gamedata\config\gameplay\storyline_info_escape.xml 
+там пишется такая запись
+	<article id="article_my_kvest" name="task" article_type="task"  group="task">	
+		<texture x="200" y="650" width="200" height="150">ui\ui_icon_photo</texture>
+		<text>article_my_kvest</text> Текст можно положить сюда \gamedata\config\text\rus\string_table_tasks_escape.xml
+	</article>
+Где name="task" article_type="task"  group="task" для заданий всегда "task"
+"ui_icon_photo" это текстура из \gamedata\textures\ui\ui_icon_photo.dds
+<text>article_my_kvest</text> Это соответсвенно ссылка на папку config\text\rus\и любой файл подойдёт.
+---------------------------------------------------------------------------------------------------
+<infoportion_complete>my_kvest_done</infoportion_complete>		
+Добрались до инфопоршней, когда мы получим инфопоршень "my_kvest_done" всё задание завершится целиком.
+---------------------------------------------------------------------------------------------------
+		<objective>
+			<text>name_pod_kvest_1</text>
+			<function_complete>sak.prov</function_complete>
+		</objective>
+---------------------------------------------------------------------------------------------------
+Первое ПОДзадание проверяется этой функцией, её разберем позже
+<function_complete>sak.prov</function_complete>
+---------------------------------------------------------------------------------------------------		
+		<objective>
+			<text>name_pod_kvest_2</text>
+			<infoportion_complete>my_kvest_done</infoportion_complete>
+			<map_location_type hint="escape_trader">blue_location</map_location_type>
+			<object_story_id>Escape_Trader</object_story_id>
+		</objective>
+---------------------------------------------------------------------------------------------------
+Второе поздадание в данном случае последнее, у него обычно указан инфопоршень тот самый, что и у первого обджектива, суть в том что выполнили последние подзадание и квест завершен.
+<map_location_type hint="escape_trader">blue_location</map_location_type>
+<object_story_id>Escape_Trader</object_story_id>		
+---------------------------------------------------------------------------------------------------		
+hint="escape_trader" - это текст метки из папки config\text\rus\		
+"blue_location"	это тип метки (человечик в белом круге, стандартная метка и бывает "green_location" это зелёная метка)
+"Escape_Trader" Это стори айди, по нему уже идёт определение цели.
+story_id ставится челику в СДК или в ACDC(конкретно там указан номер)
+сама секция story_id лежит в \gamedata\config\game_story_ids.ltx
+и у Сидора выглядит так:
+003		    = "Escape_Trader"
+---------------------------------------------------------------------------------------------------		
+В последнем обджективе метка указана на Сидора
+---------------------------------------------------------------------------------------------------
+Обджективов может быть сколько угодно.
+Наличие двух проверок сразу тоже возможно.
+---------------------------------------------------------------------------------------------------
+Вариации проверок:		
+			<infoportion_complete>tutorial_artefact_done</infoportion_complete>		
+			<infoportion_fail>cit_fail_first_task</infoportion_fail>		
+			<infoportion_set_complete>garbage_meetstalker_start</infoportion_set_complete>		
+			<function_complete>sak.prov_then</function_complete>			
+			<function_fail>escape_tasks.task_volk_fail</function_fail>
+---------------------------------------------------------------------
+Добавляем нашему нпс диалог \gamedata\config\gameplay\character_desc_escape.xml
+
+	<actor_dialog>my_kvest_dialog</actor_dialog>
+---------------------------------------------------------------------
+Диалог в файле \gamedata\config\gameplay\dialogs_escape.xml
+---------------------------------------------------------------------
+    <dialog id="my_kvest_dialog">
+        <phrase_list>
+            <phrase id="12111">
+                <text>my_kvest_dialog_12111</text>
+            </phrase>
+            <phrase id="21">
+                <text>my_kvest_dialog_21</text>
+            </phrase>
+            <phrase id="22">
+                <text>my_kvest_dialog_22</text>
+                <action>dialogs.break_dialog</action>
+            </phrase>
+            <phrase id="101">
+                <text>my_kvest_dialog_101</text>
+                <next>102</next>
+            </phrase>
+            <phrase id="102">
+                <text>my_kvest_dialog_102</text>
+            </phrase>
+            <phrase id="131">
+                <text>my_kvest_dialog_131</text>
+            </phrase>
+            <phrase id="211">
+                <text>my_kvest_dialog_211</text>
+                <next>11</next>
+            </phrase>
+            <phrase id="10">
+                <text>my_kvest_dialog_10</text>
+                <next>101</next>
+            </phrase>
+            <phrase id="9">
+                <text>my_kvest_dialog_9</text>
+                <next>91</next>
+            </phrase>
+            <phrase id="91">
+                <text>my_kvest_dialog_91</text>
+            </phrase>
+            <phrase id="0">
+                <text>my_kvest_dialog_0</text>
+                <next>1</next>
+                <next>2</next>
+            </phrase>
+            <phrase id="1">
+                <text>my_kvest_dialog_1</text>
+                <dont_has_info>my2_kvest_done</dont_has_info>
+                <next>11</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+            <phrase id="11">
+                <text>my_kvest_dialog_11</text>
+                <next>111</next>
+                <next>12</next>
+                <next>13</next>
+            </phrase>
+            <phrase id="111">
+                <text>my_kvest_dialog_111</text>
+                <dont_has_info>my_kvest_start</dont_has_info>
+                <next>1111</next>
+                <next>1112</next>
+            </phrase>
+            <phrase id="1111">
+                <text>my_kvest_dialog_1111</text>
+                <next>11111</next>
+            </phrase>
+            <phrase id="11111">
+                <text>my_kvest_dialog_11111</text>
+                <next>11112</next>
+            </phrase>
+            <phrase id="11112">
+                <text>my_kvest_dialog_11112</text>
+                <give_info>my_kvest_start</give_info>
+                <next>211</next>
+            </phrase>
+            <phrase id="11113">
+                <text>my_kvest_dialog_11113</text>
+            </phrase>
+            <phrase id="1112">
+                <text>my_kvest_dialog_1112</text>
+            </phrase>
+            <phrase id="12">
+                <text>my_kvest_dialog_12</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <has_info>my_kvest_start</has_info>
+                <next>121</next>
+                <next>1211</next>
+            </phrase>
+            <phrase id="121">
+                <text>my_kvest_dialog_121</text>
+                <precondition>sak.prov</precondition>
+                <next>122</next>
+            </phrase>
+            <phrase id="122">
+                <text>my_kvest_dialog_122</text>
+                <action>sak.nagrada</action>
+                <action>sak.zabral</action>
+                <give_info>my_kvest_done</give_info>
+                <next>11</next>
+            </phrase>
+            <phrase id="1211">
+                <text>my_kvest_dialog_1211</text>
+                <next>12111</next>
+            </phrase>
+            <phrase id="13">
+                <text>my_kvest_dialog_13</text>
+                <has_info>my_kvest_done</has_info>
+                <next>131</next>
+            </phrase>
+            <phrase id="2">
+                <text>my_kvest_dialog_2</text>
+                <has_info>my2_kvest_done</has_info>
+                <next>21</next>
+                <next>22</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+        </phrase_list>
+    </dialog>
+---------------------------------------------------------------------------------------------------
+Скажу прямо, на глаз разобраться трудно, смотрим мой урок по Диалог_Эдитор и открываем диалог в проге и ознакамливаемся нормально.
+Разберём:
+---------------------------------------------------------------------------------------------------
+Диалог поделён на две секции, 0 фраза, её говорим МЫ, вторая ветка по сути не прописана и в квесте не участвует, это бонус так сказать)
+---------------------------------------------------------------------------------------------------
+<dialog id="my_kvest_dialog"> Это шапка диалога его айди
+---------------------------------------------------------------------------------------------------
+            <phrase id="0">
+                <text>my_kvest_dialog_0</text>
+                <next>1</next>
+                <next>2</next>
+            </phrase>
+Начало диалога, мы говорим Привет, и Сидор нам ответит либо фразу 1, либо 2, в зависимости от условий их появления.			
+---------------------------------------------------------------------------------------------------
+            <phrase id="1">
+                <text>my_kvest_dialog_1</text>
+                <dont_has_info>my2_kvest_done</dont_has_info>
+                <next>11</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+
+<dont_has_info>my2_kvest_done</dont_has_info> первая ветка диалога работает сразу и до получения "my2_kvest_done"
+---------------------------------------------------------------------------------------------------
+Дальше про конкретные участки 
+--------------------------------------------------------------------------------------------------- 
+            <phrase id="111">
+                <text>my_kvest_dialog_111</text>
+                <dont_has_info>my_kvest_start</dont_has_info>
+                <next>1111</next>
+                <next>1112</next>
+            </phrase>
+
+<dont_has_info>my_kvest_start</dont_has_info> После получения инфопоршня "my_kvest_start" ветка диалога уберается из игры навсегда. Та в которой мы соглашаемся вылнить квест.
+---------------------------------------------------------------------------------------------------
+            <phrase id="11112">
+                <text>my_kvest_dialog_11112</text>
+                <give_info>my_kvest_start</give_info>
+                <next>211</next>
+            </phrase>
+
+<give_info>my_kvest_start</give_info> Это выдача инфопоршня, который запускает квест "my_kvest", и после этого 111 фраза больше не доступна
+---------------------------------------------------------------------------------------------------
+            <phrase id="12">
+                <text>my_kvest_dialog_12</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <has_info>my_kvest_start</has_info>
+                <next>121</next>
+                <next>1211</next>
+            </phrase>
+
+<has_info>my_kvest_start</has_info> проверка того что игрок получил инфопоршень my_kvest_start, пока он не получен ветка диалога не появляется, сама ветка нужна чтобы пока мы не выполнили подзадание в диалоге была затычка.
+
+<dont_has_info>my_kvest_done</dont_has_info> получения инфопоршня "my_kvest_done" ветка диалога уберается из игры навсегда. Та в которой мы вылнили квест.
+---------------------------------------------------------------------------------------------------
+            <phrase id="121">
+                <text>my_kvest_dialog_121</text>
+                <precondition>sak.prov</precondition>
+                <next>122</next>
+            </phrase>
+
+<precondition>sak.prov</precondition> проверка нужных предметов для того, чтобы фраза в диалоге о том что мы выполнили подзадание стала доступна
+---------------------------------------------------------------------------------------------------
+            <phrase id="122">
+                <text>my_kvest_dialog_122</text>
+                <action>sak.nagrada</action>
+                <action>sak.zabral</action>
+                <give_info>my_kvest_done</give_info>
+                <next>11</next>
+            </phrase>
+
+<give_info>my_kvest_done</give_info> собствено сам инфопоршень о завершении квеста
+<action>sak.nagrada</action> Это функция где нам дают награду
+<action>sak.zabral</action> Это функция где у нас забирают предмет
+---------------------------------------------------------------------------------------------------
+            <phrase id="2">
+                <text>my_kvest_dialog_2</text>
+                <has_info>my2_kvest_done</has_info>
+                <next>21</next>
+                <next>22</next>
+                <next>10</next>
+                <next>9</next>
+            </phrase>
+
+<has_info>my2_kvest_done</has_info> При получении "my2_kvest_done" вторая ветка диалога появляется и открывает путь к новым вариациям диалога.
+---------------------------------------------------------------------------------------------------	
+Диалог на русском в файле, просто вставляем \gamedata\config\text\rus\stable_dialogs_escape.xml
+---------------------------------------------------------------------------------------------------
+    <string id="my_kvest_dialog_0">
+        <text>Привет</text>
+    </string>
+    <string id="my_kvest_dialog_1">
+        <text>Чего пришёл?</text>
+    </string>
+    <string id="my_kvest_dialog_10">
+        <text>Есть полезная информация?</text>
+    </string>
+    <string id="my_kvest_dialog_101">
+        <text>Чувак я что информационное бюро?</text>
+    </string>
+    <string id="my_kvest_dialog_102">
+        <text>Ладно</text>
+    </string>
+    <string id="my_kvest_dialog_11">
+        <text>Хочу поговорить о работе</text>
+    </string>
+    <string id="my_kvest_dialog_111">
+        <text>Да нужно сходить кое-куда, и принести мне кое-что</text>
+    </string>
+    <string id="my_kvest_dialog_1111">
+        <text>Да интересно слушаю тебя!</text>
+    </string>
+    <string id="my_kvest_dialog_11111">
+        <text>Тут не подалеку, артефакт, принеси его, а?</text>
+    </string>
+    <string id="my_kvest_dialog_11112">
+        <text>Да конечно чувак!</text>
+    </string>
+    <string id="my_kvest_dialog_11113">
+        <text>Не буду я искать тебе арт.</text>
+    </string>
+    <string id="my_kvest_dialog_1112">
+        <text>Не, это не по мне</text>
+    </string>
+    <string id="my_kvest_dialog_12">
+        <text>Где мой арт мен?</text>
+    </string>
+    <string id="my_kvest_dialog_121">
+        <text>Нашёл его держи друг</text>
+    </string>
+    <string id="my_kvest_dialog_1211">
+        <text>Ещё нет.</text>
+    </string>
+    <string id="my_kvest_dialog_12111">
+        <text>Дуй работать чувак!</text>
+    </string>
+    <string id="my_kvest_dialog_122">
+        <text>Держи награду чувак!</text>
+    </string>
+    <string id="my_kvest_dialog_13">
+        <text>Да есть ещё дельце, готов?</text>
+    </string>
+    <string id="my_kvest_dialog_131">
+        <text>Выкладывай</text>
+    </string>
+    <string id="my_kvest_dialog_2">
+        <text>Слушай есть супер задание для тебя, готов?</text>
+    </string>
+    <string id="my_kvest_dialog_21">
+        <text>Конечно выкладывай</text>
+    </string>
+    <string id="my_kvest_dialog_211">
+        <text>Жду выполнения</text>
+    </string>
+    <string id="my_kvest_dialog_22">
+        <text>Не, в другой раз</text>
+    </string>
+    <string id="my_kvest_dialog_9">
+        <text>Вояки не заявлялись сюда?</text>
+    </string>
+    <string id="my_kvest_dialog_91">
+        <text>Нет, но не думаю, что это исключено</text>
+    </string>
+---------------------------------------------------------------------------------------------------	
+в \gamedata\config\gameplay\info_portions.xml вставляем наши инфопоршни
+
+  <info_portion id="my_kvest_start">
+    <task>my_kvest</task>
+  </info_portion>
+ 
+  <info_portion id="my_kvest_done"></info_portion>
+---------------------------------------------------------------------------------------------------
+И наконец файл \gamedata\scripts\sak.script
+
+-- Это функция проверки наличия у нас медузы
+function prov() 
+return sak.have_item_namber("af_medusa",1) ~= false
+end
+
+-- У нас забирают вещь
+function zabral()
+sak.out_item_namber("af_medusa",1)
+end
+
+-- Дают награду
+function nagrada()
+sak.create_items_actor("medkit",3)
+sak.create_items_actor("bandage",5)
+end
+---------------------------------------------------------------------------------------------------
+Собственно кто будет квестовиком выбираете вы, вам решать кому дать диалог и на кого поставить метку
+---------------------------------------------------------------------------------------------------
+ВАЖНО!!! Если вы хотите чтобы за выполнение квеста давался рейтинг, то откройте config/misc/task_manager.ltx
+ и находим ;-------STORYLINE TASKS-------
+ и дописываем техническое название квеста, у нас это my_kvest 
+ 
+ 
+ далее находим 
+;*************************************************
+;** STORYLINE TASKS
+;*************************************************
+и вставляем 
+[my_kvest]
+type = storyline
+reward_rank = 20 ;очки ранга, которые получим за выполнение
+reward_reputation = +7 ;очки репутации, которые получим за выполнение
+reward_relation = stalker, +10 ;очки отношения с группировкой, которые получим за выполнение
+---------------------------------------------------------------------------------------------------
+Естесвенно, принести предмет это не единственная вариация квестов, смотрим: "Функции проверки.txt" 
+https://drive.google.com/open?id=1WFDP4rQHtDQvwXgoNNpUkKoyi83_M64m&usp=drive_fs
+---------------------------------------------------------------------------------------------------

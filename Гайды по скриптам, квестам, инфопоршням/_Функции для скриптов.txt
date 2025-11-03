@@ -1,0 +1,598 @@
+﻿ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из СБОРНИКА, его копируем себе в gamedata\scripts\
+--------------------------------------------------------------------------------------------------------------
+-- Сохранить что-то в пстор актора
+xr_logic.pstor_store(db.actor, "имя_счётчика", значение)
+--------------------------------------------------------------------------------------------------------------
+-- Проверить значение по имении счётчика, в случае отсутствия установить "значение_по_умолчанию"
+xr_logic.pstor_retrieve(db.actor, "имя_счётчика", значение_по_умолчанию) 
+--------------------------------------------------------------------------------------------------------------
+-- прибавить к указанному счётчику актёра cnt, исходя из текущего значения счётчика, 0 это значение_по_умолчанию 
+-- sak.inc2_counter("name", cnt)
+function inc2_counter(name, cnt)
+	xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) + cnt)
+end
+--------------------------------------------------------------------------------------------------------------
+-- прибавить к указанному счётчику актёра 1 sak.inc_counter("name")
+function inc_counter(name)
+	xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) + 1)
+end
+--------------------------------------------------------------------------------------------------------------
+-- отнять от указанного счётчика актёра 1 sak.dec_counter("name")
+function dec_counter(name)
+	xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) - 1)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Посчитать количество полученных инфо
+function count_achieved_infos()
+    local count = 0
+
+    -- Список всех info_portion
+    local info_list = {
+        "info1",
+        "info2",
+        "info3"
+    }
+
+    for _, info in ipairs(info_list) do
+        if has_alife_info(info) then
+            count = count + 1
+        end
+    end
+
+    return count
+end
+--------------------------------------------------------------------------------------------------------------
+-- Функция переносит ВСЕ ваши вещи в указанный объект. Точно также как на арене в баре. Тут это ящик со стори айди 2000
+function transfer_object_item(item)
+    out_object:transfer_item(item, in_object)
+end
+
+function item_to_box()
+	out_object = db.actor
+    in_object  = level_object_by_sid (2000)
+	out_object:inventory_for_each(transfer_object_item) 
+end
+--Кладем это в ваш условно my.script и в диалоге:
+--<action>my.item_to_box</action>
+--Вещи можно передавать не только в ящик, а также нпс, ниже привёл пример передачи вещей Волку, обращаемся к нему по айди, если угодно то по стори айди тоже можно, как показано выше.
+function item_to_box()
+	out_object = db.actor
+	local sobj = alife():object("esc_wolf")
+	in_object  = level.object_by_id(sobj.id)
+	out_object:inventory_for_each(transfer_object_item) 
+end
+--------------------------------------------------------------------------------------------------------------
+-- Спавн с использованием клиентских методов
+function spawn()
+  local sobj = create(section, position, lvid, gvid)
+  level.client_spawn_manager():add(sobj.id, 65535,
+    function (id, cobj)
+      cobj:set_goodwill(-5000, db.actor)
+    end
+  )
+  return obj
+end
+--------------------------------------------------------------------------------------------------------------
+-- вывод иконок в диалоге:
+function main3231(first_speaker, second_speaker)
+local test = 33
+local total = ""
+local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
+
+  total = game.translate_string("stalker").." %c[255,238,155,23]"..test..""
+  db.actor:give_talk_message(total, task_texture, task_rect, "iconed_trade_info")
+end
+-- ui_iconsTotal_artefact - это иконка из ui_iconstotal.xml
+-- stalker - это текст из xml
+-- " %c[255,238,155,23]"..test.." - тоже часть текста, но другим цветом из local test = 33
+-- "iconed_trade_info" - хз для чего это, но надо)
+--------------------------------------------------------------------------------------------------------------
+-- Рандомный спавн от положения гг
+function main323()
+  -- local sobj = alife():object(db.actor:id())
+  local obj=level.object_by_id(db.actor)
+
+  lv_id=obj:level_vertex_id()
+  gv_id=obj:game_vertex_id()
+
+  local lv_new
+  local pos_new = vector()
+  
+  local level_vertexes={
+    l01_escape = 595580,
+    l02_garbage = 384039,
+    l03_agroprom = 438379,
+    l04_darkvalley = 392517,
+    l06_rostok = 69283,
+    l07_military = 915663,
+    l10_radar = 796328,
+    l11_pripyat = 295965
+  }
+  
+  if math.random(0,1)>0.5 then lv_new = lv_id + math.random(1000,5000) 
+  else lv_new = lv_id - math.random(1000,5000) end
+  if lv_new < 1 or lv_new > level_vertexes[level.name()] then lv_new = math.random(1000,5000) end
+  
+  pos_new = level.vertex_position(lv_new)
+  
+  local obj = alife():create("esc_wolf_respawn", pos_new, lv_new, gv_id)
+  level.map_add_object_spot(obj.id, "green_location", obj:name())
+
+end
+--------------------------------------------------------------------------------------------------------------
+-- выдача предметов
+function spawn()
+   dialogs.relocate_item_section(db.actor, "wpn_pm", "in")
+end
+--------------------------------------------------------------------------------------------------------------
+-- спавн себе в инвентарь 2 способ без дополнительных скриптов
+function spawn2()
+	alife():create("bandage", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), db.actor:id())
+end
+--------------------------------------------------------------------------------------------------------------
+-- спавн себе в инвентарь 3 способ, позволяет указать количество
+function nagrada()
+	sak.create_items_actor("medkit",3)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Вещь забирают
+function zabral()
+	sak.out_item_namber("af_medusa",1)
+end
+--------------------------------------------------------------------------------------------------------------
+-- НПС передает предмет нам, при этом у НПС предмет исчезает
+function main1(first_speaker, second_speaker)
+	sak.relocate_item_my(second_speaker, "wpn_ak74u", "in")
+end
+-- Эту функцию поместил в sak.script, если что можно и в любой другой скрипт
+function relocate_item_my(victim, section, type)
+  if db.actor and victim then
+    if type == "in" then
+
+      if victim:object(section) ~= nil then
+        victim:transfer_item(victim:object(section), db.actor)
+      end
+    elseif type == "out" then
+      db.actor:transfer_item(db.actor:object(section), victim)
+    end
+    news_manager.relocate_item(db.actor, type, section)
+  end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Получаем деньги
+function give_3k(first_speaker, second_speaker)
+	dialogs.relocate_money(second_speaker, 3000, "in")
+end
+--------------------------------------------------------------------------------------------------------------
+-- Передача денег нпс
+function give_30_money_to_stalker_for_info_about_ratcatcher(first_speaker, second_speaker)
+	first_speaker:transfer_money(30, second_speaker)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Отдаем деньги
+function give_3k_out(first_speaker, second_speaker)
+	dialogs.relocate_money(first_speaker, 3000, "out")
+end
+--------------------------------------------------------------------------------------------------------------
+-- Передача денег в диалоге с кузнецовым
+function give_soldiers_bribe(actor, npc)
+	dialogs.relocate_money(npc, 500, "out")	
+end
+--------------------------------------------------------------------------------------------------------------
+-- выдача инфопоршня
+function give_info()
+	db.actor:give_info_portion("esc_gromov_quest_0")		
+end
+--------------------------------------------------------------------------------------------------------------
+-- спавн кого\чего-либо
+function spawn()
+	alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45) --кордоновские координаты в деревне новичков
+	alife():use_ai_locations(sobj, false) -- Чтобы не проваливался под карту, работает при правках xray-extensions
+end
+--------------------------------------------------------------------------------------------------------------
+-- спавн под координатами гг
+function spawn2()
+	alife():create("bandage", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id())
+end
+--------------------------------------------------------------------------------------------------------------
+-- спавн трупа
+function spawn_on_death()
+	alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45):on_death()
+end
+--------------------------------------------------------------------------------------------------------------
+-- спавн с заданным направлением
+function spawn_pda()
+	sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45)
+	sobj.angle = vector():set(0,1,0) -- при правках xray-extensions
+end
+--------------------------------------------------------------------------------------------------------------
+-- Новый спавн только по координатам. ОГСР от 3.432
+-- в _g.script кладем 
+function get_lv_gv(level_name, pos)
+    local lg, ct
+    if level.name() == level_name then
+        lg = level_graph()
+        ct = cross_table()
+    else
+        lg = level_graph(level_name)
+        ct = cross_table(level_name)
+    end
+
+    local lv = lg:vertex_id(pos)
+    if not lg:valid_vertex_id(lv) then
+        lv = lg:nearest_vertex_id(pos)
+    end
+    local gv = ct:vertex(lv):game_vertex_id()
+    return lv, gv
+end
+
+function alife_create(section, level_name, pos)
+    local lv, gv = get_lv_gv(level_name, pos)
+    return alife():create(section, pos, lv, gv)
+end
+
+-- и в удобнном скрипте вызываем:
+function spawn_test()
+    alife_create("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3)) -- alife_create("секция", "локация", vector():set(координаты))
+end
+--------------------------------------------------------------------------------------------------------------
+-- При спавне задать story_id стори айди.
+function test()
+	local sobj = alife():create("mad_stalker_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
+   alife():assign_story_id(nil, nil, sobj.id, story_ids.test) -- xray-extensions
+
+   alife():assign_story_id(sobj.id, story_ids.test) -- ОГСР
+-- "test" должен быть в game_story_ids.ltx
+end
+--------------------------------------------------------------------------------------------------------------
+-- перенос гг на координаты
+function teleport()
+	db.actor:set_actor_position(vector():set(345,15,-26),410691,3547)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Имитация проводника на указанные координаты
+function provodnik_v()
+npc:stop_talk() -- при учете вызова из диалога
+db.actor:stop_talk() -- при учете вызова из диалога
+level.add_pp_effector ("teleport.ppe", 2006, false)
+level.add_pp_effector("agr_u_fade.ppe", 160608)
+db.actor:set_actor_position(vector():set(382,-32,155),112693,1865)		
+end
+--------------------------------------------------------------------------------------------------------------
+-- перенос гг на вейпоинт "esc_fabrika_bandit_day_night_sniper_walk", смотреть гг будет на вейпоинт "esc_fabrika_bandit_day_night_sniper_look"
+function actor_teleport()
+	xr_effects.teleport_actor(actor,npc,{"esc_fabrika_bandit_day_night_sniper_walk","esc_fabrika_bandit_day_night_sniper_look"})
+end
+--------------------------------------------------------------------------------------------------------------
+-- Перенос нпс на координаты при правках xray-extensions
+function teleport1()
+	for a=1,65635,1 do
+	local obj=level.object_by_id(a)
+		if obj and string.find(obj:name(),"esc_wolf") then
+			alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,obj:id())
+		end
+	end
+end
+
+-- Альтернатива
+function teleport2()
+  local sobj=alife():object("esc_wolf")
+      alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,sobj.id)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проигрыш звука Cyberpunk2077.ogg в голове гг, звук класть в  /gamedata/sounds/
+function main()
+	local snd = sound_object([[Cyberpunk2077]])
+	snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 1.0)
+end
+--------------------------------------------------------------------------------------------------------------
+--С кем говорим враг
+function enemy(first_speaker, second_speaker)
+	second_speaker:set_relation(game_object.enemy, first_speaker)
+end
+--------------------------------------------------------------------------------------------------------------
+-- ГГ становится врагом нпс со стори айди 704
+function mil_actor_enemy_set ()
+    local sniper = level_object_by_sid (704)
+    if sniper ~= nil then
+       sniper:set_relation (game_object.enemy, db.actor) 
+    end    
+end
+--------------------------------------------------------------------------------------------------------------
+--С кем говорим друг
+function friend(first_speaker, second_speaker)
+	second_speaker:set_relation(game_object.friend, first_speaker)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Сделать нпс другом
+function test()
+local npc = level_object_by_sid(3)
+-- local npc = level.object_by_id(alife():object("escape_trader").id) -- ищет имя объекта в сдк или асдс, у Сидора это "escape_trader"
+	npc:set_relation(game_object.friend, db.actor)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Функция убивает гавного героя
+function aes_kill_actor ()
+    if db.actor ~= nil and db.actor.health > 0 then db.actor:kill (actor) end   
+end
+--------------------------------------------------------------------------------------------------------------
+-- Убить нпс через диалог, фразу должен  говорить  гг
+--------------------------------------------------------------------------------------------------------------
+function kill(actor, npc)
+	npc:kill(npc)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Убить нпс, вызов хоть откуда
+function kill_npc()
+local sobj = alife():object("esc_wolf")
+local obj = level.object_by_id(sobj.id)
+-- local obj = level_object_by_sid (006) -- или по стори
+	obj:kill(obj)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Функция убивает нпс нанося ему 100 урона, саму функцию "kill_npc1" можно вызвать в любое время
+function kill_npc1 ()
+	local npc = level_object_by_sid (006)
+	if npc == nil then
+		return
+	end
+	local h = hit()
+	h.power = 100
+	h.direction = npc:direction()
+	h.draftsman = npc 
+	h.impulse = 1
+	h.type = hit.wound
+	npc:hit(h)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Функция бивает нпс нанося ему 10000 урона
+function hit_nanesti()
+local sobj = level.object_by_id(alife():object("esc_wolf").id)
+	local h = hit ()
+	h.power = 10000
+	h.direction = vector():set (0, 0, 0)
+	h.impulse = 0
+	h.draftsman = sobj
+	h.type = hit.explosion
+	sobj:hit (h)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Функция бивает нпс нанося ему 10000 урона
+function hit_nanesti1()
+    for a=1,65635,1 do
+        local obj=level.object_by_id(a)
+        if obj and string.find(obj:name(),"esc_stalker_fanat") then
+            local h = hit ()
+            h.power = 10000
+            h.direction = vector():set (0, 0, 0)
+            h.impulse = 0
+            h.draftsman = obj
+            h.type = hit.explosion
+            obj:hit (h)
+        end
+    end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Функция таймера "esc_timer" выполняющая функцию "kill_npc" из того же файла, где и лежит функция таймера, рассчёт в миллисекундах, таймер не будет  работать после перезагрузки. Даже если поставить  на апдейт, то он будет сбрасываться в 0, поэтому  используйте  только в своих тестах.
+function esc_timer()
+   local iTimer = time_global() + 10*1000
+   local function check_timer()
+		return time_global() > iTimer
+   end
+   level.add_call(check_timer, kill_npc)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Перевести объект в оффлайн, работает с объектами из all.spawn
+function main0 ()
+	obj = alife():story_object(2000)
+	alife():set_switch_online(obj.id, false)
+	alife():set_switch_offline(obj.id, true)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Перевести объект в онлайн, работает с объектами из all.spawn
+function main1 ()
+	obj = alife():story_object(2000)
+	alife():set_switch_online(obj.id, true)
+	alife():set_switch_offline(obj.id, false)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Рандомный спавн обьекта "wpn_svd_m1" в игре:
+function spawn_random()
+	local fr_prob={{position={x=-205,y=-19,z=-138},gv=61,lv=47845},{position={x=-153,y=-30,z=-233},gv=35,lv=96517},{position={x=-85,y=-4,z=-75},gv=76,lv=180679}}
+	local a = fr_prob[math.random(table.getn(fr_prob))] 
+	local obj = alife():create("wpn_svd_m1", vector():set(a.position.x,a.position.y,a.position.z), a.lv, a.gv) 
+end
+--------------------------------------------------------------------------------------------------------------
+-- Есть ещё вариант, с рандомным предметом
+local stalker_types  = {"bread", "kolbasa", "conserva", "vodka"}
+function spawn_item_random() 
+	alife():create(stalker_types[math.random(4)],vector():set(-0.112,0.477,-215.563),174943,265)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Такими вот функциями можно установить ранг, деньги, перемещение на координаты для НПС. Работает только на ОГСР
+function main ()
+local sobj = level.object_by_id(alife():object("esc_wolf").id)
+-- local sobj = level_object_by_sid (6)-- или обращаемся по стори айди
+	sobj:set_money( 65000 )
+	sobj:set_character_rank(1000)
+	sobj:set_relation(game_object.friend, db.actor)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Устанавливаем группировку ГГ
+function actor_set_dolg()
+	if db.actor then
+		db.actor:set_character_community("actor_dolg", 0, 0)
+	end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Отправляем НПС в другую группировку(Волка)
+function name() 
+local npc = level_object_by_sid(006) 
+	npc:set_character_community("dolg", 0, 0) 
+end 
+--------------------------------------------------------------------------------------------------------------
+-- Нпс вступает в группировку, работает на собеседнике в диалоге
+function npc_to_dolg(actor, npc) 
+	npc:set_character_community("dolg", 0, 0) 
+end 
+--------------------------------------------------------------------------------------------------------------
+-- Есть и такой вариант по имени
+function fake_bandit()
+local sobj = level.object_by_id(alife():object("esc_wolf").id)
+	sobj:set_character_community("bandit", 0, 0)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Отношение группировки к нам -5000
+function vrag_dolg()
+	relation_registry.set_community_goodwill ("группировка", db.actor:id(), - 5000)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Отношение группировки к нам + 5000
+function vrag_dolg()
+	relation_registry.set_community_goodwill ("группировка", db.actor:id(), 5000)
+end
+--------------------------------------------------------------------------------------------------------------
+-- ГГ станет врагом лагерю esc_lager
+function set_actor_enemy ()
+    xr_gulag.setGulagEnemy ("esc_lager", db.actor)
+end
+--------------------------------------------------------------------------------------------------------------
+-- ГГ станет нейтралом лагерю esc_lager
+function set_actor_neutral ()
+    xr_gulag.setGulagNeutral ("esc_lager", db.actor)
+end
+--------------------------------------------------------------------------------------------------------------
+-- ГГ станет другом лагерю esc_lager
+function set_actor_friend ()
+    xr_gulag.setGulagRelation( "esc_lager", game_object.friend, db.actor )
+end
+--------------------------------------------------------------------------------------------------------------
+-- СМС сообщения
+--------------------------------------------------------------------------------------------------------------
+function sms0() --смс придет от иконки дефаулт, dm_action_info_1 текст из папки текст\рус
+	news_manager.send_tip(db.actor, "dm_action_info_1", nil, nil, nil)
+end
+
+function sms1() -- указана иконка сидора, trader из news_manager.script в tips_icons
+	news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", nil)
+end
+
+function sms3() -- указана иконка сидора и время показа смс
+	news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", 300000)
+end
+
+--Если текст пишем сразу в скрипте, то ставим файлу кодировку: Кириллица Windows-1251
+function sms4()
+	news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[default] Привет сталкер!".."".."\n", nil, "arena", 300000)
+end
+
+function sms5()
+	news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, 70000)
+end
+
+function sms6()
+	news_manager.send_tip(db.actor, "%c[255,0,255,0]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, nil)
+end
+--------------------------------------------------------------------------------------------------------------
+--Отметить объект по стори айди 14, crlc_small - тип метки
+function otmechaem_laz(actor,npc)
+	local obj = alife():story_object(014)
+	if obj then
+		level.map_add_object_spot_ser(obj.id, "crlc_small", "name")
+		--level.map_add_object_spot(obj.id, "crlc_small", "name") -- без "_ser" метка пропадет после сейв лоада
+	end	
+end
+--------------------------------------------------------------------------------------------------------------
+--Удаление кого-то по стори айди
+function dell_kill_voron()
+	local sobj = alife():story_object(003) 
+	if sobj then 
+		alife():release(sobj, true) 
+	end 
+end
+--------------------------------------------------------------------------------------------------------------
+--Этой функцией можно удалить сколько угодно объектов по стори айди, достаточно указать номера вместо {3,6,14,7} 
+function main ()
+local story_table = {3,6,14,7}
+	for k,v in pairs(story_table) do
+	local sobj = alife():story_object(v)
+		alife():release(sobj, true)
+	end	
+end
+--------------------------------------------------------------------------------------------------------------
+--Удаление кого-то по айди name
+function remove_obj(name)
+local obj
+	for a=1,65535 do
+		obj = alife():object(a)
+		if obj and string.find(obj:name(),name) then
+			alife():release(obj, true)
+		end
+	end
+end
+-- Пример использования
+function remove_npc()
+	sak.remove_obj("esc_wolf")
+end
+-- Таким способом можно удалить несколько
+function clear_two()
+local tbl_remove = {"bar_stalker", "kat_bandit_0006"}
+	for _, v in pairs (tbl_remove) do
+		sak.remove_obj(v)
+	end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Выдача тайника
+treasure_manager.get_treasure_manager():give_treasure("new_esc_secret")
+--------------------------------------------------------------------------------------------------------------
+-- Выдать все тайники одной строкой
+treasure_manager.get_treasure_manager():check()
+--------------------------------------------------------------------------------------------------------------
+-- Завершить\провалить\пропустить квест.
+	   level_tasks.set_task_state (task.completed, "mil_courier_job", 0)
+	   level_tasks.set_task_state (task.fail, "mil_courier_job", 0)
+	   level_tasks.set_task_state (task.skipped, "mil_courier_job", 0) -- OGSR
+--------------------------------------------------------------------------------------------------------------
+-- Получаем удар в морду
+function punch()
+    local snd_obj = xr_sound.get_safe_sound_object([[affects\hit_fist]])
+    snd_obj:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
+    level.add_cam_effector("punch_effector.anm", 999, false, "")
+end
+--------------------------------------------------------------------------------------------------------------
+--Репутация у нас - 100
+function rep_min_100()
+    db.actor:change_character_reputation(db.actor:character_reputation() - 100)
+end
+--------------------------------------------------------------------------------------------------------------
+--Репутация у нас + 100
+function rep_plus_100()
+    db.actor:change_character_reputation(db.actor:character_reputation() + 100)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Активация слота
+function activate_slot()
+	db.actor:activate_slot(2)
+end
+--------------------------------------------------------------------------------------------------------------
+-- запуск туториала
+function start_tutorial()
+	if xr_conditions.can_send_tutorial() then game.start_tutorial("my_tutor") end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Пост эффекты
+--------------------------------------------------------------------------------------------------------------
+level.add_cam_effector("camera_effects\\cut_scene1.anm", 1974, false, "")
+level.add_pp_effector ("vibros.ppe", 234, false)
+level.remove_pp_effector (1974)
+level.remove_cam_effector (1974)
+level.set_weather_fx ("surge_day")
+
+on_info = %=run_cam_effector(bar_fly)%
+on_info = %=run_postprocess(agr_u_fade)%
+
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_actor_inside = nil %=run_postprocess(alcohol) =run_cam_effector(atp_zharka)%
