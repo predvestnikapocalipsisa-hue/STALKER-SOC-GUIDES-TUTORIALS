@@ -1,3 +1,5 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 -- Комплект мультиплатформенных модулей для S.T.A.L.K.E.R. SoC/CS/CoP
 -- Автор: @Artos (+ по рекурсии те авторы, работы которых Artos использовал, см. readme к соотв. модулям)
 -- Доработка модулей и синхронизация их между собой: @Kirgudu
@@ -472,4 +474,5 @@ function fix_dead_city_exit_to_pjd()
   pk:set( data )
   sobj.position = vector():set( -8.46000003814697, 9.5399995803833, 431.869995117188 )
   sobj.angle    = vector():set( 0, 0, 0 )
+
 end
