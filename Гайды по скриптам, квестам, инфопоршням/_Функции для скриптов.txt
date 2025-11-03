@@ -1,5 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-
+тест
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из СБОРНИКА, его копируем себе в gamedata\scripts\
 --------------------------------------------------------------------------------------------------------------
 -- Сохранить что-то в пстор актора
@@ -598,4 +598,5 @@ active = sr_idle
 
 [sr_idle]
 on_actor_inside = nil %=run_postprocess(alcohol) =run_cam_effector(atp_zharka)%
+
 
