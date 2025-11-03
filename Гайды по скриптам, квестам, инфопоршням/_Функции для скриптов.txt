@@ -1,6 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из СБОРНИКА, его копируем себе в gamedata\scripts\
+--------------------------------------------------------------------------------------------------------------
+-- Один из способов выводить получившееся значение в смс
+function send_message(msg) 
+    news_manager.send_tip(db.actor, msg, nil, nil, 5000)  
+end
+
+Имя_файла.send_message(tostring(значение))
 --------------------------------------------------------------------------------------------------------------
 -- Сохранить что-то в пстор актора
 xr_logic.pstor_store(db.actor, "имя_счётчика", значение)
@@ -598,6 +604,7 @@ active = sr_idle
 
 [sr_idle]
 on_actor_inside = nil %=run_postprocess(alcohol) =run_cam_effector(atp_zharka)%
+
 
 
 
