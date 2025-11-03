@@ -1,3 +1,5 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 --Проверка на вещь
 function prov() 
 	return sak.have_item_namber("af_medusa",1) ~= false
@@ -169,4 +171,5 @@ function out_items_count(actor,item)
 		reloc_params.itm_cnt_found = reloc_params.itm_cnt_found + 1
 	end
 end
+
 -----------------------------------------------------------------------------------------------------------
