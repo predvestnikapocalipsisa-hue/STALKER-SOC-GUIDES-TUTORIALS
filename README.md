@@ -7,6 +7,10 @@
 
 ===========================================================================
 
-[WiKi]([https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/blob/ef72d39708d6709d4ce9fb705ca0a5c88312360c/](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/wiki)) с разбором всех текстовых файлов:
+WiKi с разбором всех текстовых файлов:
 
 https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/wiki
+
+Дискорд сервер проекта:
+
+https://discord.gg/BQbUBgEcAa
