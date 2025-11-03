@@ -1,3 +1,5 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН "sak.script" из СБОРНИКА, его копируем себе в gamedata\scripts\
 --------------------------------------------------------------------------------------------------------------
 -- проверить значение if sak.counter_greater("name", cnt) then , cnt это число
@@ -243,4 +245,5 @@ end
 	if db.actor:character_reputation() <= -1000 then
 		game.start_tutorial("mov_desire_4")	
 		return
+
 	end
