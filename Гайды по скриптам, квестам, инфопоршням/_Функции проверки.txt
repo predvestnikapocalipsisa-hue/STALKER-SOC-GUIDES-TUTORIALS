@@ -16,7 +16,7 @@ function name()
    return sak.counter_greater("fff", 10)
 end
 --------------------------------------------------------------------------------------------------------------
--- Проверка убийства лагеря, можно использовать в своих скриптах, но если смарт дальше 140 метров, то проверка подумает что смарт пуст
+-- Проверка убийства лагеря, можно использовать в своих скриптах
 function escape_gulag_inactive()
 	return xr_conditions.gulag_population_active(db.actor, npc, {"esc_smart_terrain_vagon"}) == 0 -- "esc_smart_terrain_vagon" это название нашего лагеря
 end
@@ -247,4 +247,5 @@ end
 		return
 
 	end
+
 
