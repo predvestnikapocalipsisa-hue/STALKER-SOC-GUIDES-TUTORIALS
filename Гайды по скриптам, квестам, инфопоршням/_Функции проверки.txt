@@ -25,7 +25,7 @@ function counter_greater(name, cnt)
 	end
 end
 
-для этого в \gamedata\scripts\_g.script
+для этого в \gamedata\scripts\_g.script (можно и counter_greater положить туда, чтобы вызывать без указывания скрипта)
 
 добавим в конец
 function get_value(var_name, default_value)
@@ -46,6 +46,11 @@ end
 -- Пример использования
 function name()
    return sak.counter_greater("fff", 10)
+end
+
+-- если положили counter_greater в _g.script, то можно использовать так:
+function name()
+   return counter_greater("fff", 10)
 end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка убийства лагеря, можно использовать в своих скриптах
@@ -279,6 +284,7 @@ end
 		return
 
 	end
+
 
 
 
