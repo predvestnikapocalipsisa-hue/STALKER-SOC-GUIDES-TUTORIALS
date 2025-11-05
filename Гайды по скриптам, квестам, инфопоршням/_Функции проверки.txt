@@ -2,7 +2,7 @@
 
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН "sak.script" из СБОРНИКА, его копируем себе в gamedata\scripts\
 --------------------------------------------------------------------------------------------------------------
--- проверить значение if sak.counter_greater("name", cnt) then , cnt это число
+-- Счётчик. проверить значение if sak.counter_greater("name", cnt) then , cnt это число
 function counter_greater(name, cnt)
 	if name and cnt then
 		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
@@ -284,6 +284,7 @@ end
 		return
 
 	end
+
 
 
 
