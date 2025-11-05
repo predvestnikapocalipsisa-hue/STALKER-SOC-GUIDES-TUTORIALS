@@ -25,6 +25,8 @@ local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)
 Пример: 
 local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
 
+Больше примеров можете увидеть в _Функции для скриптов.txt
+
 Как это работает под капотом?
 Данные хранятся в db.storage[npc_id].pstor — это таблица Lua.
 При сохранении игры (actor_binder:save) вызывается xr_logic.pstor_save_all(), который записывает все пары ключ-значение в бинарный поток.
