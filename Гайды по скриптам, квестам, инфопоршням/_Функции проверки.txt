@@ -15,7 +15,7 @@ end
 -- После true счётчик очистится, пстор лучше не засорять
 function counter_greater(name, cnt)
 	if name and cnt then
-		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
+		local c = get_value(name, 0)
 		if c >= cnt then
 			del_value(name)
 		return true
@@ -28,6 +28,9 @@ end
 для этого в \gamedata\scripts\_g.script
 
 добавим в конец
+function get_value(var_name, default_value)
+  return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
+end
 
 function del_value(var_name)
   if not db.actor then
@@ -276,6 +279,7 @@ end
 		return
 
 	end
+
 
 
 
