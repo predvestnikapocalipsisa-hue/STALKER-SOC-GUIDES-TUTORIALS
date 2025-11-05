@@ -42,7 +42,7 @@ boolean → как булево значение
 xr_logic.pstor_load_all(self.object, reader)
 Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
 
-Для удобного использования в \gamedata\scripts\_g.script
+Для удобного использования в \gamedata\scripts\_g.script вставьте в конец:
 
 function get_value(var_name, default_value)
   return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
