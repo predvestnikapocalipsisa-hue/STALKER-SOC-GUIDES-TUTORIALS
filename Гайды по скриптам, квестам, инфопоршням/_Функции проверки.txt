@@ -11,6 +11,35 @@ function counter_greater(name, cnt)
 		return false
 	end
 end
+--------------------------------------------------------------------------------------------------------------
+-- После true счётчик очистится, пстор лучше не засорять
+function counter_greater(name, cnt)
+	if name and cnt then
+		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
+		if c >= cnt then
+			del_value(name)
+		return true
+		end
+	else
+		return false
+	end
+end
+
+для этого в \gamedata\scripts\_g.script
+
+добавим в конец
+
+function del_value(var_name)
+  if not db.actor then
+    abort("can't delete variable '%s', bacause actor is nil!", var_name)
+  end
+  
+  local st = db.storage[db.actor:id()]
+  if st.pstor and st.pstor[var_name] then
+    st.pstor[var_name] = nil
+  end
+end
+--------------------------------------------------------------------------------------------------------------
 -- Пример использования
 function name()
    return sak.counter_greater("fff", 10)
@@ -247,5 +276,6 @@ end
 		return
 
 	end
+
 
 
