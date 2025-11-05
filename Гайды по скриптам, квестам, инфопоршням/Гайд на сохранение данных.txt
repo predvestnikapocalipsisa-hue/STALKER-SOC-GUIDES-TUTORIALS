@@ -42,6 +42,90 @@ boolean → как булево значение
 xr_logic.pstor_load_all(self.object, reader)
 Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
 
+Для удобного использования в \gamedata\scripts\_g.script
+
+function get_value(var_name, default_value)
+  return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
+end
+
+function set_value(counter_name, value)
+  xr_logic.pstor_store(db.actor, counter_name, value)
+end
+
+function del_value(var_name)
+  if not db.actor then
+    abort("can't delete variable '%s', bacause actor is nil!", var_name)
+  end
+  
+  local st = db.storage[db.actor:id()]
+  if st.pstor and st.pstor[var_name] then
+    st.pstor[var_name] = nil
+  end
+end
+
+--' Обработчик счётчика, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+function counter_handler(counter_name, counter_limit)
+  local cnt = get_value(counter_name, 0) + 1
+  if cnt >= counter_limit then
+    del_value(counter_name)
+    return true
+  else
+    set_value(counter_name, cnt)
+    return false
+  end
+end
+
+-- Пример:
+function actor_binder:use_object(obj)  
+  local s_obj = obj:section() 
+    if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
+        if counter_handler("vodka_counter", 30) then
+            db.actor:give_info_portion("vodka_counter_info")
+        end 
+    end
+end
+
+--' Аналог который можно использовать в квестах и любых проверках
+function counter_greater(name, cnt)
+	if name and cnt then
+		local c = get_value(name, 0)
+		if c >= cnt then
+			del_value(name)
+		return true
+		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return counter_greater("fff", 10)
+end
+
+Ещё с оргинала в \gamedata\scripts\xr_effects.script
+
+есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять
+
+Используются примерно так:
+[logic]
+active = nil
+on_death = death
+
+[death]
+on_info = %=inc_counter(fff)%
+
+в \gamedata\scripts\xr_conditions.script
+
+есть counter_greater
+
+используется примерно так и у него надо набить на 1 больше чем указано)
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_info = {=counter_greater(my_counter:5)} %=spawn_npc%
+
 🔹АЛЬТЕРНАТИВА С БОЛЬШИМИ ВОЗМОЖНОСТЯМИ🔹
 
 🗃️ se_stor — Расширенное хранилище данных для S.T.A.L.K.E.R. (МОДУЛИ Artos(lua_helper+m_netpk+m_timers+se_stor))
@@ -128,13 +212,21 @@ se_stor — это must-have для серьёзных модов S.T.A.L.K.E.R.
 
 Готово для включения в статью, документацию или гайд для моддеров!
 
-🔹РЕАЛЬНЫЙ ПРИМЕР🔹
+🔹ПРИМЕРЫ🔹
 
-Решили вы сделать квест, в котором надо сделать какое-нибудь действие определённое количество раз, и как же это посчитать? Тут за нас будет считать се_стор😁 вот так:
+Почти также как с пстор, только меньше возни и ненужных действий
+
+Сохранить переменную
     SetVar("name_var", cnt)
-"name_var" это переменная, а cnt это её значение, значение можно по разному считать, тут уже кто на что горазд. Вот например:
---' Обработчик счётчика se_stor  
-function achievment_counter_handler(counter_name, counter_limit) 
+"name_var" это переменная, а cnt это её значение
+
+Получить переменную
+    GetVar("name_var", 0))
+
+Счётчики как в пстор:
+
+--' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+function counter_handler(counter_name, counter_limit) 
   local cnt = GetVar(counter_name, 0) + 1 
   if cnt >= counter_limit then 
     SetVar(counter_name, nil) 
@@ -144,26 +236,17 @@ function achievment_counter_handler(counter_name, counter_limit)
     return false 
   end 
 end
-Счётчик написан Денисом, из чата, используется так:
-if achievment_counter_handler("vodka_counter", 30) then
-   -- какое-нибудь действие
+
+
+--' Аналог который можно использовать в квестах и любых проверках
+function counter_handler(name, cnt)
+	if name and cnt then
+		local c = GetVar(name, 0)
+		if c >= cnt then
+			SetVar(name, nil)
+		return true
+		end
+	else
+		return false
+	end
 end
-таким образом, при каждом повторе этого "если" счётчику будет прибавляться 1, и когда дело дойдёт до 30 счётчик обнуляется и будет выполнено наше действие.
-
-Это только малый пример, где значение переменной было число, а можно туда многое сохранять, например, в своей адаптации компаньона мы сохраняли айди нпс в пстор актора, теперь же и само сохранение стало проще и получило большую функциональность.
-
-Полная версия того как считали выпитую водку
-
-function actor_binder:use_inventory_item(obj)  
-  local s_obj = obj:section() 
-   if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
-    if achievment_counter_handler("vodka_counter", 30) then     db.actor:give_info_portion("vodka_counter_info") 
-     news_manager.send_tip(db.actor, "achievment_info", nil, nil, nil) 
-    end 
-   end
- end
-как только будет выпита 30-я бутылка, выдастся инфопоршн и смс, потом проверка больше не будет грузить игру.
-
-работа была обеспечена за счёт коллбека на использование предметов:
-function actor_binder:reinit()   self.object:set_callback(callback.use_object, self.use_inventory_item, self)
-добавили "новый" коллбек, который есть в движке, но относительно актора в оригинале не используется
