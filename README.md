@@ -9,7 +9,7 @@
 
 ====================================================================
 
-WiKi с разбором всех текстовых файлов:
+WiKi с разбором некоторых файлов:
 
 https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/wiki
 
