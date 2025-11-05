@@ -1,0 +1,132 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+Там https://vkvideo.ru/video-226619903_456239347 разбор начинается непосредственно с логики нпс, но давайте копнем ещё глубже.
+
+Вот стоит у нас НПС на локации, не важно как он был заспавнен, согласно файлу m_stalker.ltx
+и этой записи в нем
+script_binding = bind_stalker.init
+Для каждого нпс в игре будет осуществлен запуск функции init из bind_stalker.script
+function init    (obj)
+  xr_motivator.AddToMotivator(obj)
+end
+AddToMotivator из xr_motivator.script
+function AddToMotivator(npc)
+  if alife() then
+    npc:bind_object(this.motivator_binder(npc))
+  end
+end
+bind_object движковый метод
+motivator_binder это псевдо-класс на основе движкового класса object_binder
+
+На стадии net_spawn идет вызов xr_gulag, который сбивает с толку
+xr_gulag.setup_gulag_and_logic_on_spawn( self.object, self.st, sobject, modules.stype_stalker, self.loaded ) 
+но тем не менее в нем идет вызов xr_logic
+xr_logic.initialize_obj(obj, st, loaded, db.actor, stype)
+в этой функции идет запуск двух интересных функций:
+
+Первая xr_logic.configure_schemes
+она интересна запуском функций из xr_logic.script
+disable_generic_schemes(npc, stype)
+и
+enable_generic_schemes(actual_ini, npc, stype, section_logic)
+
+Через enable_generic_schemes, для понимания, через неё у нас идет запуск компаньона, а так же активация схем: "danger", "on_combat", "meet", "on_death"
+таким макаром
+    local meet_section = utils.cfg_get_string (ini, section, "meet", npc, false, "")
+    xr_meet.set_meet (npc, ini, "meet", meet_section)
+то есть в логике ищется именно параметр meet условно в [walker], вот как у Волка:
+[walker@esc_lager_volk_walker1]
+path_walk = wolf_walk
+meet = meet@wolf
+
+[meet@wolf]
+meet_state    = 15|guard@wait
+Но xr_meet всё равно работает, просто при нахождении секции он подставит параметры.
+
+Вторая xr_logic.activate_by_section
+она в свою очередь делает заветный запуск всех схем по типу "walker", "camper", "remark", и наш "karavan", когда находит их активными 
+_G[filename].set_scheme(npc, ini, scheme, section, db.storage[npc_id]["gulag_name"])
+filename определяется за счёт modules.script
+в котором указаны все схемы:
+load_scheme("xr_walker",      "walker",      stype_stalker)
+load_scheme это функция из _g.script, там происходит заполнение таблицы, благодаря которой скрипту будет понятно из какого файла запускать функцию set_scheme
+
+то есть когда у нпс такая логика
+[logic]
+active = walker
+
+[walker]
+path_walk = my_way_walk1
+функция activate_by_section подставляет xr_walker, вместо _G[filename] и запускает функцию set_scheme из xr_walker.script
+она в свою очередь запускает
+xr_logic.assign_storage_and_bind
+которая делает вызов
+_G[schemes[scheme]].add_to_binder(npc, ini, scheme, section, st)
+и опять же обращается к modules.script, поэтому в него должны быть внесены все схемы.
+
+Если брать в пример xr_meet, то там функция set_scheme названа set_meet, и это не критично поскольку вызывали мы её из enable_generic_schemes, который был вызван в configure_schemes
+
+так вот эта строка делает запуск функции add_to_binder из xr_walker.script а она уже является планировщиком.
+
+Далее пойдет копипаст статьи Red75 (https://web.archive.org/web/20250725115402/https://sdk.stalker-game.com/ru/index.php?title=%D0%9B%D0%BE%D0%B3%D0%B8%D0%BA%D0%B0_NPC), пытаюсь объяснить работу функции add_to_binder
+
+Функция получает планировщик для текущего объекта (object).
+    local manager = npc:motivation_action_manager()
+Планировщик будет периодически проверять условие (вызывать метод evaluate() эвалуатора), и если оно выполняется, инициализирует и будет выполнять оператор, пока условие не станет ложным.
+
+Затем присваивает идентификаторы, которые могут иметь любое целочисленное значение, главное, чтобы они были уникальными.
+    properties["need_walker"] = xr_evaluators_id.zmey_walker_base + 1
+    operators["action_walker"] = xr_actions_id.zmey_walker_base + 1
+Далее создаётся эвалуатор и добавляется в планировщик.
+    manager:add_evaluator(properties["need_walker"], this.evaluator_need_walker(storage, "walker_need"))
+Теперь создаётся оператор
+    local new_action = this.action_walker_activity(npc, "action_walker_activity", storage)
+Задаются предусловия для этого оператора. Планировщик выберет этот оператор при выполнении всех условий. Всё это значит примерно следующее: я могу идти к точке, если:
+я живой,
+    new_action:add_precondition(world_property(stalker_ids.property_alive, true))
+опасностей нет,
+    new_action:add_precondition(world_property(stalker_ids.property_danger,false))
+врагов нет,
+    new_action:add_precondition(world_property(stalker_ids.property_enemy, false))
+аномалий поблизости нет,
+    new_action:add_precondition(world_property(stalker_ids.property_anomaly,false))
+выполняются другие важные условия (игрок не собирается со мной поговорить, я не собираюсь никого бить по морде, я не ранен, я не собираюсь стрелять по вертолёту),
+    xr_motivator.addCommonPrecondition(new_action)
+еволютор дал тру, и можно идти к цели
+    new_action:add_precondition(world_property(properties["need_walker"], true))
+Выполнили действие, закончили(и так по кругу)
+    new_action:add_effect(world_property(properties["need_walker"], false))
+Создание оператора завершено. Добавим его в планировщик.
+    manager:add_action(operators["action_walker"], new_action)
+Эта строчка не имеет отношения к работе планировщика. Если коротко, то она позволяет объекту получать уведомления об определённых событиях (смерть - вызывается метод death_callback(), попадание пули - вызывается метод hit_callback() и т.д.)
+    xr_logic.subscribe_action_for_events(npc, storage, new_action)
+Осталось ещё одна задача. Нужно запретить планировщику активировать оператор «alife», тот самый оператор, который заставляет NPC болтаться по карте, отстреливать собачек и в конце концов попадать в аномалию. Впрочем, отстрелом врагов занимается другой оператор с идентификатором stalker_ids.action_combat_planner.
+
+Для этого мы получаем оператор «alife»
+    new_action = manager:action(xr_actions_id.alife)
+И добавляем к его предусловиям следующее: условие «не пришёл ли я?» должно быть истинным.
+    new_action:add_precondition(world_property(properties["need_walker"], false))
+Итак, мы настроили планировщик. Посмотрим как всё это будет работать.
+Эволютор волкера требует одного условия, которое должно дать true
+function evaluator_need_walker:evaluate()
+    return xr_logic.is_active(self.object, self.st)
+это чтобы текущая активная схема нпс была [walker] дальше будет работать экшен тут я немного поплыл, ибо методы немного странные, но в волкере ещё на этапе set_scheme и дет чтение параметров
+    st.path_walk = utils.cfg_get_string(ini, section, "path_walk", npc, true,  gulag_name)
+    st.path_look = utils.cfg_get_string(ini, section, "path_look", npc, false, gulag_name)
+из чего видим что path_walk обязательный, а path_look нет.
+
+Как имено он идет я не разобрался, но судя по всему из-за этого
+    self.move_mgr:reset(self.st.path_walk, self.st.path_walk_info, self.st.path_look, self.st.path_look_info, self.st.team, self.st.suggested_state)
+
+Возвращаемся к xr_motivator.script вспоминаем, что там работает некий биндер нпс - motivator_binder, за счёт которого пашут все схемы, поведение нпс, если по простому.
+
+так вот на стадии
+function motivator_binder:reinit()
+можно заметить запуск двух других биндеров нпс
+        self.st.state_mgr = state_mgr.bind_manager(self.object)
+
+        self.st.move_mgr = move_mgr.move_mgr(self.object)
+Вот благодаря этому, данные полученные со схемы волкер начинают иметь смысл.
+
+Данные, попав в биндер стейт/мув менеджера, определяют для нпс куда ему и как идти.
+
+Делаю вывод, что поведение нпс в алайфе предопределено в движке, и все эти скрипты нужны для работы схем, этому вроде ничего не противоречит, должен же быть фундамент
