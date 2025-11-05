@@ -44,14 +44,17 @@ xr_logic.pstor_load_all(self.object, reader)
 
 Для удобного использования в \gamedata\scripts\_g.script вставьте в конец:
 
+--получить переменную 
 function get_value(var_name, default_value)
   return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
 end
 
+--установить\сохранить переменную
 function set_value(counter_name, value)
   xr_logic.pstor_store(db.actor, counter_name, value)
 end
 
+--удалить\очистить переменную
 function del_value(var_name)
   if not db.actor then
     abort("can't delete variable '%s', bacause actor is nil!", var_name)
@@ -76,6 +79,7 @@ function counter_handler(counter_name, counter_limit)
 end
 
 -- Пример:
+-- коллбек на использование предметов
 function actor_binder:use_object(obj)  
   local s_obj = obj:section() 
     if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
@@ -99,6 +103,11 @@ function counter_greater(name, cnt)
 end
 
 -- Пример использования
+function name()
+   return sak.counter_greater("fff", 10)
+end
+
+-- если положили counter_greater в _g.script, то можно использовать так:
 function name()
    return counter_greater("fff", 10)
 end
