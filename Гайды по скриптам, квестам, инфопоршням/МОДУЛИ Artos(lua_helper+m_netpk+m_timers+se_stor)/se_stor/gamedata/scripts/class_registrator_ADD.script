@@ -1,0 +1,11 @@
+--/ ... все предыдущие строки
+
+function register(object_factory)
+	--/ ... все предыдущие строки функции
+
+	--/#+# [se_stor] дополнение для объектов универсального хранилища:
+	if se_stor then
+		cs_register(object_factory, "CGameObject", "se_stor.se_custom_storage", "CUST_ST", "custom_storage")
+	end
+	--/< -------------------------------------------------------------
+end

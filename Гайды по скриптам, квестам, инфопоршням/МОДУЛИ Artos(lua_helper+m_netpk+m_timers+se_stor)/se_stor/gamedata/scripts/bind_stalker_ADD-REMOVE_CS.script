@@ -1,0 +1,121 @@
+--/ ... все предыдущие строки до actor_init
+
+--/#x# [se_stor] отключить!
+--[[
+--function actor_init    (npc)
+	--npc:bind_object(actor_binder(npc))
+--end
+--]]
+
+--/ -----------------------------------------------------------------
+--/#+# [se_stor] организуем внешний доступ к биндеру актора:
+--/ -----------------------------------------------------------------
+function actor_init(npc)
+	_G.g_bind_actor = this.actor_binder(npc)
+	npc:bind_object(g_bind_actor)
+end
+function save(...)
+	_G.g_bind_actor:ext_save(...)
+end
+function load(...)
+	_G.g_bind_actor:ext_load(...)
+end
+
+local iSID = 9901 --/#+# начальный story_id для stor-элементов хранения данных
+--/<-----------------------------------------------------------------
+
+--/ ... все строки между actor_init и actor_binder:save
+
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:save(packet)
+	--/#+# for debug --------------------------------------------------
+	local size = packet:w_tell()
+	--/<---------------------------------------------------------------
+
+	--/#x# [se_stor] отключить! -------------------------------------------------
+	--/#!# модули с публичным save(), данные которых сохраняются в чанках (перечислены в se_stor.tPkChunks):
+	--[[
+	--xr_surge_hide.save(packet)
+	--sr_psy_antenna.save(packet)
+	--xr_sound.actor_save(packet)
+	--xr_statistic.save(packet)
+	--guiders.save(packet)
+	--treasure_manager.save(packet)
+	--]]
+
+	--/#!# модули без публичного save(), данные которых сохраняются в чанках (перенесены в actor_binder:ext_save(pk)):
+	--[[
+	--self.weather_manager:save(packet)
+	--release_body_manager.get_release_body_manager():save(packet) --' Distemper 12.02.2008
+	--]]
+	--/<-------------------------------------------------------------------------
+
+	--/ ... все остальные строки функции
+
+	--/#!# В случае уже подключёного модуля m_timers этот блок пропустить
+	--/#!# (следует использовать аналогичный блок в m_timers)
+	--/#+# [se_stor] вызов сохранений во внешних модулях с публичным save() -----
+	if se_stor then
+		if to_log then to_log(script_name()..":save:size=["..(packet:w_tell() - size).."]") end --/#~#
+		if event then --/ вызов через 'систему сигналов'
+			event("actor_saved"):trigger()
+		elseif type(se_stor.save) == 'function' then --/ 'прямой' вызов
+			se_stor.save()
+		end
+	end
+	--/<-------------------------------------------------------------------------
+end
+--/#+# [se_stor] сохранение в чанках данных из внешних модулей без публичного save(): --
+function actor_binder:ext_save(pk)
+	self.weather_manager:save(pk)
+	release_body_manager.get_release_body_manager():save(pk)
+end
+--/<------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:load(reader)
+	--/#+# for debug --------------------------------------------------
+	local size = reader:r_tell()
+	--/<---------------------------------------------------------------
+
+	--/#x# [se_stor] отключить! -------------------------------------------------
+	--/#!# модули с публичным save(), данные которых загружаются из чанков (перечислены в se_stor.tPkChunks):
+	--[[
+	--xr_surge_hide.load(reader)
+	--sr_psy_antenna.load(reader)
+	--xr_sound.actor_load(reader)
+	--xr_statistic.load(reader)
+	--guiders.load(reader)
+	--treasure_manager.load(reader)
+	--]]
+
+	--/#!# модули без публичного save(), данные которых загружаются из чанков (перенесены в actor_binder:ext_load(pk)):
+	--[[
+	--self.weather_manager:load(reader)
+	--release_body_manager.get_release_body_manager():load(reader) --' Distemper 12.02.2008
+	--]]
+	--/<-------------------------------------------------------------------------
+
+	--/ ... все остальные строки функции
+
+	--/#!# В случае уже подключёного модуля m_timers этот блок пропустить
+	--/#!# (следует использовать аналогичный блок в m_timers)
+	--/#+# [se_stor] вызов загрузки во внешних модулях с публичным save() -------
+	if se_stor then
+		if to_log then to_log(script_name()..":load:size=["..(reader:r_tell() - size).."]") end --/#~#
+		if event then --/ вызов через 'систему сигналов'
+			event("actor_load"):trigger()
+		elseif type(se_stor.load) == 'function' then --/ 'прямой' вызов
+			se_stor.load()
+		end
+	end
+	--/<-------------------------------------------------------------------------
+end
+--/#+# [se_stor] загрузка данных из чанков во внешние модули без публичного save(): ----
+function actor_binder:ext_load(pk)
+	self.weather_manager:load(pk)
+	release_body_manager.get_release_body_manager():load(pk) --' Distemper 12.02.2008
+end
+--/<------------------------------------------------------------------------------------
+
+--/ ... все последующие строки

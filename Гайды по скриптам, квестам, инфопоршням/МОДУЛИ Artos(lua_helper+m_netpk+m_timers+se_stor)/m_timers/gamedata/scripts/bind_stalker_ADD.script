@@ -1,0 +1,71 @@
+--/ ... все предыдущие строки до actor_binder:__init
+
+----------------------------------------------------------------------------------------------------------------------
+class "actor_binder" (object_binder)
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:__init (obj) super(obj)
+	--/ ... все предыдущие строки функции
+
+	--/#+# [m_timers] for update timers -------------------------------
+	if (m_timers) then m_timers.start() end
+	--/<---------------------------------------------------------------
+end
+
+--/ ... все строки между actor_binder:__init и actor_binder:reinit
+
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:reinit()
+	--/ ... все предыдущие строки
+
+	--/#+# [lua_helper] ------------------------------------------------
+	if event then event("actor_stor"):once(true):trigger() --/#!#> событие: инициализация 'storage' актора
+	elseif lua_helper.Init_ActorPStor then lua_helper.Init_ActorPStor()
+	end
+	--/< ---------------------------------------------------------------
+end
+
+--/ ... все строки между actor_binder:__reinit и actor_binder:save
+
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:save(packet)
+	--/#+# for debug --------------------------------------------------
+	local size = packet:w_tell()
+	--/<---------------------------------------------------------------
+
+	--/ ... все строки функции
+
+	--/#+# [m_timers] вызов сохранений во внешних модулях -------------
+	if se_stor then
+		if to_log then to_log(script_name()..":save:size=["..(packet:w_tell() - size).."]") end --/#~#
+		if event then --/ вызов через 'систему сигналов'
+			event("actor_saved"):trigger() --/#!#> событие: 'окончание сохранения данных актора'
+		elseif type(se_stor.save) == 'function' then --/ 'прямой' вызов
+			if (m_timers) then m_timers.save() end --/ for timers
+			se_stor.save()
+		end
+	elseif (m_timers) then m_timers.save() --/ for timers
+	end
+	--/<---------------------------------------------------------------
+end
+
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:load(reader)
+	--/#+# for debug --------------------------------------------------
+	local size = reader:r_tell() --/#+# for debug
+	--/<---------------------------------------------------------------
+
+	--/ ... все строки функции
+
+	--/#+# [m_timers] вызов загрузки во внешних модулях ----------------
+	if se_stor then
+		if to_log then to_log(script_name()..":load:size=["..(reader:r_tell() - size).."]") end --/#~#
+		if event then --/ вызов через 'систему сигналов'
+			event("actor_load"):trigger() --/#!#> событие: 'загружены данные актора' (для инициализации стораджа актора)
+		elseif type(se_stor.load) == 'function' then --/ 'прямой' вызов
+			se_stor.load()
+			if (m_timers) then m_timers.load() end --/ for timers
+		end
+	elseif (m_timers) then m_timers.load() --/ for timers
+	end
+	--/<---------------------------------------------------------------
+end
