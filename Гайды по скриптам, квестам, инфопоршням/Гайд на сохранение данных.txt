@@ -20,7 +20,6 @@ xr_logic.pstor_store(db.actor, "noclip_delay_time", 50)
 Загрузка значения
 local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)
 Если переменная не найдена в сохранении — вернётся default_value.
-Если default_value не указан и переменная отсутствует — вернётся nil.
 
 Пример: 
 local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
