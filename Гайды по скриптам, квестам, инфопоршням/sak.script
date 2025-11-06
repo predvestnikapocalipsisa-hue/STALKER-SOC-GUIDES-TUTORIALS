@@ -99,9 +99,14 @@ function create_items_actor(itm_section,number)
 	news_manager.relocate_item(db.actor, "in", itm_section)
 end
 
--- Спавн в инвентарь гг без выдачи сообщения.
-function create_items_actor_nomsg(itm_section,number)
-	this.create_items(db.actor,itm_section,number)
+-- спавн предмета в рюкзак герою без сообщения
+function create_items_actor_without_sms(section)
+	return alife():create(section, vector(), 0, 0, db.actor:id())
+end
+
+-- удалить предмет из рюкзака героя без сообщения
+function out_item_namber_without_sms(section)
+	alife():release(alife():object(db.actor:object(section):id()), true)
 end
 
 -- функция удаления всех itm_section из инвентаря ГГ. Полезна, когда количество неизвестно
@@ -172,4 +177,25 @@ function out_items_count(actor,item)
 	end
 end
 
+
+--' Для серверного объекта (но можно и клиентский закинуть)
+
+
+function create_items_ex(sobj,section,number)
+
+		if not sobj.section_name then
+			-- Опа. Так это же клиентский
+			this.create_items(sobj,section,number)
+			return
+		end
+        for i = 1, number do
+			alife():create(section, 
+            sobj.position,
+            sobj.m_level_vertex_id,  
+            sobj.m_game_vertex_id,
+            sobj.id)
+        end 
+end
+
 -----------------------------------------------------------------------------------------------------------
+
