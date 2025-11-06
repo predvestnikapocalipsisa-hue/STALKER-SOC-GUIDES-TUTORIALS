@@ -25,12 +25,7 @@ local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)
 local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
 
 ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
--- прибавить к указанному счётчику актёра cnt, исходя из текущего значения счётчика, 0 это значение_по_умолчанию 
--- вызывать sak.inc_counter1("name", cnt)
-function inc_counter1(name, cnt)
-        xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) + cnt)
-end
---------------------------------------------------------------------------------------------------------------
+
 -- прибавить к указанному счётчику актёра 1
 -- выхывать sak.inc_counter("name")
 function inc_counter(name)
