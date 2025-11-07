@@ -129,16 +129,17 @@ on_death = death
 [death]
 on_info = %=inc_counter(fff)%
 
-в \gamedata\scripts\xr_conditions.script
+в \gamedata\scripts\xr_conditions.script есть counter_greater у него надо набить на 1 больше чем указано, такой нюанс
 
-есть counter_greater
-
-используется примерно так и у него надо набить на 1 больше чем указано)
+Используются только в логике:
 [logic]
 active = sr_idle
 
 [sr_idle]
 on_info = {=counter_greater(my_counter:5)} %=spawn_npc%
+
+
+
 
 🔹АЛЬТЕРНАТИВА С БОЛЬШИМИ ВОЗМОЖНОСТЯМИ🔹
 
@@ -240,7 +241,7 @@ se_stor — это must-have для серьёзных модов S.T.A.L.K.E.R.
 Счётчики как в пстор:
 
 --' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
-function counter_handler(counter_name, counter_limit) 
+function se_stor_counter_handler(counter_name, counter_limit) 
   local cnt = GetVar(counter_name, 0) + 1 
   if cnt >= counter_limit then 
     SetVar(counter_name, nil) 
@@ -253,7 +254,7 @@ end
 
 
 --' Аналог который можно использовать в квестах и любых проверках
-function counter_handler(name, cnt)
+function se_stor_counter_greater(name, cnt)
 	if name and cnt then
 		local c = GetVar(name, 0)
 		if c >= cnt then
