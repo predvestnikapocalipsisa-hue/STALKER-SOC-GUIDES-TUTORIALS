@@ -92,7 +92,7 @@ end
 
 -- Пример использования
 function name()
-   return counter_greater("fff", 10)
+   return counter_handler("fff", 10)
 end
 
 
