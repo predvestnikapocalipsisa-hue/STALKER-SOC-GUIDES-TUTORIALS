@@ -27,14 +27,14 @@ local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
 ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
 
 -- прибавить к указанному счётчику актёра 1
--- выхывать sak.inc_counter_my("name")
-function inc_counter_my(name)
+-- выхывать sak.counter_add1("name")
+function counter_add1(name)
         xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) + 1)
 end
 --------------------------------------------------------------------------------------------------------------
 -- отнять от указанного счётчика актёра 1 
--- вызывать sak.dec_counter_my("name")
-function dec_counter_my(name)
+-- вызывать sak.counter_del1("name")
+function counter_del1(name)
         xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) - 1)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ function del_value(var_name)
 end
 
 --' Счётчик который можно использовать в квестах и любых проверках
-function counter_greater(name, cnt)
+function counter_handler(name, cnt)
 	if name and cnt then
 		local c = get_value(name, 0)
 		if c >= cnt then
@@ -253,7 +253,7 @@ end
 
 
 --' Аналог который можно использовать в квестах и любых проверках
-function counter_greater(name, cnt)
+function counter_handler(name, cnt)
 	if name and cnt then
 		local c = GetVar(name, 0)
 		if c >= cnt then
