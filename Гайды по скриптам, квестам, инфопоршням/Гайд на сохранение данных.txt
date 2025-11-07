@@ -27,14 +27,14 @@ local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
 ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
 
 -- прибавить к указанному счётчику актёра 1
--- выхывать sak.inc_counter("name")
-function inc_counter(name)
+-- выхывать sak.inc_counter_my("name")
+function inc_counter_my(name)
         xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) + 1)
 end
 --------------------------------------------------------------------------------------------------------------
 -- отнять от указанного счётчика актёра 1 
--- вызывать sak.dec_counter("name")
-function dec_counter(name)
+-- вызывать sak.dec_counter_my("name")
+function dec_counter_my(name)
         xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) - 1)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -55,17 +55,17 @@ xr_logic.pstor_load_all(self.object, reader)
 
 Для удобного использования в \gamedata\scripts\_g.script вставьте в конец:
 
---получить переменную 
+-- получить переменную 
 function get_value(var_name, default_value)
   return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
 end
 
---установить\сохранить переменную
+-- установить\сохранить переменную
 function set_value(counter_name, value)
   xr_logic.pstor_store(db.actor, counter_name, value)
 end
 
---удалить\очистить переменную
+-- удалить\очистить переменную
 function del_value(var_name)
   if not db.actor then
     abort("can't delete variable '%s', bacause actor is nil!", var_name)
@@ -76,6 +76,25 @@ function del_value(var_name)
     st.pstor[var_name] = nil
   end
 end
+
+--' Счётчик который можно использовать в квестах и любых проверках
+function counter_greater(name, cnt)
+	if name and cnt then
+		local c = get_value(name, 0)
+		if c >= cnt then
+			del_value(name)
+		return true
+		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return counter_greater("fff", 10)
+end
+
 
 --' Обработчик счётчика, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
 function counter_handler(counter_name, counter_limit)
@@ -100,32 +119,7 @@ function actor_binder:use_object(obj)
     end
 end
 
---' Аналог который можно использовать в квестах и любых проверках
-function counter_greater(name, cnt)
-	if name and cnt then
-		local c = get_value(name, 0)
-		if c >= cnt then
-			del_value(name)
-		return true
-		end
-	else
-		return false
-	end
-end
-
--- Пример использования
-function name()
-   return sak.counter_greater("fff", 10)
-end
-
--- если положили counter_greater в _g.script, то можно использовать так:
-function name()
-   return counter_greater("fff", 10)
-end
-
-Ещё с оргинала в \gamedata\scripts\xr_effects.script
-
-есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять
+Ещё с оргинала в \gamedata\scripts\xr_effects.script есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять
 
 Используются только в логике:
 [logic]
@@ -259,7 +253,7 @@ end
 
 
 --' Аналог который можно использовать в квестах и любых проверках
-function counter_handler(name, cnt)
+function counter_greater(name, cnt)
 	if name and cnt then
 		local c = GetVar(name, 0)
 		if c >= cnt then
