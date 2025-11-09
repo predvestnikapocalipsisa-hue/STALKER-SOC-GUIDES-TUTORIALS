@@ -19,10 +19,15 @@ end
 --Вещь дают БЕЗ СМС
 function give()
 sak.create_items_actor_nomsg("medkit",3)
-sak.create_items_actor_nomsg("bandage",5)
 end
+
+--Вещь забирают БЕЗ СМС
+function out()
+sak.out_item_namber_nomsg("medkit",3)
+end
+
 ---------------------------------------------------------------------
--- Привет от Сяка 
+-- Ниже идут функции Сяка, просьба свои функции писать сверху
 ---------------------------------------------------------------------
 local items_count = 0
 local itemin = nil
@@ -85,14 +90,9 @@ function create_items_actor(itm_section,number)
 	news_manager.relocate_item(db.actor, "in", itm_section)
 end
 
--- спавн предмета в рюкзак герою без сообщения
-function create_items_actor_without_sms(section)
-	return alife():create(section, vector(), 0, 0, db.actor:id())
-end
-
--- удалить предмет из рюкзака героя без сообщения
-function out_item_namber_without_sms(section)
-	alife():release(alife():object(db.actor:object(section):id()), true)
+-- Спавн в инвентарь гг без выдачи сообщения.
+function create_items_actor_nomsg(itm_section,number)
+	this.create_items(db.actor,itm_section,number)
 end
 
 -- функция удаления всех itm_section из инвентаря ГГ. Полезна, когда количество неизвестно
@@ -132,6 +132,20 @@ function out_item_namber(itm_section,need_number)
 	news_manager.relocate_item(db.actor, "out", itm_section)
 	reloc_params = {}
 end
+
+-- чтобы забрали без смс
+function out_item_namber_nomsg(itm_section,need_number)
+	reloc_params.itm_section = itm_section
+	reloc_params.itm_cnt = need_number
+	reloc_params.itm_cnt_found = 0
+		db.actor:iterate_inventory(checkout_items_count,db.actor)
+	reloc_params.itm_cnt_found = 0
+	if reloc_params.itm_cnt_found <= reloc_params.itm_cnt then
+		db.actor:iterate_inventory(out_items_count,db.actor)
+	end
+	reloc_params = {}
+end
+
 function relocate_item_namber(stalker,itm_section,need_number)
 	stalk = stalker
 	reloc_params.itm_section = itm_section
@@ -163,9 +177,7 @@ function out_items_count(actor,item)
 	end
 end
 
-
 --' Для серверного объекта (но можно и клиентский закинуть)
-
 
 function create_items_ex(sobj,section,number)
 
@@ -182,7 +194,3 @@ function create_items_ex(sobj,section,number)
             sobj.id)
         end 
 end
-
------------------------------------------------------------------------------------------------------------
-
-
