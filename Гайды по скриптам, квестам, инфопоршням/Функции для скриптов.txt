@@ -9,26 +9,6 @@ end
 -- Пример вызова
 Имя_файла.send_message(tostring(значение))
 --------------------------------------------------------------------------------------------------------------
--- Посчитать количество полученных инфо
-function count_achieved_infos()
-    local count = 0
-
-    -- Список всех info_portion
-    local info_list = {
-        "info1",
-        "info2",
-        "info3"
-    }
-
-    for _, info in ipairs(info_list) do
-        if has_alife_info(info) then
-            count = count + 1
-        end
-    end
-
-    return count
-end
---------------------------------------------------------------------------------------------------------------
 -- Функция переносит ВСЕ ваши вещи в указанный объект. Точно также как на арене в баре. Тут это ящик со стори айди 2000
 function transfer_object_item(item) -- функцию кладем туда же, где и item_to_box()
     out_object:transfer_item(item, in_object)
@@ -60,18 +40,15 @@ function spawn()
   return obj
 end
 --------------------------------------------------------------------------------------------------------------
--- вывод иконок в диалоге:
-function main3231(first_speaker, second_speaker)
-local test = 33
-local total = ""
-local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
-  total = game.translate_string("stalker").." %c[255,238,155,23]"..test..""
-  db.actor:give_talk_message(total, task_texture, task_rect, "iconed_trade_info")
+-- спавн предмета в рюкзак герою без сообщения
+function create_items_actor_without_sms(section)
+	return alife():create(section, vector(), 0, 0, db.actor:id())
 end
--- ui_iconsTotal_artefact - это иконка из ui_iconstotal.xml
--- stalker - это текст из xml
--- " %c[255,238,155,23]"..test.." - тоже часть текста, но другим цветом из local test = 33
--- "iconed_trade_info" - хз для чего это, но надо)
+
+-- удалить предмет из рюкзака героя без сообщения
+function out_item_namber_without_sms(section)
+	alife():release(alife():object(db.actor:object(section):id()), true)
+end
 --------------------------------------------------------------------------------------------------------------
 -- оригинальная выдача предметов
 function spawn()
@@ -554,4 +531,37 @@ active = sr_idle
 
 [sr_idle]
 on_actor_inside = nil %=run_postprocess(alcohol) =run_cam_effector(atp_zharka)%
+--------------------------------------------------------------------------------------------------------------
+-- вывод иконок в диалоге:
+function main3231(first_speaker, second_speaker)
+local test = 33
+local total = ""
+local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
+  total = game.translate_string("stalker").." %c[255,238,155,23]"..test..""
+  db.actor:give_talk_message(total, task_texture, task_rect, "iconed_trade_info")
+end
+-- ui_iconsTotal_artefact - это иконка из ui_iconstotal.xml
+-- stalker - это текст из xml
+-- " %c[255,238,155,23]"..test.." - тоже часть текста, но другим цветом из local test = 33
+-- "iconed_trade_info" - хз для чего это, но надо)
 
+--------------------------------------------------------------------------------------------------------------
+-- Посчитать количество полученных инфо
+function count_achieved_infos()
+    local count = 0
+
+    -- Список всех info_portion
+    local info_list = {
+        "info1",
+        "info2",
+        "info3"
+    }
+
+    for _, info in ipairs(info_list) do
+        if has_alife_info(info) then
+            count = count + 1
+        end
+    end
+
+    return count
+end
