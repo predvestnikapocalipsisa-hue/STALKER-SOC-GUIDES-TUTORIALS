@@ -20,7 +20,7 @@ path_walk = vill_st_walk
 path_look = vill_st_look
 
 В СДК открываем точку "vill_st_look" и в параметре Name пишем это: "name00|a=ward|s=state"
-про параметр "|a=ward" это анимация, а "|s=" это использование звуковой схемы. Более подробно описано в: https://drive.google.com/open?id=1mAiXFIG4txUN6hMo3RSyRQQezmZTYJ8X&usp=drive_fs
+про параметр "|a=ward" это анимация, а "|s=" это использование звуковой схемы. Более подробно описано в гайде по звукам
 
 В точке path_walk анимацию в этом случае указывать нельзя, не забываем ставить 0-вые флажки в точку "look" и "walk", чтобы не было вылета, в асдс выглядит так p1:flags = 0x1, благодаря этим флажкам можно сделать несколько направлений взгляда и использовать параметр "|t=",указывается время в миллисекундах, которое персонаж должен смотреть в заданную точку, допустимы значения в диапазоне [1000, 30000].
 
@@ -41,7 +41,7 @@ path_walk = vill_st_way
 meet_state		= 15|guard@wait
 
 15 это дистанция до актора, "guard" это анимка из state_lib, а "wait" это звуковая схема.
-Более подробно описано в: https://drive.google.com/open?id=1mAiXFIG4txUN6hMo3RSyRQQezmZTYJ8X&usp=drive_fs
+Более подробно описано в гайде по звукам
 
 Свои анимации в state_lib.script
 	-- Стоячие состояния
@@ -247,3 +247,4 @@ movement_speeds					= stalker_my_movement_speeds;
 	;;;; forward
 
 	panic_stand_run_forward		= 7.0
+
