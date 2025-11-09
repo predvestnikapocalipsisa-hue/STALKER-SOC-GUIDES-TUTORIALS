@@ -84,7 +84,7 @@ esc_wolf_say_thanks      = {min_snd = 3, max_snd = 5, rnd = 100, prior = 5, rnd_
 stalker    = 0,scenario\escape\wolf_thanks_1
 
 Более подробно про ремарк: https://drive.google.com/open?id=1Rtz5zHufWjXIT7CmwAgR1MgNPsTWoWOs&usp=drive_fs
-По анимациям есть отдельный гайд: https://drive.google.com/open?id=17wFqHBEOLl1LMmEz-yXetynjf9ooORnz&usp=drive_fs
+По анимациям есть отдельный гайд
 
 
 ЗВУКИ В ОБЪЕКТАХ
@@ -108,3 +108,4 @@ ph_snd_themes["my_music"] = { "my_music\\music_1",
 ph_snd_themes["my_music"] = {[[my_music\music_1]],
 
 								[[my_music\music_2]]}
+
