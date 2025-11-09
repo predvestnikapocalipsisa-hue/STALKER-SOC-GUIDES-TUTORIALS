@@ -17,23 +17,9 @@ sak.create_items_actor("bandage",5)
 end
 
 --Вещь дают БЕЗ СМС
-function nagrada()
+function give()
 sak.create_items_actor_nomsg("medkit",3)
 sak.create_items_actor_nomsg("bandage",5)
-end
-
-function relocate_item_my(victim, section, type)
-  if db.actor and victim then
-    if type == "in" then
-
-      if victim:object(section) ~= nil then
-        victim:transfer_item(victim:object(section), db.actor)
-      end
-    elseif type == "out" then
-      db.actor:transfer_item(db.actor:object(section), victim)
-    end
-    news_manager.relocate_item(db.actor, type, section)
-  end
 end
 ---------------------------------------------------------------------
 -- Привет от Сяка 
@@ -198,4 +184,5 @@ function create_items_ex(sobj,section,number)
 end
 
 -----------------------------------------------------------------------------------------------------------
+
 
