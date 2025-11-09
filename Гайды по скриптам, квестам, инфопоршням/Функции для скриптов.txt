@@ -8,7 +8,6 @@ end
 
 -- Пример вызова
 Имя_файла.send_message(tostring(значение))
-
 --------------------------------------------------------------------------------------------------------------
 -- Посчитать количество полученных инфо
 function count_achieved_infos()
@@ -555,3 +554,4 @@ active = sr_idle
 
 [sr_idle]
 on_actor_inside = nil %=run_postprocess(alcohol) =run_cam_effector(atp_zharka)%
+
