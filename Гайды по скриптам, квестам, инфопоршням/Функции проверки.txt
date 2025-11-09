@@ -2,57 +2,6 @@
 
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН "sak.script" из СБОРНИКА, его копируем себе в gamedata\scripts\
 --------------------------------------------------------------------------------------------------------------
--- Счётчик. проверить значение if sak.counter_greater("name", cnt) then , cnt это число
-function counter_greater(name, cnt)
-	if name and cnt then
-		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
-		return c >= cnt
-	else
-		return false
-	end
-end
---------------------------------------------------------------------------------------------------------------
--- После true счётчик очистится, пстор лучше не засорять
-function counter_greater(name, cnt)
-	if name and cnt then
-		local c = get_value(name, 0)
-		if c >= cnt then
-			del_value(name)
-		return true
-		end
-	else
-		return false
-	end
-end
-
-для этого в \gamedata\scripts\_g.script (можно и counter_greater положить туда, чтобы вызывать без указывания скрипта)
-
-добавим в конец
-function get_value(var_name, default_value)
-  return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
-end
-
-function del_value(var_name)
-  if not db.actor then
-    abort("can't delete variable '%s', bacause actor is nil!", var_name)
-  end
-  
-  local st = db.storage[db.actor:id()]
-  if st.pstor and st.pstor[var_name] then
-    st.pstor[var_name] = nil
-  end
-end
---------------------------------------------------------------------------------------------------------------
--- Пример использования
-function name()
-   return sak.counter_greater("fff", 10)
-end
-
--- если положили counter_greater в _g.script, то можно использовать так:
-function name()
-   return counter_greater("fff", 10)
-end
---------------------------------------------------------------------------------------------------------------
 -- Проверка убийства лагеря, можно использовать в своих скриптах
 function escape_gulag_inactive()
 	return xr_conditions.gulag_population_active(db.actor, npc, {"esc_smart_terrain_vagon"}) == 0 -- "esc_smart_terrain_vagon" это название нашего лагеря
@@ -284,9 +233,3 @@ end
 		return
 
 	end
-
-
-
-
-
-
