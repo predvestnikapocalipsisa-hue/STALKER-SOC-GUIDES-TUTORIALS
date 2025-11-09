@@ -95,6 +95,15 @@ function name()
    return counter_handler("fff", 10)
 end
 
+-- Счётчик, который только сверяет значение
+function counter_handler(name, cnt)
+	if name and cnt then
+		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
+		return c >= cnt
+	else
+		return false
+	end
+end
 
 --' Обработчик счётчика, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
 function counter_handler(counter_name, counter_limit)
