@@ -1,4 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+Торговля
+[trader] 
+buy_condition = my_generic_buy
+buy это цены закупки от 100 до 30 процентов например
+
+sell_condition = my_start_sell
+цены продажи от 100 до 300 процентов например
+
+buy_supplies = supplies_start
+саплайс старт это ассортимент продажи, сколько и с какой вероятностью
+
 ;базовая логика
 [smart_terrains]
 none = true
