@@ -6,7 +6,8 @@ function send_message(msg)
     news_manager.send_tip(db.actor, msg, nil, nil, 5000)  
 end
 
-Имя_файла.send_message(tostring(значение))
+Имя_файла.send_message(tostring(значение))
+
 --------------------------------------------------------------------------------------------------------------
 -- Посчитать количество полученных инфо
 function count_achieved_infos()
