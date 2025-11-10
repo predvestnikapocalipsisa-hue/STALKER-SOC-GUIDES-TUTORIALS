@@ -1,5 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
+https://youtu.be/w2Iny-_yuiw - Видео разбор
+
 Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой. 
 
 Инфопоршни создаются например в \gamedata\config\gameplay\info_portions.xml
@@ -157,3 +159,4 @@ esc_tutorial_secret
 	<action>escape_dialog.give_weapon_to_actor</action>
 
   </info_portion>
+
