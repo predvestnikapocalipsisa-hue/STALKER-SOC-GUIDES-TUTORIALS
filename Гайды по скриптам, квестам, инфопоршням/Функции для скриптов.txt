@@ -565,3 +565,96 @@ function count_achieved_infos()
 
     return count
 end
+--------------------------------------------------------------------------------------------------------------
+СНЯТИЕ КООРДИНАТ
+Откройте файл \gamedata\scripts\ui_main_menu.script
+
+Через поиск найдите main_menu:OnKeyboard совместите со своим вариантом, после этого находясь в меню можно будет жать Ф1 и появятся коорды
+
+function main_menu:OnKeyboard(dik, keyboard_action)  --virtual function
+
+	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
+
+	local bind = dik_to_bind(dik)
+
+	local console = get_console()
+
+	
+
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+
+		if dik == DIK_keys.DIK_ESCAPE then
+
+			if level.present() and (db.actor ~= nil) and db.actor:alive() then
+
+				console:execute("main_menu off")
+
+			end
+
+		end
+
+		
+
+		if dik == DIK_keys.DIK_SPACE then
+
+			self:StartGame()
+
+		end
+
+
+
+		if dik == DIK_keys.DIK_F1 then
+
+			local gv = db.actor:game_vertex_id()
+
+			local lv = db.actor:level_vertex_id()
+
+			local pos = db.actor:position()
+
+			local posx = pos.x
+
+			local posy = pos.y
+
+			local posz = pos.z
+
+			local dir = db.actor:direction()
+
+			local dirx = dir.x
+
+			local diry = dir.y
+
+			local dirz = dir.z
+
+			news_manager.send_tip(db.actor, "Position:".."\\n".."X: "..posx.."\\n".."Y: "..posy.."\\n".."Z: "..posz.."\\n".."Direction: ".."\\n".."X: "..dirx.."\\n".."Y: "..diry.."\\n".."Z: "..dirz.."\\n".."Game Vertex ID: "..gv.."\\n".."Level Vertex ID: "..lv.."\\n".."That's all.", nil, nil, 100000)
+
+			console:execute("main_menu off")
+
+		end
+
+		
+
+		-- if dik == DIK_keys.DIK_W then
+
+			-- console:execute("main_menu off")
+
+			-- fast_travel.create_level_changer(vector():set(162.613, -0.001, 65.842),42218,1179)
+
+		-- end
+
+		
+
+		if dik == DIK_keys.DIK_Q then
+
+			self:OnMessageQuitWin()
+
+		end
+
+	
+
+	end
+
+   
+
+	return true
+
+end
