@@ -1,4 +1,4 @@
--- -*- mode: xml; coding: windows-1251-dos -*-
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой. 
 
@@ -167,4 +167,5 @@ C:\SDK_default\gamedata\config\game_levels.ltx
  caption = "l01_marsh"
  offset  = 3000.0,	1000.0,	0.0
  id   = 21
+
 
