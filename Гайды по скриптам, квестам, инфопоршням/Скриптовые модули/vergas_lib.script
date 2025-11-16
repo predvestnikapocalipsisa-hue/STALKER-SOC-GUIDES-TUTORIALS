@@ -1,0 +1,374 @@
+function s_play(path,vol)
+-- path - путь на ogg-файл от папки sounds (она корневая), т.е device\pda\medik_2
+-- vol - уровень громкости. Пределы от 0 до 1
+	local snd_obj = xr_sound.get_safe_sound_object(path)
+	snd_obj:play_at_pos(db.actor, vector ():set (0, 0, 0), 0, sound_object.s2d)
+	if vol == nil then
+		vol = 1
+	end
+	snd_obj.volume = vol
+end
+
+function set_pr_from_config_str(section,pr)
+  local ltx = system_ini()
+  local pr_s
+  if ltx:line_exist(section,pr) then
+    pr_s = ltx:r_string(section,pr)
+  else
+    pr_s = "?"
+  end
+  
+  return pr_s
+end
+
+function set_info(mode)
+
+	local ammo_wpn ={} -- итоговая таблица
+	local sl_w_1 , sl_w_2
+	--Определяю оружие в 1 слоте
+	local wpn = db.actor:item_in_slot(1)  	-- оружие в 1 слоте как объект
+	if wpn ~= nil then
+		sl_w_1 = wpn:section()				--имя оружия в 1 слоте
+	else
+		sl_w_1 = "?"
+	end
+
+	--Определяю оружие во 2 слоте
+	local wpn = db.actor:item_in_slot(2)  	-- оружие во 2 слоте как объект
+	if wpn ~= nil then
+		sl_w_2 = wpn:section()				--имя оружия во 2 слоте
+	else
+		sl_w_2 = "?"
+	end
+	
+	--Определяю типы патронов для 1 слота
+	local tmp_inf_1 = ammo_for_slot(sl_w_1)
+	
+	--Определяю типы патронов для 2 слота
+	local tmp_inf_2 = ammo_for_slot(sl_w_2)
+	
+	-- Считаю количества
+	local sim = alife()
+	local sl_1_b = 0			--кол-во базовых патронов 1 слота
+	local sl_1_br = 0			--кол-во бронебойных патронов 1 слота
+	local sl_1_sn = 0			--кол-во снайперских патронов 1 слота
+	local sl_2_b = 0			--кол-во базовых патронов 2 слота
+	local sl_2_br = 0			--кол-во бронебойных патронов 2 слота
+	local sl_2_sn = 0			--кол-во снайперских патронов 2 слота
+	local gr_f_1 = 0			--кол-во гранат Ф-1
+	local gr_rgd_5 = 0			--кол-во гранат РГД-5
+	local med = 0				--кол-вл простых аптечек
+	local med_a = 0				--кол-во армейских аптечек
+	local med_s = 0				--кол-во научных аптечек
+	local bnt = 0				--кол-во бинтов
+	local gr_vog_25 = 0			--граната подствольника ВОГ-25
+	local gr_vog_25p = 0		--граната подствольника ВОГ-25П
+	local gr_m_209 = 0			--граната подствольника импортная
+	local tbl_rel = {}			--таблица id  удаляемых объектов
+	
+	if db.actor then
+		local flag_podsumok 
+		for i=0, db.actor: object_count()-1 do
+			local obj = db.actor:object(i)
+			local flag_wpn_slot = true
+			if mode == 2 then
+				--обрабатываю случай попадения ствола с земли в слот
+				flag_wpn_slot = razgruzka.removal_check(obj:id())
+			end
+			if flag_wpn_slot then
+				flag_podsumok = false
+				if obj then 
+					--Возвращаю заполненную таблицу
+					if obj:section() == tmp_inf_1[1] then			--базовые патроны 1 слота
+						sl_1_b = sl_1_b + get_ammo_size(obj)  --плюсуется количество патронов в найденной пачке
+						flag_podsumok = true
+					elseif obj:section() == tmp_inf_1[2] then		--бронебойные патроны 1 слота
+						sl_1_br = sl_1_br + get_ammo_size(obj)
+						flag_podsumok = true
+					elseif obj:section() == tmp_inf_1[3] then		--снайперские патроны 1 слота
+						sl_1_sn = sl_1_sn + get_ammo_size(obj)
+						flag_podsumok = true
+					elseif obj:section() == tmp_inf_2[1] then		--базовые патроны 2 слота
+						sl_2_b = sl_2_b + get_ammo_size(obj)
+						flag_podsumok = true
+					elseif obj:section() == tmp_inf_2[2] then		--бронебойные патроны 2 слота
+						sl_2_br = sl_2_br + get_ammo_size(obj)
+						flag_podsumok = true
+					elseif obj:section() == tmp_inf_2[3] then		--снайперские патроны 2 слота
+						sl_2_sn = sl_2_sn + get_ammo_size(obj)
+						flag_podsumok = true
+					elseif obj:section() == "grenade_f1" then 						-- граната Ф-1	
+						gr_f_1 = gr_f_1 + 1	
+						flag_podsumok = true
+					elseif obj:section() == "grenade_rgd5" then 					-- граната РГД-5	
+						gr_rgd_5 = gr_rgd_5 + 1
+						flag_podsumok = true
+					elseif obj:section() == "medkit" then 							-- стандартная аптечка	
+						med = med + 1
+						flag_podsumok = true
+					elseif obj:section() == "medkit_army" then 						-- армейская аптечка	
+						med_a = med_a + 1
+						flag_podsumok = true
+					elseif obj:section() == "medkit_scientic" then 					-- научная аптечка	
+						med_s = med_s + 1
+						flag_podsumok = true
+					elseif obj:section() == "bandage" then 							-- бинт
+						bnt = bnt + 1
+						flag_podsumok = true
+					elseif obj:section() == "ammo_vog-25" then 						-- граната подствольника ВОГ-25
+						gr_vog_25 = gr_vog_25 + 1
+						flag_podsumok = true
+					elseif obj:section() == "ammo_vog-25p" then 					-- граната подствольника ВОГ-25П
+						gr_vog_25p = gr_vog_25p + 1
+						flag_podsumok = true
+					elseif obj:section() == "ammo_m209" then 						-- граната подствольника импортная
+						gr_m_209 = gr_m_209 +1
+						flag_podsumok = true
+					end
+				end
+				if flag_podsumok then
+					table.insert(tbl_rel,obj:id())
+				end
+			end
+		end
+	end
+	--удаляю помеченные объекты
+
+	
+	--Если оружие второго слота шестиствольный гранатомет
+	if sl_w_2 == "wpn_rg-6" then
+		gr_vog_25 = sl_2_b
+		gr_vog_25p = sl_2_br
+		sl_2_b = 0
+		sl_2_br = 0
+	end
+	
+	-- собираю найденную инфу
+	
+	--ПАТРОНЫ 1 слот
+	if sl_1_b ~= 0 then
+		table.insert(ammo_wpn,tmp_inf_1[1]) 					-- тип базовых патронов слот 1 				(01)
+		table.insert(ammo_wpn,sl_1_b)							-- количество базовых патронов слот 1 		(02)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	if sl_1_br ~= 0 then
+		table.insert(ammo_wpn,tmp_inf_1[2]) 					-- тип бронебойных патронов слот 1  			(03)
+		table.insert(ammo_wpn,sl_1_br)							-- количество бронебойных патронов слот 1  	(04)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	if sl_1_sn ~= 0 then
+		table.insert(ammo_wpn,tmp_inf_1[3]) 					-- тип снайперских патронов слот 1  			(05)
+		table.insert(ammo_wpn,sl_1_sn)							-- количество снайперских патронов слот 1  	(06)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	
+	--ПАТРОНЫ 2 слот
+	--Тип оружия 2 слота (легкое тяжелое)
+	if set_pr_from_config_str(sl_w_2,"weapon_type") ~= "heavy" then 		--оружие легкое
+		if sl_2_b ~= 0 then
+			table.insert(ammo_wpn,tmp_inf_2[1]) 				-- тип базовых патронов слот 2  			(07)
+			table.insert(ammo_wpn,sl_2_b)						-- количество базовых патронов слот 2 		(08)
+		else
+			table.insert(ammo_wpn,"?")
+			table.insert(ammo_wpn,0)
+		end
+		if sl_2_br ~= 0 then
+			table.insert(ammo_wpn,tmp_inf_2[2]) 				-- тип бронебойных патронов слот 2  		(09)
+			table.insert(ammo_wpn,sl_2_br)						-- количество бронебойных патронов слот 2	(10)
+		else
+			table.insert(ammo_wpn,"?")
+			table.insert(ammo_wpn,0)
+		end
+		if sl_2_sn ~= 0 then
+			table.insert(ammo_wpn,tmp_inf_2[3]) 				-- тип снайперских патронов слот 2			(11)
+			table.insert(ammo_wpn,sl_2_sn)						-- количество снайперских патронов слот 2	(12)
+		else
+			table.insert(ammo_wpn,"?")
+			table.insert(ammo_wpn,0)
+		end
+	else
+		table.insert(ammo_wpn,"?") 							
+		table.insert(ammo_wpn,0)							
+		table.insert(ammo_wpn,"?") 							
+		table.insert(ammo_wpn,0)							
+		table.insert(ammo_wpn,"?") 							
+		table.insert(ammo_wpn,0)							
+	end
+	
+	--РУЧНЫЕ ГРАНАТЫ
+	if gr_f_1 ~= 0 then
+		table.insert(ammo_wpn,"grenade_f1")					-- тип гранат Ф-1							(13)
+		table.insert(ammo_wpn,gr_f_1)						-- количество гранат Ф-1						(14)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	if gr_rgd_5 ~= 0 then
+		table.insert(ammo_wpn,"grenade_rgd5")				-- тип гранат РГД-5							(15)
+		table.insert(ammo_wpn,gr_rgd_5)						-- количество гранат РГД-5					(16)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	
+	--ТЯЖЕЛОЕ ОРУЖИЕ
+	if set_pr_from_config_str(sl_w_2,"weapon_type") =="heavy" then		--оружие тяжолое
+		local flag_ammo = 0
+		if sl_2_b ~= 0 then
+			flag_ammo = 1
+			table.insert(ammo_wpn,tmp_inf_2[1]) 				-- тип базовых патронов слот 2  			(17)
+			table.insert(ammo_wpn,sl_2_b)						-- количество базовых патронов слот 2 		(18)
+		elseif sl_2_br ~= 0 then
+			flag_ammo = 1
+			table.insert(ammo_wpn,tmp_inf_2[2]) 				-- тип бронебойных патронов слот 2  			(17)
+			table.insert(ammo_wpn,sl_2_br)						-- количество бронебойных патронов слот 2 		(18)
+		elseif sl_2_sn ~= 0 then
+			flag_ammo = 1
+			table.insert(ammo_wpn,tmp_inf_2[3]) 				-- тип снайперских патронов слот 2  			(17)
+			table.insert(ammo_wpn,sl_2_sn)						-- количество снайперских патронов слот 2 		(18)
+		end
+		if flag_ammo == 0 then
+			table.insert(ammo_wpn,"?")
+			table.insert(ammo_wpn,0)
+		end
+ 	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	
+	--МЕДИЦИНА
+	if med ~= 0 then
+		table.insert(ammo_wpn,"medkit")						-- тип стандартных аптечек	 				(19)
+		table.insert(ammo_wpn,med)							-- количество стандартных аптечек				(20)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	if bnt ~= 0 then
+		table.insert(ammo_wpn,"bandage")					-- тип бинтов								(21)
+		table.insert(ammo_wpn,bnt)							-- количество бинтов							(22)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	
+	--ГРАНАТЫ ПОДСТВОЛЬНИКА
+	if gr_vog_25 ~= 0 then
+		table.insert(ammo_wpn,"ammo_vog-25")				-- тип гранат ВОГ-25							(23)
+		table.insert(ammo_wpn,gr_vog_25)					-- количество гранат ВОГ-25					(24)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	if gr_vog_25p ~= 0 then
+		table.insert(ammo_wpn,"ammo_vog-25p")				-- тип гранат ВОГ-25							(25)
+		table.insert(ammo_wpn,gr_vog_25p)					-- количество гранат ВОГ-25П					(26)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	if gr_m_209 ~= 0 then
+		table.insert(ammo_wpn,"ammo_m209")				-- тип гранат импортных							(27)
+		table.insert(ammo_wpn,gr_m_209)					-- количество гранат импортных					(28)
+	else
+		table.insert(ammo_wpn,"?")
+		table.insert(ammo_wpn,0)
+	end
+	
+	--АРМЕЙСКИЕ И НАУЧНЫЕ АПТЕЧКИ
+	if med_a ~=0 then
+		table.insert(ammo_wpn,med_a)					-- количество армейских аптечек					(29)
+	else
+		table.insert(ammo_wpn,0)
+	end
+	
+	if med_s ~=0 then
+		table.insert(ammo_wpn,med_s)					-- количество научных аптечек						(30)
+	else
+		table.insert(ammo_wpn,0)
+	end
+	--Возвращаю заполненную таблицу
+	return ammo_wpn, sl_2_b, sl_2_br, sl_2_sn
+end
+
+
+function str_explode(div,str,clear)
+--Разбивает инфо-строку на составляющие и выводит в виде таблицы
+-- div - разделитель
+-- str - разбираемая строка
+-- clear ставим равное true
+	local t={}
+   	if str and div then
+		local cpt = string.find (str, div, 1, true)
+		if cpt then
+			repeat
+			if clear then
+				table.insert( t, trim(string.sub(str, 1, cpt-1)) )
+			else
+				table.insert( t, string.sub(str, 1, cpt-1) )
+			end
+			str = string.sub( str, cpt+string.len(div) )
+			cpt = string.find (str, div, 1, true)
+			until cpt==nil
+		end
+		if clear then
+			table.insert(t, trim(str))
+		else
+			table.insert(t, str)
+		end	
+		return t
+	end
+end
+
+function trim (s)
+    return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
+end
+
+function ammo_for_slot(wpn)
+	local tmp_inf
+	if wpn == nil then
+		for i = 1, 3 do
+			table.insert(tmp_inf, "?")
+		end
+	else
+		tmp_inf = vergas_lib.str_explode(",",set_pr_from_config_str(wpn,"ammo_class"),true)
+		if table.getn(tmp_inf) == 1 then
+			table.insert(tmp_inf, "?")
+			table.insert(tmp_inf, "?")
+		elseif table.getn(tmp_inf) == 2 then
+			table.insert(tmp_inf, "?")
+		end
+	end
+	
+	return tmp_inf
+end
+
+function get_ammo_size(obj)
+-- возвращает количество патронов в пачке
+	local se_obj = alife():object(obj:id())
+	local packet = net_packet()
+	cse_alife_item_ammo.STATE_Write(se_obj, packet)
+	packet:r_seek(packet:w_tell() - 2)
+	return packet:r_u16()
+end
+
+function set_pr_from_config(section,pr)
+--section 	- имя секции
+--pr		- параметр
+	local ltx = system_ini()
+	local pr_s
+	if ltx:line_exist(section,pr) then
+		pr_s = ltx:r_float(section,pr)
+	else
+		pr_s = 0
+	end
+	
+	return pr_s
+	
+end
