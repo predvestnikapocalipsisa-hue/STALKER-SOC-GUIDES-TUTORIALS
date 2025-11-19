@@ -1,3 +1,5 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 X-Ray extensions
 X-Ray extensions
 
@@ -1101,4 +1103,5 @@ end
 -- если луч пересек игровой объект, то возвращает номер кости, иначе возвращает номер полигона статической геометрии (при неудачной трассировке возвращает -1)
 function ray_pick.get_element()
 	return level.get_ray_pick_element()
+
 end
