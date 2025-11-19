@@ -66,10 +66,11 @@ level.main_input_receiver() - это активный гуи интерфейс 
   Предметы в лист добавляются скриптом, универсалную функцию добавления предмета создает юи креатор
   чтоы в скриптах взаимодействовать с выбранными предметами, советую почитать lua help где есть нужные функции, вот самые главные:
 
-  local sel_index = self.List1:GetSelectedItem() - получаем номер выбранного предмета
-  local sel_item = self.List1:GetItem(sel_index) - получаем предмет по номеру
- 	local sel_text = sel_item.text_item:GetText() - получаем текст выбранного предмета
-  self.List1:RemoveItem(sel_index) - удаляем предмет из листа по номеру
+  local sel_index = self.List1:GetSelectedItem() -- получаем номер выбранного предмета
+  local sel_item = self.List1:GetItem(sel_index) -- получаем предмет по номеру
+ 	local sel_text = sel_item.text_item:GetText() -- получаем текст выбранного предмета
+  self.List1:RemoveItem(sel_index) -- удаляем предмет из листа по номеру
+  self.List1:RemoveAll() -- удаляем все из листа
 
 4. Текстовые поля - поле куда игрок может ввести все что угодно. Так же рекомендуется почитать lua help по этому класу
 
