@@ -239,12 +239,11 @@ end
 
 function poyas()
   if db.actor then
-    local cnt = 0
     db.actor:iterate_inventory(
       function(dummy, item)
         local section = item:section() -- секция сканируемого предмета
         if db.actor:is_on_belt(db.actor:object(section)) then -- проверка, подходит ли предмет под наши критерии (тут проверка, есть ли он на поясе)
-		self:AddItemTo_List1(section) - действие с этим предметом
+		чето.делаем(section) - действие с этим предметом
         end
       end,
       nil
@@ -253,3 +252,4 @@ function poyas()
 end
 
 --------------------------------------------------------------------------------------------------------------
+
