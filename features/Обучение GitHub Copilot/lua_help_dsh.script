@@ -1,3 +1,5 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 15.01.2010List of the classes exported to LUA
 
 C++ class entity_memory_object : memory_object {
@@ -8224,4 +8226,5 @@ namespace  {
         function add_points(string, string, number, number);
     };
 };
+
 End of list of the namespaces exported to LUA
