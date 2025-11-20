@@ -1,0 +1,14 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+--/ ... все предыдущие строки
+
+function actor_binder:reinit()
+	--/ ... все предыдущие строки
+
+	--/#+# [lua_helper] ------------------------------------------------
+	if event then event("actor_stor"):once(true):trigger() --/#!#> событие: инициализация 'storage' актора
+	elseif lua_helper.Init_ActorPStor then lua_helper.Init_ActorPStor()
+	end
+	--/< ---------------------------------------------------------------
+end
+
+--/ ... все последующие строки
