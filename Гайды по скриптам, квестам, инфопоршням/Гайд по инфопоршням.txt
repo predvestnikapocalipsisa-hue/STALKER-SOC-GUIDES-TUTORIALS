@@ -159,4 +159,3 @@ esc_tutorial_secret
 	<action>escape_dialog.give_weapon_to_actor</action>
 
   </info_portion>
-
