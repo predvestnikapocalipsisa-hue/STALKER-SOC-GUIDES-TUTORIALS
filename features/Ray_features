@@ -1,0 +1,230 @@
+================ дополнительные биндеры =================
+
+Биндеры артов и пушек. Должны работать нормально, но мне негде чекать.
+Чтобы добавить биндер необходимо в секции указать script_binding      = bind_artefact.init или script_binding      = bind_weapon.init в секции артефакта\оружия.
+Можно указать как в базовой секции af_base\wpn_base для того, чтобы применилось ко всем обьекта класса, или же конкретному экземпляру. Не стал чего-то добавлять биндерам, чтобы не захламлять,
+а потому они просто сохраняют и загружают параметры обьектов. Там дальше уже пусть кому надо тот веселиться с этим.
+
+bind_artefact:
+
+class "artefact_binder" (object_binder) 
+
+function init(obj)
+    local new_binder = artefact_binder(obj)
+    obj:bind_object(new_binder)
+end
+function artefact_binder:__init(obj)
+    super(obj) 
+end
+
+function artefact_binder:net_spawn(data)
+    if not self.object:is_artefact() then return false end
+    
+    self.artefact = self.object:get_artefact()
+
+	self.first_update = true -- Флаг, чтобы характеристики не применялись повторно
+	self.timer100 = 0
+	self.timer250 = 0
+	self.timer500 = 0
+	self.timer1000 = 0  
+	
+    return object_binder.net_spawn(self, data)
+end
+
+-- Апдейт
+function artefact_binder:update(delta)
+	object_binder.update(self, delta)
+	
+	self.time = time_global()
+	
+	local id = self.object:id()
+	if self.first_update == true then
+		local char_table = self:load_from_storage()
+		if char_table then
+			if self.artefact.bleeding_restore_speed and char_table.bleeding_restore_speed then
+				self.artefact.bleeding_restore_speed = char_table.bleeding_restore_speed
+			end
+			if self.artefact.health_restore_speed and char_table.health_restore_speed then
+				self.artefact.health_restore_speed = char_table.health_restore_speed
+			end
+			if self.artefact.power_restore_speed and char_table.power_restore_speed then
+				self.artefact.power_restore_speed = char_table.power_restore_speed
+			end
+			if self.artefact.psy_health_restore_speed and char_table.psy_health_restore_speed then
+				self.artefact.psy_health_restore_speed = char_table.psy_health_restore_speed
+			end
+			if self.artefact.radiation_restore_speed and char_table.radiation_restore_speed then
+				self.artefact.radiation_restore_speed   = char_table.radiation_restore_speed  
+			end
+			if self.artefact.satiety_restore_speed and char_table.satiety_restore_speed then
+				self.artefact.satiety_restore_speed   = char_table.satiety_restore_speed 
+			end
+			if self.artefact.thirst_restore_speed and char_table.thirst_restore_speed then
+				self.artefact.thirst_restore_speed   = char_table.thirst_restore_speed
+			end
+			self.artefact.inv_name = char_table.inv_name
+			self.artefact.description = char_table.description
+		end
+		self.first_update = false
+	end
+  
+  	if self.timer100 < self.time then
+		self.timer100 = self.time + 100
+	end
+	
+	if self.timer250 < self.time then
+		self.timer250 = self.time + 250
+	end
+	
+	if self.timer500 < self.time then
+		self.timer500 = self.time + 500
+	end
+	
+	if self.timer1000 < self.time then
+		self.timer1000 = self.time + 1000
+	end
+end
+
+-- Вызывается при сохранении
+function artefact_binder:save(packet)
+    self:save_to_storage() 
+    object_binder.save(self, packet) 
+end
+-- Сохраняем данные в сторадж
+function artefact_binder:save_to_storage()
+    local xvars = get_stored_vars()
+    local data = {}
+
+    
+	if self.artefact.bleeding_restore_speed then
+		data.bleeding_restore_speed = self.artefact.bleeding_restore_speed
+	end
+	if self.artefact.health_restore_speed then
+		data.health_restore_speed = self.artefact.health_restore_speed 
+	end
+	if self.artefact.power_restore_speed then
+		data.power_restore_speed = self.artefact.power_restore_speed 
+	end
+	if self.artefact.psy_health_restore_speed then
+		data.psy_health_restore_speed = self.artefact.psy_health_restore_speed
+	end
+	if self.artefact.radiation_restore_speed then
+		data.radiation_restore_speed = self.artefact.radiation_restore_speed
+	end
+	if self.artefact.satiety_restore_speed then
+		data.satiety_restore_speed = self.artefact.satiety_restore_speed
+	end
+	if self.artefact.thirst_restore_speed then
+		data.thirst_restore_speed = self.artefact.thirst_restore_speed
+	end
+	data.inv_name = self.artefact.inv_name
+	data.description = self.artefact.description
+		
+	xvars[self.object:id()] = data
+end
+
+--Загружаем данные из стораджа
+function artefact_binder:load_from_storage()
+    local xvars = get_stored_vars()
+    local t = xvars[self.object:id()]
+ 
+	return t
+end
+
+
+
+bind_weapon:
+
+class "weapon_binder" (object_binder) 
+
+function init(obj)
+    local new_binder = weapon_binder(obj)
+    obj:bind_object(new_binder)
+end
+function weapon_binder:__init(obj)
+    super(obj) 
+end
+function weapon_binder:net_spawn(data)
+    if not self.object:is_weapon() then return false end
+    
+    self.weapon = self.object:get_weapon()
+
+	self.first_update = true -- Флаг, чтобы характеристики не применялись повторно
+	self.timer100 = 0
+	self.timer250 = 0
+	self.timer500 = 0
+	self.timer1000 = 0  
+	
+    return object_binder.net_spawn(self, data)
+end
+
+function weapon_binder:update(delta)
+	object_binder.update(self, delta)
+	
+	self.time = time_global()
+	
+	local id = self.object:id()
+	if self.first_update == true then
+		local char_table = self:load_from_storage()
+		if char_table then
+			self.weapon.hit_power = char_table.damage
+			self.weapon.time_to_fire = char_table.rpm
+			self.weapon.ammo_mag_size = char_table.magsize
+			self.weapon.inv_name = char_table.inv_name
+			self.weapon.description = char_table.description
+			self.bullet_speed = char_table.bullet_speed
+			self.accuracy = self.weapon.fire_dispersion_base
+		end
+		self.first_update = false
+	end
+  
+  	if self.timer100 < self.time then
+		self.timer100 = self.time + 100
+	end
+	
+	if self.timer250 < self.time then
+		self.timer250 = self.time + 250
+	end
+	
+	if self.timer500 < self.time then
+		self.timer500 = self.time + 500
+	end
+	
+	if self.timer1000 < self.time then
+		self.timer1000 = self.time + 1000
+	end
+end
+-- Вызывается при сейве
+function weapon_binder:save(packet)
+    self:save_to_storage() 
+    object_binder.save(self, packet) 
+end
+
+-- Сохраняем данные в сторадж
+function weapon_binder:save_to_storage()
+    local xvars = get_stored_vars()
+    
+	
+    xvars[self.object:id()] = {
+        damage = self.weapon.hit_power,
+        rpm = self.weapon.time_to_fire,
+        magsize = self.weapon.ammo_mag_size,
+        bullet_speed = self.weapon.bullet_speed,
+        accuracy = self.weapon.fire_dispersion_base,
+		inv_name = self.weapon.inv_name,
+		description = self.weapon.description
+    }
+end
+-- Загружаем данные из стораджа
+function weapon_binder:load_from_storage()
+    local xvars = get_stored_vars()
+    local t = xvars[self.object:id()]
+ 
+	return t
+end
+
+
+пример что с ними делать:
+
+Ну вот как в дед эире: у артефактов от прочки зависит сколько они дают доп свойств вплоть до 0.
+У оружия (не на самом деле, просто как можно было бы реализовать) в зависимости от того че сломалось (загрязненное шептало) будет по разному влиять на характеристики: урон, разброс, скорострельность, клины.
