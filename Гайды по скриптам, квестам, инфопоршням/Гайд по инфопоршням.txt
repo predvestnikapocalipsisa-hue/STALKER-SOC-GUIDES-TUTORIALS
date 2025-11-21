@@ -1,11 +1,66 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-
 https://youtu.be/w2Iny-_yuiw - Видео разбор
 
-Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой. 
+Что такое инфопоршень, и «с чем его едят»?
+Начнем по порядку:
+Инфопоршень это, можно сказать, устанавливаемый в игре определенный «флажок» со своим индивидуальным именем.
+Сам по себе этот флажек ничего не делает, однако в зависимости от того есть он или нет, можно произвести огромное количество игровых действий. Инфопоршень может быть «выдан» или «невыдан»
 
-Инфопоршни создаются например в \gamedata\config\gameplay\info_portions.xml
+Также можно удалить «выданный» инфопоршень. Можно один и тот же инфопоршень «выдавать» и «удалять» не один, а несколько раз.(Способы рассмотрим чуть ниже)
 
+Далее. Все инфопоршни в игре регистрируются по пути gamedata\config\gameplay\info_локация.xml хотя это чисто условно, и разделено на локации, чтобы не создавать один огромаднейший файл с огромной кучей этих инфопоршней. В принципе, например, чтобы не путаться со своими инфопоршнями, можно создать свой файл, например my_info_new.xml иразместить его по указанному выше пути,
+и не забыв зарегистрировать его в файле system.ltx (gamedata\config) по аналогии с имеющимися.
+
+Сама структура файла такова:
+Код
+<?xml version='1.0'encoding="windows-1251"?>
+<game_information_portions>
+Ваш_инфопоршень
+Ваш_инфопоршень
+***
+Ваш_инфопоршень
+</game_information_portions>
+
+Сам инфопоршень заключается в теги.
+
+А сейчас давайте рассмотрим простейшие примеры использования инфопоршней:
+Простой инфопоршень-флаг:
+Код
+<info_portionid="имя_инфопоршня">
+</info_portion>
+(«имя_инфопоршня» - это уникальное имя на латинице и может быть любым(но не повторяющимся!!!!) и зависит только от вашей фантазии
+(хотя все мододелы придерживаются правила – давать понятные имена, например: esc_dok_start можно например «прочитать» как «спавн доктора на кордоне» все это чтобы не запутаться самому в них))
+
+Для создания поршня мы будем использвать \gamedata\config\gameplay\info_portions.xml
+
+Вариации инфопоршней, условия могут комбинироваться:
+1.Инфопоршень name_info выдаёт квест my_quest
+	<info_portion id="name_info">
+		<task>name_info</task>
+	</info_portion>
+	
+2.Пустой обычный инфопоршень "name_info", используется в скриптах в проверках на его наличие
+<info_portion id="name_info"></info_portion>
+
+3.Этот выдает заметку в ПДА например из storyline_info_escape.xml
+	<info_portion id="name_info">
+		<article>sl_beginning</article>
+	</info_portion>
+	
+4.Этот инфопоршень забирает инфопоршень "escape_lager_spawn_killers" и его можно использовать заного в другой схеме.
+	<info_portion id="name_info">
+		<disable>escape_lager_spawn_killers</disable>
+	</info_portion>	
+	
+5.Выполняет функцию give_weapon_to_actor из файла \gamedata\scripts\escape_dialog.script
+  <info_portion id="name_info">
+	<action>escape_dialog.give_weapon_to_actor</action>
+  </info_portion>
+
+
+
+
+Разберем выдачу поршней:
 
 В ДИАЛОГАХ:
 
@@ -60,8 +115,49 @@ https://youtu.be/w2Iny-_yuiw - Видео разбор
             </phrase>
 
 
+В логике:
+Выдаются
+= %+my_info%
+
+Забираются
+= %-my_info%
+
+Проверка наличия
+= {+my_info}
+
+Проверка отсутствия
+= {-my_info}
+
+Эта штука позволяет при обыске непися получить инфо, но функции лучше не запихивать, вызывает 2 раза.
+[known_info]
+esc_tutorial_secret
+
+НПС\МУТАНТ заспавнится если был получен name_info
+[spawner]
+cond = {+name_info}
+
+в параметрах смартов:
+[smart_terrains]
+esc_lager = {-agroprom_military_case_have -esc_fanat_spawn}
+mil_lager = {+agroprom_military_case_have}, {+esc_fanat_spawn}
+
+принадлежность к esc_lager работает до получения инфр agroprom_military_case_have и esc_fanat_spawn
+принадлежность к mil_lager начинает работать с получения agroprom_military_case_have и esc_fanat_spawn
+
+
+
 В СКРИПТАХ:
 
+Выдаются
+db.actor:give_info_portion("tutorial_artefact_gain")
+Забираются:
+db.actor:disable_info_portion("esc_trader_direct")
+
+
+Проверка наличия 
+if has_alife_info("escape_factory_assault_say_hello") then
+Проверка отсутствия
+if not has_alife_info("tutorial_artefact_start") then
 
 Чтобы инфопоршень был выдан с самого налача игры, нужно его выдать в \gamedata\scripts\bind_stalker.script
 находим
@@ -75,15 +171,17 @@ https://youtu.be/w2Iny-_yuiw - Видео разбор
 			self.object:give_info_portion("my_kvest_start") -- добавили выдачу инфо
 		end
 
+
+МОЖНО ПОСТАВИТЬ ПОСТОЯННУЮ ПРОВЕРКУ НА ПОРШНИ И ПРОЧИЕ УСЛОВИЯ:
+
 В функции proceed() из файла \gamedata\scripts\escape_tasks.script
 запущена постоянная проверка на соблюдение условий
 function proceed()
-    local actor = db.actor
 
 	if has_alife_info("tutorial_artefact_start") and not has_alife_info("tutorial_artefact_gain")
-		and actor:object("af_blood_tutorial") ~= nil 
+		and db.actor:object("af_blood_tutorial") ~= nil 
 	then		
-		actor:give_info_portion("tutorial_artefact_gain")
+		db.actor:give_info_portion("tutorial_artefact_gain")
 	end
 
 Если получен инфо "tutorial_artefact_start" и не получен инфо "tutorial_artefact_gain" и в инвентаре есть предмет "af_blood_tutorial", тогда будет выдан инфо "tutorial_artefact_gain" и закроет проверку.
@@ -96,66 +194,3 @@ function proceed()
   level_tasks.remove_location(025, "green_location")
 
 Это значит, что при получении инфо "esc_tutorial_secret_place_found" будет выполнено действие, и как можете заметить никакого более условия нет и не нужно
-
-Проверка наличия
-if has_alife_info("escape_factory_assault_say_hello") then
-Проверка отсутствия
-if not has_alife_info("tutorial_artefact_start") then
-
-Выдаются
-db.actor:give_info_portion("tutorial_artefact_gain")
-Забираются:
-db.actor:disable_info_portion("esc_trader_direct")
-В логике:
-НПС\МУТАНТ заспавнится если был получен name_info
-[spawner]
-cond = {+name_info}
-
-в указании смартов у нпс esc_lager работает до получения agroprom_military_case_have esc_fanat_spawn
-mil_lager начинает работать с получения agroprom_military_case_have esc_fanat_spawn
-[smart_terrains]
-esc_lager = {-agroprom_military_case_have -esc_fanat_spawn}
-mil_lager = {+agroprom_military_case_have}, {+esc_fanat_spawn}
-
-
-Эта штука позволяет при обыске непися получить инфо, но функции лучше не запихивать, вызывает 2 раза.
-[known_info]
-esc_tutorial_secret
-
-В логиках рестрикторов и прочего инфопоршни
-Выдаются
-= %+my_info%
-
-Забираются
-= %-my_info%
-
-Проверка наличия
-= {+my_info}
-
-Проверка отсутствия
-= {-my_info}
-
-Вариации инфопоршней в \gamedata\config\gameplay\info_portions.xml
-1.Инфопоршень name_info выдаёт квест my_quest
-	<info_portion id="name_info">
-		<task>name_info</task>
-	</info_portion>
-	
-2.Пустой обычный инфопоршень "name_info", используется в скриптах в проверках на его наличие
-<info_portion id="name_info"></info_portion>
-
-3.Этот выдает заметку в ПДА например из storyline_info_escape.xml
-	<info_portion id="name_info">
-		<article>sl_beginning</article>
-	</info_portion>
-	
-4.Этот инфопоршень забирает инфопоршень "escape_lager_spawn_killers" и его можно использовать заного в другой схеме.
-	<info_portion id="name_info">
-		<disable>escape_lager_spawn_killers</disable>
-	</info_portion>	
-	
-5.Выполняет функцию give_weapon_to_actor из файла \gamedata\scripts\escape_dialog.script
-  <info_portion id="name_info">
-	<action>escape_dialog.give_weapon_to_actor</action>
-
-  </info_portion>

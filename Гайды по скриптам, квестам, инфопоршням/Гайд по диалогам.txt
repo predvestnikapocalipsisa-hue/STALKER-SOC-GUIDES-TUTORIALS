@@ -11,7 +11,7 @@ https://youtu.be/c2BPlFVoQO0
 актор будет говорить  первую фразу, этот диалог так и написан
 
 если нужно чтобы первую фразу говорил нпс:
-<start_dialog>id_диалога</start_dialog>
+	<start_dialog>id_диалога</start_dialog>
 ---------------------------------------------------------------------
 3. Диалог вставляем в файл: \gamedata\config\gameplay\dialogs_escape.xml
 ---------------------------------------------------------------------
@@ -467,5 +467,3 @@ end
     <dialog id="escape_lager_volk_info">
   <precondition>xr_conditions.is_night</precondition>
         <phrase_list>			
-
-
