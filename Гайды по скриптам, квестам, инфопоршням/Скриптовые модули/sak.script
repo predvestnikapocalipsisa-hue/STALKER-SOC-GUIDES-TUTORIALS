@@ -17,7 +17,7 @@ sak.create_items_actor("bandage",5)
 end
 
 --Вещь дают БЕЗ СМС
-function give()
+function create()
 sak.create_items_actor_nomsg("medkit",3)
 end
 
