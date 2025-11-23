@@ -88,6 +88,13 @@ function relocate_item_my(victim, section, type)
   end
 end
 --------------------------------------------------------------------------------------------------------------
+-- забрать все деньги у актора
+function out_all_money()
+local money = db.actor:money()
+db.actor:give_money(-money)
+game_stats.money_quest_update (-money) 
+end
+--------------------------------------------------------------------------------------------------------------
 -- Получаем деньги
 function give_3k(first_speaker, second_speaker)
 	dialogs.relocate_money(second_speaker, 3000, "in")
