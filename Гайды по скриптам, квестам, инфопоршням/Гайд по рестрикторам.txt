@@ -32,7 +32,7 @@ on_info = nil %=sms1 =remove_object%
 
 %=название_функции =remove_object%
 
-"название_функции" может быть и таким: "имя_скрипта.название_функции", например, "sak.nagrada", иногда не удобно кидать свои функции в "xr_effects.script", для этого требуются правки в "xr_logic.script", подробнее ниже
+"название_функции" может быть и таким: "имя_скрипта.название_функции", например, "sak.nagrada", иногда не удобно кидать свои функции в "xr_effects.script", для этого требуются правки в "xr_logic.script", подробнее в гайде на логику
 
 Так можно использовать функции проверок из \gamedata\scripts\xr_conditions.script
 
@@ -191,7 +191,6 @@ D:\X-Ray_test\gamedata\scripts\xr_effects.script
 
 function sms1()
 	news_manager.send_tip( db.actor, "escape_trader_talk_level_2", nil, "trader", nil )
-  --news_manager.send_tip( db.actor, "escape_trader_talk_level_2", nil, "trader", nil )
 end
 
 8.Рестриктор проверяющий на сколько мы далеко\близко
@@ -212,134 +211,34 @@ active = sr_idle
 [sr_idle]
 on_actor_inside = %=teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)%
 
-
 --------------------------------------------------------------------------
-Ещё есть такая подсказка
+Параметры которые работают в кажой схеме, и предназначены для перекоючения схем\выполнения действий
 --------------------------------------------------------------------------
-on_actor_dist_le = <number>|<название_схемы> - если дистанция в метрах до игрока меньше либо равно number.
-on_actor_dist_le_nvis = <number>|<название_схемы> - если дистанция в метрах до игрока меньше либо равно number без проверки на видимость.
-on_actor_dist_ge = <number>|<название_схемы> - если дистанция в метрах до игрока больше number.
-on_actor_dist_ge_nvis = <number>|<название_схемы> - если дистанция в метрах до игрока больше number без проверки на видимость.
-on_signal = <имя_сигнала>|<название_схемы> - срабатывает по приходу сигнала имя_сигнала от текущей активной схемы.
-on_info = <название_схемы> - срабатывает всегда.
-on_timer = <number>|<название_схемы> - срабатывает через number миллисекунд после включения схемы.
-on_game_timer = <number>|<название_схемы> – срабатывает через number секунд игрового времени, после включения схемы.
-on_actor_in_zone = <имя_зоны>|<название_схемы> – если актер в находится в указанной зоне (указывается имя рестриктора).
-on_actor_not_in_zone = <имя_зоны>|<название_схемы> – если актер не в указанной зоне (указывается имя рестриктора).
-on_npc_in_zone = <number>|<имя_зоны>|<название_схемы> – если NPC со story_id равному number, в указанной зоне.
-on_npc_not_in_zone = <number>|<имя_зоны>|<название_схемы> - если NPC со story_id равному number, не в указанной зоне.
-on_actor_inside = <название_схемы> - зона проверяет, находится ли игрок внутри нее (используется со space_restrictor).
-on_actor_outside = <название_схемы> - зона проверяет, находится ли игрок за ее пределами (используется со space_restrictor).
+on_actor_dist_le 		= <number>|<название_схемы> - если дистанция в метрах до игрока меньше либо равно number.
+on_actor_dist_le_nvis 	= <number>|<название_схемы> - если дистанция в метрах до игрока меньше либо равно number без проверки на видимость.
+on_actor_dist_ge 		= <number>|<название_схемы> - если дистанция в метрах до игрока больше number.
+on_actor_dist_ge_nvis 	= <number>|<название_схемы> - если дистанция в метрах до игрока больше number без проверки на видимость.
+on_signal 				= <имя_сигнала>|<название_схемы> - срабатывает по приходу сигнала имя_сигнала от текущей активной схемы.
+on_info 				= <название_схемы> - срабатывает всегда.
+on_timer 				= <number>|<название_схемы> - срабатывает через number миллисекунд после включения схемы.
+on_game_timer 			= <number>|<название_схемы> – срабатывает через number секунд игрового времени, после включения схемы.
+on_actor_in_zone 		= <имя_зоны>|<название_схемы> – если актер в находится в указанной зоне (указывается имя рестриктора).
+on_actor_not_in_zone 	= <имя_зоны>|<название_схемы> – если актер не в указанной зоне (указывается имя рестриктора).
+on_npc_in_zone 			= <number>|<имя_зоны>|<название_схемы> – если NPC со story_id равному number, в указанной зоне.
+on_npc_not_in_zone 		= <number>|<имя_зоны>|<название_схемы> - если NPC со story_id равному number, не в указанной зоне.
+on_actor_inside 		= <название_схемы> - зона проверяет, находится ли игрок внутри нее (используется со space_restrictor).
+on_actor_outside 		= <название_схемы> - зона проверяет, находится ли игрок за ее пределами (используется со space_restrictor).
 --------------------------------------------------------------------------
 Условия могут быть следующими:
-+infoportion - требуется присутствие инфопорции "infoportion" у актора;
--infoportion - требуется отсутствие инфопорции "infoportion" у актора;
-=function - требуется, чтобы функция "function" вернула true;
-!function - требуется, чтобы функция "function" вернулся false;
-~number - вероятность выполнения условия.
++infoportion 	- требуется присутствие инфопорции "infoportion" у актора;
+-infoportion 	- требуется отсутствие инфопорции "infoportion" у актора;
+=function 		- требуется, чтобы функция "function" вернула true;
+!function 		- требуется, чтобы функция "function" вернулся false;
+~number 		- вероятность выполнения условия.
 ---------------------------------------------------------------------------
 в % % происходит выполнение
 в { } происходит проверка
 
 Функции проверки должны лежать в \gamedata\scripts\xr_conditions.script
 
-Функции типа %=% должны лежать в \gamedata\scripts\xr_effects.script
-
-КАСАЕТСЯ ТОЛЬКО ФУНКЦИЙ ТИПА %=%. По другому их вызывать нельзя, то есть: "%=название_скрипта.название_функции%", НО если внести некоторые правки, то можно.
-
-Для этого нужно открыть \gamedata\scripts\xr_logic.script
-
-и где-то с 578-й строки вместо этого:
-
-		if infop_conditions_met then
-			-- Условия выполнены. Независимо от того, задана ли секция, нужно проставить требуемые
-			-- infoportions:
-			for inum, infop in pairs(cond.infop_set) do
-				if db.actor == nil then
-					abort("TRYING TO SET INFOS THEN ACTOR IS NIL")
-				end
-				if infop.func then
-					if not xr_effects[infop.func] then
-						abort("object '%s': pick_section_from_condlist: function '%s' is " ..
-							"not defined in xr_effects.script", if_then_else(npc, npc:name(), "nil"), infop.func)
-					end
-					if infop.params then
-						xr_effects[infop.func](actor, npc, infop.params)
-					else
-						xr_effects[infop.func](actor, npc)
-					end
-				elseif infop.required then
-					if not has_alife_info(infop.name) then
-						actor:give_info_portion(infop.name)
-					end
-				else
-					if has_alife_info(infop.name) then
-						actor:disable_info_portion(infop.name)
-					end
-				end
-			end
-			if cond.section == "never" then
-				return nil
-			else
-				return cond.section
-			end
-		end
-	end
-
-	--printf("_bp: pick_section_from_condlist: nil")
-	return nil
-end
-
-Надо написать вот это:
-		if infop_conditions_met then
-			-- Условия выполнены. Независимо от того, задана ли секция, нужно проставить требуемые
-			-- infoportions:
-			for inum, infop in pairs(cond.infop_set) do
-				if db.actor == nil then
-					abort("TRYING TO SET INFOS THEN ACTOR IS NIL")
-				end
-				if infop.func then
-					local func=nil
-					local module,fname=string.match(infop.func,"(.+)[.](.+)")
-    
-				if not fname then
-					func=xr_effects[infop.func]
-				elseif _G[module] and _G[module][fname] then
-					func=_G[module][fname]
-				end
-    
-				if not func then
-					abort("object '%s': pick_section_from_condlist: function '%s' is " ..
-					"not defined in xr_effects.script", iif(npc, npc:name(), "nil"), infop.func)
-				end
-
-				if infop.params then
-					func(db.actor, npc, infop.params)
-				else
-					func(db.actor, npc)
-				end
-
-				elseif infop.required then
-				if not has_alife_info(infop.name) then
-				   actor:give_info_portion(infop.name)
-				end
-				else
-				if has_alife_info(infop.name) then
-				   actor:disable_info_portion(infop.name)
-				end
-			end
-		end
-			if cond.section == "never" then
-				return nil
-			else
-				return cond.section
-			end
-		end
-	end
-
-	-- printf("_bp: pick_section_from_condlist: nil")
-	return nil
-
-end
-
-
+Функции выполнения должны лежать в \gamedata\scripts\xr_effects.script

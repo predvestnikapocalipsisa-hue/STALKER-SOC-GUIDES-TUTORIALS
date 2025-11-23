@@ -1,5 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-Торговля
+ТОРГОВЛЯ
+[logic]
+active = nil или схема
+trade = misc\файл_торговли.ltx
+
 [trader] 
 buy_condition = my_generic_buy
 buy это цены закупки от 100 до 30 процентов например

@@ -130,6 +130,12 @@ end
 
 Ещё с оргинала в \gamedata\scripts\xr_effects.script есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять
 
+=inc_counter(имя_счетчика)
+создает счетчик и добавляет 1
+
+=dec_counter(имя_счетчика)
+создает счетчик и отнимает 1
+
 Используются только в логике:
 [logic]
 active = nil
@@ -139,6 +145,9 @@ on_death = death
 on_info = %=inc_counter(fff)%
 
 в \gamedata\scripts\xr_conditions.script есть counter_greater у него надо набить на 1 больше чем указано, такой нюанс
+
+=counter_greater(имя_счетчика:число)
+возвращает true, если значение указанного счётчика БОЛЬШЕ указанного числа
 
 Используются только в логике:
 [logic]
