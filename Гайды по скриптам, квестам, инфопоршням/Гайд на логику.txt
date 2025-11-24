@@ -204,6 +204,10 @@ mil_lager = {+agroprom_military_case_have}, {+esc_fanat_spawn}
 [collide]
 ignore_static
 ignore_ragdoll
+
+"drop_box" то что выпадет из ящика
+[drop_box]
+community = big_box_generic
 ----------------------------------------------------------------------
 
 
