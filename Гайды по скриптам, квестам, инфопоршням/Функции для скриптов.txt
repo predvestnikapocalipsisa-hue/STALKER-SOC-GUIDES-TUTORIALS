@@ -31,7 +31,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Спавн с использованием клиентских методов
 function spawn()
-  local sobj = create(section, position, lvid, gvid)
+  local sobj = alife():create(section, position, lvid, gvid)
   level.client_spawn_manager():add(sobj.id, 65535,
     function (id, cobj)
       cobj:set_goodwill(-5000, db.actor)
