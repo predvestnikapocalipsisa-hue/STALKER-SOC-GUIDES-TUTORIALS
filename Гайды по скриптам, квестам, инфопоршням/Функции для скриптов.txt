@@ -665,3 +665,17 @@ function main_menu:OnKeyboard(dik, keyboard_action)  --virtual function
 	return true
 
 end
+--------------------------------------------------------------------------------------------------------------
+
+Функция для замены одной текстуры на другую. Работает только на огср. Изначально эта функция лежала на вики огср, после чего мы ее переместили в ray_features. А теперь я сделал из нее модуль
+
+function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем. Пути указывать по типу такого: "act\\act_arm_perchatka1"
+	local t1 = texture_find(texture1) -- возвращает таблицу: ключ имя текстуры, значение объект
+	if t1 then
+		local tex = t1[ texture1 ]
+			log1("found, name=" .. tex:get_name())
+		local name = texture2
+			tex:load(name) -- С этим способом замены текстура будет заменяться везде где используется.
+		end
+end
+
