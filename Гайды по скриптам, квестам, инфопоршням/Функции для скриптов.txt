@@ -590,10 +590,6 @@ function main_menu:OnKeyboard(dik, keyboard_action)  --virtual function
 			end
 		end	
 
-		if dik == DIK_keys.DIK_SPACE then
-			self:StartGame()
-		end
-
 		if dik == DIK_keys.DIK_F1 then
 			local gv = db.actor:game_vertex_id()
 			local lv = db.actor:level_vertex_id()
@@ -609,11 +605,6 @@ function main_menu:OnKeyboard(dik, keyboard_action)  --virtual function
 			console:execute("main_menu off")
 		end
 		
-		-- if dik == DIK_keys.DIK_W then
-			-- console:execute("main_menu off")
-			-- fast_travel.create_level_changer(vector():set(162.613, -0.001, 65.842),42218,1179)
-		-- end
-
 		if dik == DIK_keys.DIK_Q then
 			self:OnMessageQuitWin()
 		end
