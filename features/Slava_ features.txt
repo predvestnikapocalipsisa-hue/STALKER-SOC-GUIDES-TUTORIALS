@@ -1,4 +1,13 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+Ещё можно указать обвесы
+wpn_abakan = 1, launcher silencer scope \n
+wpn_ak74 = 1, grenade_launcher,silencer,scope \n
+
+wpn_binoc_m1 = 1, prob=0.25
+wpn_m82 = 1, cond=0.5
+ammo_12.7x108 = 4, prob=0.25
+Пушка заспавнилась с состоянием 50%, бинокль не прокнул, но, что самое интересное, патроны. Их прописано 4 пачки с шансом 25%  - заспавнилось две. Значит расчёт ведётся для каждой пачки отдельно.
+
 ТОРГОВЛЯ
 [logic]
 active = nil или схема
@@ -117,9 +126,6 @@ snd_close_start = trader_door_close_start
 snd_close_stop = trader_door_close_stop
 show_tips = true
 
-wpn_ak103 = 1, grenade_launcher \n	
-wpn_ak103 = 1, silencer \n	
-wpn_ak103 = 1, scope \n
 
 ;переход
 [pt_move_if_reject]
