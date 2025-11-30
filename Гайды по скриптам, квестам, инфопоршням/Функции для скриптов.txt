@@ -9,26 +9,6 @@ end
 -- Пример вызова
 Имя_файла.send_message(tostring(значение))
 --------------------------------------------------------------------------------------------------------------
--- Функция переносит ВСЕ ваши вещи в указанный объект. Точно также как на арене в баре. Тут это ящик со стори айди 2000
-function transfer_object_item(item) -- функцию кладем туда же, где и item_to_box()
-    out_object:transfer_item(item, in_object)
-end
-
-function item_to_box()
-	out_object = db.actor
-    in_object  = level_object_by_sid (2000)
-	out_object:inventory_for_each(transfer_object_item) 
-end
-
---Кладем это в ваш условно my.script и вызываем my.item_to_box()
---Вещи можно передавать не только в ящик, а также нпс, ниже привёл пример передачи вещей Волку, обращаемся к нему по айди, если угодно то по стори айди тоже можно, как показано выше.
-function item_to_npc()
-	out_object = db.actor
-	local sobj = alife():object("esc_wolf")
-	in_object  = level.object_by_id(sobj.id)
-	out_object:inventory_for_each(transfer_object_item) 
-end
---------------------------------------------------------------------------------------------------------------
 -- Спавн с использованием клиентских методов
 function spawn()
   local sobj = alife():create(section, position, lvid, gvid)
@@ -70,7 +50,21 @@ function zabral()
 	sak.out_item_namber("af_medusa",1)
 end
 --------------------------------------------------------------------------------------------------------------
--- НПС передает предмет нам, при этом у НПС предмет исчезает
+-- Выдать вещь нпс
+function spawn2()
+	local obj = alife():object("esc_wolf")
+	alife():create("wpn_svd", obj.position, obj.m_level_vertex_id, obj.m_game_vertex_id, obj.id)
+end
+--------------------------------------------------------------------------------------------------------------
+-- и такой вариант с общей функцией:
+function spawn2(npc, item)
+  local obj = alife():object(npc)
+  alife():create(item, obj.position, obj.m_level_vertex_id, obj.m_game_vertex_id, obj.id)
+end
+-- вызов:
+sak.spawn2("esc_wolf","wpn_svd")
+--------------------------------------------------------------------------------------------------------------
+-- НПС передает предмет нам, при этом у НПС предмет исчезает\Либо мы ему
 function main1(first_speaker, second_speaker)
 	sak.relocate_item_my(second_speaker, "wpn_ak74u", "in")
 end
@@ -612,8 +606,7 @@ function main_menu:OnKeyboard(dik, keyboard_action)  --virtual function
 	return true
 end
 --------------------------------------------------------------------------------------------------------------
-
-Функция для замены одной текстуры на другую. Работает только на огср. Изначально эта функция лежала на вики огср, после чего мы ее переместили в ray_features. А теперь я сделал из нее модуль
+--Функция для замены одной текстуры на другую. Работает только на огср. Изначально эта функция лежала на вики огср, после чего мы ее переместили в ray_features. А теперь я сделал из нее модуль
 
 function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем. Пути указывать по типу такого: "act\\act_arm_perchatka1"
 	local t1 = texture_find(texture1) -- возвращает таблицу: ключ имя текстуры, значение объект
@@ -624,4 +617,114 @@ function change_texture(texture1, texture2) -- texture1 это заменяем�
 			tex:load(name) -- С этим способом замены текстура будет заменяться везде где используется.
 		end
 end
+--------------------------------------------------------------------------------------------------------------
+-- Функция переносит ВСЕ ваши вещи в указанный объект. Точно также как на арене в баре. Тут это ящик со стори айди 2000
+function transfer_object_item(item) -- функцию кладем туда же, где и item_to_box()
+    out_object:transfer_item(item, in_object)
+end
 
+function item_to_box()
+	out_object = db.actor
+    in_object  = level_object_by_sid (2000)
+	out_object:inventory_for_each(transfer_object_item) 
+end
+
+--Кладем это в ваш условно my.script и вызываем my.item_to_box()
+
+--Вещи можно передавать не только в ящик, а также нпс, ниже привёл пример передачи вещей Волку, обращаемся к нему по айди, если угодно то по стори айди тоже можно, как показано выше.
+function item_to_npc()
+	out_object = db.actor
+	local sobj = alife():object("esc_wolf")
+	in_object  = level.object_by_id(sobj.id)
+	out_object:inventory_for_each(transfer_object_item) 
+end
+--------------------------------------------------------------------------------------------------------------
+Спавнит в указанном по стори айди объекте вещи
+local spawn_item = {"wpn_knife","wpn_pm"} --таблица предметов для спауна
+
+local function spawn_item_to_box(items_table, sid)
+  local obj = alife():story_object(sid)
+  
+  if #items_table == 0 then return end
+  
+  for i = 1,#items_table do
+    alife():create(items_table[i],
+            obj.position,
+            obj.m_level_vertex_id,
+            obj.m_game_vertex_id,
+            obj.id)
+  end
+end
+ 
+function spawn_item_to_treasure()
+  spawn_item_to_box(spawn_item, 2000)
+end
+--------------------------------------------------------------------------------------------------------------
+и ещё есть вариант с указыванием количества:
+--------------------------------------------------------------------------------------------------------------
+local spawn_item = {
+    {name = "wpn_knife", count = 1},
+    {name = "wpn_pm", count = 3}
+}
+
+local function spawn_item_to_box(items_table, sid)
+    local obj = alife():story_object(sid)
+    
+    if not obj or #items_table == 0 then
+        return
+    end
+
+    for _, entry in ipairs(items_table) do
+        local item_name = entry.name
+        local count = entry.count or 1  -- если количество не указано, по умолчанию 1
+
+        for i = 1, count do
+            alife():create(
+                item_name,
+                obj.position,
+                obj.m_level_vertex_id,
+                obj.m_game_vertex_id,
+                obj.id
+            )
+        end
+    end
+end
+ 
+function spawn_item_to_treasure(actor, obj, p)
+  spawn_item_to_box(spawn_item, 2000)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Вариант по имени:
+local spawn_item = {
+    {name = "wpn_knife", count = 1},
+    {name = "wpn_pm", count = 3},
+    {name = "wpn_svd", count = 3}
+}
+
+local function spawn_item_to_box(items_table, id)
+    local obj = alife():object(id)
+    
+    if not obj or #items_table == 0 then
+        return
+    end
+
+    for _, entry in ipairs(items_table) do
+        local item_name = entry.name
+        local count = entry.count or 1  -- если количество не указано, по умолчанию 1
+
+        for i = 1, count do
+            alife():create(
+                item_name,
+                obj.position,
+                obj.m_level_vertex_id,
+                obj.m_game_vertex_id,
+                obj.id
+            )
+        end
+    end
+end
+ 
+function spawn_item_to_treasure()
+  spawn_item_to_box(spawn_item, "esc_wolf")
+end
+--------------------------------------------------------------------------------------------------------------
