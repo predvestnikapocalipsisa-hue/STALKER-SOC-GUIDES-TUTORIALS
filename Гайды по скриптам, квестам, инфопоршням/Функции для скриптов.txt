@@ -690,41 +690,13 @@ local function spawn_item_to_box(items_table, sid)
     end
 end
  
-function spawn_item_to_treasure(actor, obj, p)
+function spawn_item_to_treasure()
   spawn_item_to_box(spawn_item, 2000)
 end
 --------------------------------------------------------------------------------------------------------------
 -- Вариант по имени:
-local spawn_item = {
-    {name = "wpn_knife", count = 1},
-    {name = "wpn_pm", count = 3},
-    {name = "wpn_svd", count = 3}
-}
 
-local function spawn_item_to_box(items_table, id)
     local obj = alife():object(id)
-    
-    if not obj or #items_table == 0 then
-        return
-    end
-
-    for _, entry in ipairs(items_table) do
-        local item_name = entry.name
-        local count = entry.count or 1  -- если количество не указано, по умолчанию 1
-
-        for i = 1, count do
-            alife():create(
-                item_name,
-                obj.position,
-                obj.m_level_vertex_id,
-                obj.m_game_vertex_id,
-                obj.id
-            )
-        end
-    end
-end
- 
-function spawn_item_to_treasure()
-  spawn_item_to_box(spawn_item, "esc_wolf")
-end
+	
+	spawn_item_to_box(spawn_item, "esc_wolf")
 --------------------------------------------------------------------------------------------------------------
