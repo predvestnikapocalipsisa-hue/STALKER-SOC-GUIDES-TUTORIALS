@@ -212,23 +212,16 @@ end
 function enemy (first_speaker, second_speaker)
 	second_speaker:set_relation(game_object.enemy, first_speaker)
 end
+-- С кем говорим друг
+	second_speaker:set_relation(game_object.friend, first_speaker)
 --------------------------------------------------------------------------------------------------------------
 -- ГГ становится врагом нпс со стори айди 704
 function enemy_set ()
     local npc = level_object_by_sid (704)
     npc:set_relation (game_object.enemy, db.actor)    
 end
---------------------------------------------------------------------------------------------------------------
--- С кем говорим друг
-function friend(first_speaker, second_speaker)
-	second_speaker:set_relation(game_object.friend, first_speaker)
-end
---------------------------------------------------------------------------------------------------------------
 -- Сделать нпс другом
-function test()
-    local npc = level_object_by_sid(3)
 	npc:set_relation(game_object.friend, db.actor)
-end
 --------------------------------------------------------------------------------------------------------------
 -- Функция убивает гавного героя
 function aes_kill_actor ()
@@ -344,14 +337,12 @@ function main323()
   
   local obj = alife():create("esc_wolf_respawn", pos_new, lv_new, gv_id) -- сам спавн
   level.map_add_object_spot(obj.id, "green_location", obj:name())
-
 end
 --------------------------------------------------------------------------------------------------------------
 -- Такими вот функциями можно установить ранг, деньги НПС. Работает только на ОГСР
 function main ()
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
-	obj:set_money( 65000 )
+	local obj = level_object_by_sid(006)
+	obj:set_money(65000)
 	obj:set_character_rank(1000)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -360,43 +351,30 @@ function actor_set_dolg()
 	db.actor:set_character_community("actor_dolg", 0, 0)
 end
 --------------------------------------------------------------------------------------------------------------
--- Отправляем НПС в другую группировку(Волка)
-function name() 
-	local npc = level_object_by_sid(006) 
-	npc:set_character_community("dolg", 0, 0) 
-end 
---------------------------------------------------------------------------------------------------------------
 -- Нпс вступает в группировку, работает на собеседнике в диалоге
 function npc_to_dolg(actor, npc) 
 	npc:set_character_community("dolg", 0, 0) 
 end 
---------------------------------------------------------------------------------------------------------------
+--по стори айди
+	local npc = level_object_by_sid(006)
+	
 -- Есть и такой вариант по имени
-function fake_bandit()
 	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
-	obj:set_character_community("bandit", 0, 0)
-end
+	local npc = level.object_by_id(sobj.id)
 --------------------------------------------------------------------------------------------------------------
 -- Отношение группировки к нам -5000
 function vrag_dolg()
 	relation_registry.set_community_goodwill ("группировка", db.actor:id(), - 5000)
 end
---------------------------------------------------------------------------------------------------------------
 -- Отношение группировки к нам + 5000
-function vrag_dolg()
 	relation_registry.set_community_goodwill ("группировка", db.actor:id(), 5000)
-end
 --------------------------------------------------------------------------------------------------------------
 -- ГГ станет врагом лагерю esc_lager
 function set_actor_enemy ()
     xr_gulag.setGulagEnemy ("esc_lager", db.actor)
 end
---------------------------------------------------------------------------------------------------------------
 -- ГГ станет нейтралом лагерю esc_lager
-function set_actor_neutral ()
     xr_gulag.setGulagNeutral ("esc_lager", db.actor)
-end
 --------------------------------------------------------------------------------------------------------------
 -- ГГ станет другом лагерю esc_lager
 function set_actor_friend ()
@@ -409,26 +387,18 @@ function sms0() --смс придет от иконки дефаулт, dm_actio
 	news_manager.send_tip(db.actor, "dm_action_info_1", nil, nil, nil)
 end
 
-function sms1() -- указана иконка сидора, trader из news_manager.script в tips_icons
+-- указана иконка сидора, trader из news_manager.script в tips_icons
 	news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", nil)
-end
 
-function sms3() -- указана иконка сидора и время показа смс
+-- указана иконка сидора и время показа смс
 	news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", 300000)
-end
 
---Если текст пишем сразу в скрипте, то ставим файлу кодировку: Кириллица Windows-1251
-function sms4()
+-- Если текст пишем сразу в скрипте, то ставим файлу кодировку: Кириллица Windows-1251
 	news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[default] Привет сталкер!".."".."\n", nil, "arena", 300000)
-end
 
-function sms5()
 	news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, 70000)
-end
 
-function sms6()
 	news_manager.send_tip(db.actor, "%c[255,0,255,0]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, nil)
-end
 --------------------------------------------------------------------------------------------------------------
 -- Отметить объект по стори айди 14, crlc_small - тип метки
 function otmechaem_laz()
@@ -567,23 +537,12 @@ function count_achieved_infos()
     return count
 end
 --------------------------------------------------------------------------------------------------------------
-СНЯТИЕ КООРДИНАТ
+СНЯТИЕ КООРДИНАТ, находясь в меню можно будет жать Ф1 и появятся коорды
 Откройте файл \gamedata\scripts\ui_main_menu.script
 
-Через поиск найдите main_menu:OnKeyboard совместите со своим вариантом, после этого находясь в меню можно будет жать Ф1 и появятся коорды
-
-function main_menu:OnKeyboard(dik, keyboard_action)  --virtual function
-	CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
-	local bind = dik_to_bind(dik)
-	local console = get_console()
-
-	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
-		if dik == DIK_keys.DIK_ESCAPE then
-			if level.present() and (db.actor ~= nil) and db.actor:alive() then
-				console:execute("main_menu off")
-			end
-		end	
-
+Через поиск найдите function main_menu:OnKeyboard(dik, keyboard_action)
+в этот участок if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+добавим это
 		if dik == DIK_keys.DIK_F1 then
 			local gv = db.actor:game_vertex_id()
 			local lv = db.actor:level_vertex_id()
@@ -598,16 +557,8 @@ function main_menu:OnKeyboard(dik, keyboard_action)  --virtual function
 			news_manager.send_tip(db.actor, "Position:".."\\n".."X: "..posx.."\\n".."Y: "..posy.."\\n".."Z: "..posz.."\\n".."Direction: ".."\\n".."X: "..dirx.."\\n".."Y: "..diry.."\\n".."Z: "..dirz.."\\n".."Game Vertex ID: "..gv.."\\n".."Level Vertex ID: "..lv.."\\n".."That's all.", nil, nil, 100000)	
 			console:execute("main_menu off")
 		end
-		
-		if dik == DIK_keys.DIK_Q then
-			self:OnMessageQuitWin()
-		end
-	end
-	return true
-end
 --------------------------------------------------------------------------------------------------------------
 --Функция для замены одной текстуры на другую. Работает только на огср. Изначально эта функция лежала на вики огср, после чего мы ее переместили в ray_features. А теперь я сделал из нее модуль
-
 function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем. Пути указывать по типу такого: "act\\act_arm_perchatka1"
 	local t1 = texture_find(texture1) -- возвращает таблицу: ключ имя текстуры, значение объект
 	if t1 then
@@ -631,13 +582,9 @@ end
 
 --Кладем это в ваш условно my.script и вызываем my.item_to_box()
 
---Вещи можно передавать не только в ящик, а также нпс, ниже привёл пример передачи вещей Волку, обращаемся к нему по айди, если угодно то по стори айди тоже можно, как показано выше.
-function item_to_npc()
-	out_object = db.actor
+--Вещи можно передавать по айди, обозначаем in_object так:
 	local sobj = alife():object("esc_wolf")
 	in_object  = level.object_by_id(sobj.id)
-	out_object:inventory_for_each(transfer_object_item) 
-end
 --------------------------------------------------------------------------------------------------------------
 Спавнит в указанном по стори айди объекте вещи
 local spawn_item = {"wpn_knife","wpn_pm"} --таблица предметов для спауна
@@ -696,7 +643,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Вариант по имени:
 
-    local obj = alife():object(id)
+    local obj = alife():object(sid)
 	
 	spawn_item_to_box(spawn_item, "esc_wolf")
 --------------------------------------------------------------------------------------------------------------
