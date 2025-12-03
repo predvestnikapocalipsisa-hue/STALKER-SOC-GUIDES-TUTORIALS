@@ -1,140 +1,62 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+Мб кому полезно будет, созадаем файл .bat указываем внутри свой путь до папки levels и скрипт удалит все файлы кроме .gct .spawn .ai .game .graph
 
-Можно использовать в xml и логике нпс
+@echo off
+setlocal enabledelayedexpansion
 
-Ещё можно указать обвесы
-wpn_abakan = 1, launcher silencer scope \n
-wpn_ak74 = 1, grenade_launcher,silencer,scope \n
+REM Путь к основной папке levels
+set "root=C:\STALKER\S.T.A.L.K.E.R.1.0006\gamedata\levels"
 
-wpn_binoc_m1 = 1, prob=0.25 \n
-wpn_m82 = 1, cond=0.5 \n
-ammo_12.7x108 = 4, prob=0.25 \n
-Пушка заспавнилась с состоянием 50%, бинокль не прокнул, но, что самое интересное, патроны. Их прописано 4 пачки с шансом 25%  - заспавнилось две. Значит расчёт ведётся для каждой пачки отдельно.
+REM Расширения, которые НЕ нужно удалять
+set "keep_exts=.gct .spawn .ai .game .graph"
 
-ТОРГОВЛЯ
-[logic]
-active = nil или схема
-trade = misc\файл_торговли.ltx
+REM Папки, которые нужно удалить
+set "del_dirs=terrain meshes"
 
-[trader] 
-buy_condition = my_generic_buy
-buy это цены закупки от 100 до 30 процентов например
+echo Поиск и обработка всех подпапок в: %root%
+echo.
 
-sell_condition = my_start_sell
-цены продажи от 100 до 300 процентов например
+REM Перебор всех подпапок внутри levels
+for /d %%D in ("%root%\*") do (
+    echo Обработка папки: %%~nxD
+    pushd "%%D"
+    
+    REM 1. Удаление всех файлов, кроме нужных расширений
+    echo Удаление лишних файлов...
+    for %%A in (*) do (
+        set "ext=%%~xA"
+        set "match=no"
+        for %%E in (%keep_exts%) do if /i "%%E"=="!ext!" set "match=yes"
+        if "!match!"=="no" (
+            echo Удаление файла: %%A
+            del /q "%%A" >nul 2>&1
+            if exist "%%A" echo [!] Не удалось удалить: %%A
+        )
+    )
 
-buy_supplies = supplies_start
-саплайс старт это ассортимент продажи, сколько и с какой вероятностью
+    REM 2. Удаление папок terrain и meshes
+    for %%K in (%del_dirs%) do (
+        if exist "%%K" (
+            echo Удаление папки: %%K
+            rd /s /q "%%K" >nul 2>&1
+            if exist "%%K" echo [!] Не удалось удалить папку: %%K
+        )
+    )
 
-;базовая логика
-[smart_terrains]
-none = true
+    popd
+)
 
-[logic]
-active = remark
-danger = danger_condition
-combat_ignore = combat_ignore
-
-[remark]
-anim                = wait
-on_timer = 20000 | walker
-
-[walker]
-path_walk = esc
-combat_ignore_cond = always
-
-[combat_ignore]
-
-[danger_condition]
-ignore_distance = 0
-ignore_distance_corpse = 0
-
-;Параметры перса
-[logic]
-active = nil
-
-[spawner]
-cond = {+322tutorial}
-cond = {=is_day};спавнить монстра только днем (если надо ночью, то пишем {!is_day})
-
-[dont_spawn_character_supplies]
-[dont_spawn_loot]
-
-[known_info]
-esc_tutorial_secret
-
-[spawn]
-wpn_binoc
-detector_simple
-novice_outfit
-device_torch
-
-[smart_terrains]
-none = true
-esc_lager = {-agroprom_military_case_have -esc_fanat_spawn} 
+echo.
+echo Очистка завершена.
+pause
 
 
 
-Схема радио
-[collide]
-ignore_static
-
-[logic]
-active = ph_sound
-
-[ph_sound]
-snd = radio_music
-on_hit = hit
-on_info = {+esc_radio_off} nil
-[hit]
-on_info = %+esc_radio_off%
 
 
-smart_terrain respawn
-[smart_terrain]
-type = general_lager
-communities = stalker
-capacity = 4
-respawn = my_respawn_items
-
-[respawn]
-respawn_section = mil_stalker_respawn_2,mil_stalker_respawn_3
-max_spawn = 2
-idle_spawn = medium
-conditions = {+322esc_kill_bandits_quest_kill} 80, 0
-
-[respawn]
-respawn_section = wpn_pm,2,vodka,2,medkit,1,energy_drink,2,ammo_9x18_fmj,3
-idle_spawn = -1
-parent = 2000
-item_spawn = true
-max_count = 7
-
-;Логика двери
-[ph_door@open]
-locked = false
-closed = false
-on_use = ph_door@closed
-snd_open_start = trader_door_open_start
-snd_close_start = trader_door_close_start
-snd_close_stop = trader_door_close_stop
-show_tips = true
-
-[ph_door@closed]
-locked = false
-closed = true
-on_use = ph_door@open
-snd_open_start = trader_door_open_start
-snd_close_start = trader_door_close_start
-snd_close_stop = trader_door_close_stop
-show_tips = true
 
 
-;переход
-[pt_move_if_reject]
-path = esc_way_if_reject
-
-l13_atp-l14_village
+-------------------------------------------------------------------------------------------------------------------------------------------------
 [l13_atp]
 texture	    	= map\map_mp_atp
 bound_rect		= 24.216, -147.719, 270.589, 98.760

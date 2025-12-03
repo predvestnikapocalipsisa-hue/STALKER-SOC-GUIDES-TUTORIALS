@@ -109,3 +109,17 @@ ph_snd_themes["my_music"] = {[[my_music\music_1]],
 
 								[[my_music\music_2]]}
 
+Пример схемы радио:
+
+[collide]
+ignore_static
+
+[logic]
+active = ph_sound
+
+[ph_sound]
+snd = radio_music
+on_hit = hit
+on_info = {+esc_radio_off} nil
+[hit]
+on_info = %+esc_radio_off%
