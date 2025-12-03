@@ -517,49 +517,7 @@ on_signal = sound_end| remark@esc_lager_volk3 %=play_snd_from_radio%
 on_info = {=gulag_population_le(esc_lager:6)} walker@esc_lager_defend_new1
 
 {=gulag_population_le(esc_lager:6)} это функция проверки gulag_population_le из файла \gamedata\scripts\xr_conditions.script
-
-
-
---------------------------------------------------------------------------
-ФИКС СБРОСА ЛОГИКИ
---------------------------------------------------------------------------
-Далее хотел бы отметить что в смартах логика нпс всегда сбрасывается и начинается сначала, для этого в смартах сделаны состояния, ими могут быть не только разделение на день и ночь, чтобы избежать сброса можно сделать так:
-
-[logic@esc_lager_shustryi]
-active = {+tutorial_wounded_give_info} sleeper4@esc_lager, camper@esc_lager_prisoner
-Получается так что сначала работает camper(его состояние пленного), потом при выполнении условия из { }, то есть получения инфопоршн "tutorial_wounded_give_info" переходит на sleeper
-
-Но сходу это работать не будет, сперва нужно в \gamedata\scripts\xr_gulag.script
-
-234 строка
-заменяем это
-    local active_section = self.ltx:r_string( section, "active" )
-
-на это
-    local active_section_cond = xr_logic.cfg_get_condlist(self.ltx, section, "active", self)
-    local active_section = xr_logic.pick_section_from_condlist(db.actor, self, active_section_cond.condlist)
-
-
-
-Как альтернатива:
-меняем
-	local active_section = self.ltx:r_string( section, "active" )
-
-на это
-	local active_section = xr_logic.determine_section_to_activate(self, self.ltx, section, db.actor)
-тоже работает, нюансов не заметил
-
-
-После этого оформляем логику так:
-[logic]
-active = {условие для работы схемы } sleeper, walker
-Получается так что сначала работает схема "walker", потом при выполнении условия из { } переходит на sleeper
-
-формально логика будет читаться с самого начала, но уже хотябы с заданного момента 
-
-
-
-
+ы
 ---------------------------------------------------------------------------
 РАЗБОР ЛОГИКИ ПО ПОЛОЧКАМ:
 ---------------------------------------------------------------------------
