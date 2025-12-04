@@ -36,7 +36,8 @@ cond = {+yan_kill_brain_done}
 
 Все видео про схемы: https://www.youtube.com/playlist?list=PLONawgtVvphyyuWnO5sQO_iKcBEUqNFT0
 
-Разбор всех схем: 	 https://sites.google.com/view/stsocmoding
+Разбор всех схем: 	 [Сайт со статьями]
+(https://sites.google.com/view/stsocmoding)
 
 --------------------------------------------------------------------------
 Параметры которые работают в кажой схеме, и предназначены для перекоючения схем\выполнения действий
