@@ -9,9 +9,7 @@
 
 ====================================================================
 
-WiKi с разбором некоторых файлов:
-
-https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/wiki
+[WiKi с разбором некоторых файлов](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/wiki)
 
 Сайт с перенесенными статьями из stalkerin.gameru.net:
 
