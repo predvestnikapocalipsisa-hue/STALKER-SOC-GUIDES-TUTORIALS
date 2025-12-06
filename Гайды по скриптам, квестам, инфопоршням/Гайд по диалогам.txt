@@ -327,26 +327,21 @@ function nagrada()
 sak.create_items_actor("medkit",3)
 sak.create_items_actor("bandage",5)
 end
----------------------------------------------------------------------------------------------------
-Чтобы диалог  выглядел  как с представителем  О-СОЗНАНИЯ нужно в файле m_stalker.ltx
-создать новую секцию
-[stalker_my]:stalker
-$spawn = "stalkers\stalker_my"
-need_osoznanie_mode = true
-
-или при спавне нпс её указать.
 ---------------------------------------------------------------------
-Если в начале диалога сделать так:
-    <dialog id="my_kvest_dialog" priority="2">
-	<has_info>my_kvest_start</has_info>
-	<dont_has_info>my_kvest_done</dont_has_info>
-	<precondition>sak.prov</precondition>
+ВНИМАНИЕ! В Диалог эдиторе гск нет возможности поставить условия появления/исчезания диалога 
+ всё это делаем в файле, в эдиторе от RoH можно, для этого нужно выбрать сам диалог.
+
+Можно в начале диалога сделать несколько условий, столько сколько нужно:
+<dialog id="my_kvest_dialog" priority="2">
+	  <has_info>my_kvest_start</has_info>
+	  <dont_has_info>my_kvest_done</dont_has_info>
+	  <precondition>sak.prov</precondition>
         <phrase_list>
             <phrase id="12111">
                 <text>my_kvest_dialog_12111</text>
             </phrase>
 ---------------------------------------------------------------------
-<dialog id="my_kvest_dialog" priority="2"> priority 2, чем меньше число, тем приоритетнее диалог
+<dialog id="my_kvest_dialog" priority="2"> priority 2, чем меньше число, тем выше диалог в списке
 ---------------------------------------------------------------------
 <has_info>my_kvest_start</has_info> проверка того что игрок получил инфопоршень my_kvest_start, пока он не получен диалог не появляется.
 ---------------------------------------------------------------------
@@ -450,3 +445,11 @@ use			= {=dist_to_actor_le(2) +my_info1 -my_info2} self,true
 meet_dialog = test_function
 
 данная логика подразумевает что нпс будет сам начинать разговор только тогда, когда будет получен инфо my_info1 и будет отсутствовать инфо  my_info2,так же дистанция 2 метра в остальных случаях диалог будем открывать на клавишу как обычно
+---------------------------------------------------------------------------------------------------
+Чтобы диалог  выглядел  как с представителем  О-СОЗНАНИЯ нужно в файле m_stalker.ltx
+создать новую секцию
+[stalker_my]:stalker
+$spawn = "stalkers\stalker_my"
+need_osoznanie_mode = true
+
+или при спавне нпс её указать.
