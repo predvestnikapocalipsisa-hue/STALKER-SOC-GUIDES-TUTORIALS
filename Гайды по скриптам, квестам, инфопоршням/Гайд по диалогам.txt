@@ -467,3 +467,19 @@ end
     <dialog id="escape_lager_volk_info">
   <precondition>xr_conditions.is_night</precondition>
         <phrase_list>			
+
+
+Ещё можно в логике нпс всё оформить так,чтобы он сам открыл диалоговое окно и начал разговор:
+[logic]
+active = walker
+
+[walker]
+path_walk = wolf_walk
+path_look = wolf_look
+meet = meet
+
+[meet]
+use			= {=dist_to_actor_le(2) +my_info1 -my_info2} self,true
+meet_dialog = test_function
+
+данная логика подразумевает что нпс будет сам начинать разговор только тогда, когда будет получен инфо my_info1 и будет отсутствовать инфо  my_info2,так же дистанция 2 метра в остальных случаях диалог будем открывать на клавишу как обычно
