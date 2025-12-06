@@ -356,96 +356,37 @@ need_osoznanie_mode = true
 ---------------------------------------------------------------------
 Как ещё может начинаться диалог:
     <dialog id="my_kvest_dialog" priority="2">
-	<has_info>my_kvest_start</has_info>
-	<dont_has_info>my_kvest_done</dont_has_info>
-	<precondition>sak.prov</precondition>
+	тут можно установить условия появления/исчезания диалога 
         <phrase_list>
-            <phrase id="0">
+<phrase id="0">
                 <text />
-                <next>12</next>
-                <next>13</next>
-                <next>14</next>
-                <next>15</next>
-                <next>18</next>
-                <next>19</next>
-                <next>17</next>
-                <next>20</next>
-                <next>30</next>
-                <next>66</next>
-            </phrase>
-            <phrase id="13">
-                <text />
-                <precondition>escape_dialog.trader_dont_give_job</precondition>
-                <precondition>bar_dialogs.hasnt_darklab_documents</precondition>
-                <has_info>esc_return</has_info>
-                <next>4</next>
-            </phrase>
-            <phrase id="18">
-                <text />
-                <dont_has_info>esc_return</dont_has_info>
-                <dont_has_info>tutorial_wounded_give_info</dont_has_info>
-                <has_info>tutorial_wounded_start</has_info>
-                <next>181</next>
-            </phrase>
-            <phrase id="66">
-                <text />
-                <dont_has_info>esc_return</dont_has_info>
-                <has_info>agroprom_military_case</has_info>
-                <next>661</next>
-            </phrase>
-            <phrase id="20">
-                <text />
-                <precondition>escape_dialog.trader_give_extra_job</precondition>
-                <precondition>escape_dialog.is_not_tutorial</precondition>
-                <next>200</next>
-            </phrase>
-            <phrase id="17">
-                <text />
-                <precondition>escape_dialog.is_not_tutorial</precondition>
-                <precondition>escape_dialog.trader_dont_give_job</precondition>
-                <dont_has_info>esc_return</dont_has_info>
-                <next>171</next>
-            </phrase>
-            <phrase id="15">
-                <text />
-                <precondition>escape_dialog.is_tutorial</precondition>
-                <dont_has_info>esc_trader_can_leave</dont_has_info>
-                <dont_has_info>esc_return</dont_has_info>
-                <has_info>esc_trader_tutorial_chosen</has_info>
-                <next>321</next>
-            </phrase>
-            <phrase id="14">
-                <text />
-                <precondition>escape_dialog.trader_alredy_give_job</precondition>
-                <dont_has_info>esc_return</dont_has_info>
-                <dont_has_info>esc_trader_direct</dont_has_info>
-                <dont_has_info>agroprom_military_case</dont_has_info>
-                <has_info>tutorial_wounded_give_info</has_info>
-                <next>5</next>
-            </phrase>
-            <phrase id="12">
-                <text />
-                <precondition>escape_dialog.is_tutorial</precondition>
-                <dont_has_info>esc_return</dont_has_info>
-                <dont_has_info>esc_trader_tutorial_chosen</dont_has_info>
+                <next>1</next>
+                <next>2</next>
                 <next>3</next>
             </phrase>
-            <phrase id="30">
-                <text />
-                <precondition>escape_dialog.trader_need_extra_job</precondition>
-                <precondition>escape_dialog.is_not_tutorial</precondition>
-                <has_info>esc_trader_return</has_info>
-                <next>300</next>
+            <phrase id="1">
+тут можно сделать только донт и это типа начало нашего диалога
+                <text>Привет!</text>
+                <next>5</next>
             </phrase>
-            <phrase id="19">
-                <text />
-                <precondition>bar_dialogs.have_darklab_documents</precondition>
-                <precondition>escape_dialog.is_not_tutorial</precondition>
-                <dont_has_info>bar_darklab_document_done</dont_has_info>
-                <dont_has_info>esc_darklab_documents_read</dont_has_info>
-                <has_info>esc_return</has_info>
-                <next>191</next>
+            <phrase id="2">
+тут делаем хаз инфо чтобы фраза показывалась только когда надо и делаем донт тоже, чтобы потом перестала показываться и это типа когда мы выполнили подквест
+                <text>Как поживаешь?</text>
+                <next>22</next>
             </phrase>
+            <phrase id="3">
+тут делаем хаз инфо чтобы фраза показывалась только когда надо и делаем донт тоже, чтобы потом перестала показываться и это типа вообще новый диалог
+                <text>Хаюшки!</text>
+                <next>33</next>
+            </phrase>
+            <phrase id="5">
+а это просто продолжение одной из веток и так далее
+                <text>Да привет, я по делу...</text>
+                <next>6</next>
+            </phrase>
+
+
+это будет как три диалога в одном, которые начитаются в зависимости от поставленных условий
 ---------------------------------------------------------------------
 Можно сделать появление диалога у персонажа только в определённое время, например ночью или днем
 смотри, чтобы поставить ограничение на диалог, делаем так и это позволит диалогу показываться только днем
