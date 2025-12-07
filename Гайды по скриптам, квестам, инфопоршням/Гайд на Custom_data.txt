@@ -32,10 +32,11 @@ active = {условие для работы схемы } sleeper, walker
 [logic@комментарий]
 это нужно для того чтобы хранить несколько логик для разных нпс в одном файле, в теории можно использовать и вне смартов
 
-[Все видео про схемы](https://www.youtube.com/playlist?list=PLONawgtVvphyyuWnO5sQO_iKcBEUqNFT0)
+Все видео про схемы:
+https://www.youtube.com/playlist?list=PLONawgtVvphyyuWnO5sQO_iKcBEUqNFT0
 
-[Разбор всех схем](https://sites.google.com/view/stsocmoding)
-
+Более подробно про схемы:
+https://sites.google.com/view/stsocmoding/%D0%B1%D0%BE%D0%BB%D1%8C%D1%88%D0%B8%D0%B5-%D0%B3%D0%B0%D0%B9%D0%B4%D1%8B-%D1%81%D1%82%D0%B0%D0%BB%D0%BA%D0%B5%D1%80%D0%B8%D0%BD%D0%B0/%D0%BE%D1%84%D0%BE%D1%80%D0%BC%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5-custom_data?authuser=0
 --------------------------------------------------------------------------
 Параметры которые работают в каждой схеме, и предназначены для переключения схем\выполнения действий
 --------------------------------------------------------------------------
@@ -97,6 +98,43 @@ on_info2 = …
 
 
 
+---------------------------------------------------------------------------
+Чтобы разобраться получше давай рассмотрим такую custom_data:
+[smart_terrains]
+none = true			;none отвечает, за то чтобы никакой смарт не притягивал нашего нпс, вместо none, обычно стоит имя смарта
+
+[logic]					
+active = walker		;активная схема нпс walker
+on_death = death	;ссылка на схему death, она определяет что будет, когда нпс погибнет
+
+[walker]						;схема волкера, в ней нпс стоит на месте, либо ходит по точкам
+path_walk = wolf_walk			;обязательная точка пути\маршрут
+path_look = wolf_look			;опциональный параметр, точка в которую смотрит нпс
+meet = meet						;ссылка на схему meet
+on_actor_dist_le = 23| {+tutorial_wounded_start -esc_kill_bandits_quest_kill} remark
+								;когда мы подойдем к нпс на растояние 23 метра и меньше и будет получен инфо "tutorial_wounded_start" и пока будет отсутствовать инфо "esc_kill_bandits_quest_kill", тогда запускается схема ремарк remark
+on_actor_dist_le_nvis = 5| walker2	;дополнительное условие переключние на walker2, если мы подошли слишком близко
+danger = danger_ignore			;ссылка на схему danger
+
+[remark]							;ремарк, схема в которой нпс отыгрывает анимации и произносит фразы, почти все параметры опциональные
+anim = hello_wpn
+snd = esc_wolf_say_thanks
+target = actor
+on_signal = sound_end| walker2							;on_signal это проверка на всяческие события заготовленные скриптами, тут это окончание звука
+on_info = {+esc_kill_bandits_quest_have} remark2 		;переключение на remark2 произойдет когда будет получен инфо "esc_kill_bandits_quest_have"
+on_signal2 = sound_end| remark3 %=play_snd_from_radio%	;%=play_snd_from_radio% это запуск функции play_snd_from_radio из файла \gamedata\scripts\xr_effects.script
+on_info2 = {=gulag_population_le(esc_lager:6)} walker   ;{=gulag_population_le(esc_lager:6)} это функция проверки gulag_population_le из файла \gamedata\scripts\xr_conditions.script
+
+;ниже видно эти уникальные настройки
+
+[danger_ignore]
+ignore_distance = 0
+
+[meet]
+use = true
+use_wpn = true
+meet_talk_enabled = true
+meet_state = ward
 ---------------------------------------------------------------------------
 ОВЕРРАЙДЫ:
 Настройки, которые меняют поведение общих схем, в зависимости от активной в данный момент обычной схемы (все они необязательны).
