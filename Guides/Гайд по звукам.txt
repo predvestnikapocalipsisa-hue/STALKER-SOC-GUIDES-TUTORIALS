@@ -1,0 +1,189 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой.
+
+Файл звука должен быть формата .ogg и иметь парамеры:
+
+Частота (Гц): 44 100
+Битрейт: 16
+Каналы: Моно
+
+
+Для озвучки диалога нужно открыть сам диалог:
+\gamedata\config\gameplay\dialogs_escape.xml
+
+выбрать фразу, которая должна быть озвучена:
+
+            <phrase id="611111">
+                <text>escape_trader_jobs_611111</text>
+                <next>6111111</next>
+            </phrase>
+			
+Добавить сам звук по пути:			
+\gamedata\sounds\characters_voice\dialogs\escape_trader_jobs_6.ogg
+
+
+Чтобы персонаж говорил, перемещаясь по маршруту:
+
+Разберем пьяного долговца bar_bar_drunk_dolg
+
+В его логике есть:
+path_look = bar_bar_visitor_dolg_look
+
+Видим в его точке |s=state
+p0:name = wp00|a=bar_head|s=state
+
+|s = имя_звуковой_схемы. Несколько тем можно перечислять через запятую.
+
+state это звуковая схема из \gamedata\scripts\sound_theme.script
+	state = {	exec = sound_theme.combat_class, 
+				types = {state	= {min_snd = 60, max_snd = 90, rnd = 25, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}}} },
+	
+Путь к звуку указывается в \gamedata\config\misc\script_sound.ltx
+[state_rnd]
+stalker				= 1,states\idle\idle_
+zombied				= 1,states\idle\idle_
+bar_bar_drunk_dolg 	= 0,scenario\bar\bar_veteran\bar_veteran_
+
+Как можно заметить есть упоминание bar_bar_drunk_dolg, соответственно тема state будет играться из \gamedata\sounds\characters_voice\scenario\bar\bar_veteran\bar_veteran_
+Путь к звуку обрезан из-за скрипта, так надо, свои звуки добавляем аналогично
+
+Темы оканчивающиеся на _rnd играют рандомный звук, а на _seq играются заного по кругу, то есть зациклены, ещё есть _single, он как _seq, только не зациклен.
+
+Помимо упоминания через имя нпс, можно использовать story id, таким образом если где-то будет вызвана звуковая схема speech, и стори айди нпс будет 302, то звук пойдет по нашему пути.
+
+[speech_seq]
+302		= 0,scenario\agroprom\krot_thanks_
+
+Звук можно запускать через секцию [meet]
+
+[meet@at_hole]
+meet_state = 2|barman_talk_free@bar_bar_barmen_hello
+meet_state_wpn = 2|barman_talk_free@bar_bar_barmen_hello
+
+barman_talk_free это анимация, а bar_bar_barmen_hello звуковая тема
+в скрипте:
+	bar_bar_barmen_hello			= {min_snd = 2, max_snd = 15, rnd = 100, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}},
+В лтх:	
+[bar_bar_barmen_hello_rnd]
+bar_barman = 0,scenario\bar\barman\bar_barman_hello_
+
+
+Помимо этого есть схема "remark", которая нужна для отыгрывания анимаций и проигрыша звуков посреди логики, выглядит примерно так:
+[walker]
+path_walk = vill_st_walk
+on_actor_dist_le = 10| {-exo_task_info} remark
+
+[remark]
+anim = hello_wpn
+snd = esc_wolf_say_thanks
+target = actor
+meet = no_meet
+on_signal = sound_end| walker2
+
+разберём: сперва работает [walker], если мы на расстоянии 10 и менее метров от нпс и не получен инфо "exo_task_info", то идёт переход на [remark], в котором указывается анимация "hello_wpn" и "esc_wolf_say_thanks" это имя_звуковой_схемы из
+
+\gamedata\scripts\sound_theme.script
+esc_wolf_say_thanks      = {min_snd = 3, max_snd = 5, rnd = 100, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}},
+
+\gamedata\config\misc\script_sound.ltx
+[esc_wolf_say_thanks_seq]
+stalker    = 0,scenario\escape\wolf_thanks_1
+
+Более подробно про ремарк: https://drive.google.com/open?id=1Rtz5zHufWjXIT7CmwAgR1MgNPsTWoWOs&usp=drive_fs
+По анимациям есть отдельный гайд
+
+
+ЗВУКИ В ОБЪЕКТАХ
+
+[logic]
+active = ph_sound
+
+[ph_sound]
+snd = radio_music
+
+"snd = radio_music" это из gamedata\scripts\sound_theme.script
+ph_snd_themes["radio_music"] = {"characters_voice\\scenario\\bar\\radio_music\\radio_music_1"}
+
+Для добавления своих тем:
+Открываем файл и после ph_snd_themes = {} вписываем свою схему:
+ph_snd_themes["my_music"] = { "my_music\\music_1",
+							   "my_music\\music_2"
+							   }
+
+по оформлению ещё можно так:
+ph_snd_themes["my_music"] = {[[my_music\music_1]],
+
+								[[my_music\music_2]]}
+
+Пример схемы радио:
+
+[collide]
+ignore_static
+
+[logic]
+active = ph_sound
+
+[ph_sound]
+snd = radio_music
+on_hit = hit
+on_info = {+esc_radio_off} nil
+[hit]
+on_info = %+esc_radio_off%
+
+
+Ещё звуки можно запускать функцией:
+function main()
+	local snd = sound_object([[Cyberpunk2077]])
+	snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 1.0)
+end
+
+-- Проигрыш звука в голове гг, звук класть в /gamedata/sounds/Cyberpunk2077.ogg
+
+Методы проигрывания звуков:
+
+Описание параметров:
+obj - игровой объект
+timeout - задержка перед проигрыванием звука
+position - позиция
+volume - громкость
+flags - набор констант класса sound_object (looped, s2d, s3d)
+
+
+play
+
+
+function play(obj);
+function play(obj, timeout);
+function play(obj, timeout, flags);
+методы с одним и двумя аргументами не работают;
+работает только для актора.
+Метод годится только для проигрывания звуков в голове актора.
+
+play_at_pos
+
+
+function play_at_pos(obj, position);
+function play_at_pos(obj, position, timeout);
+function play_at_pos(obj, position, timeout, flags);
+для метода с двумя аргументами, второй аргумент - это позиция на уровне. Звук не перемещается вместе с объектом, а остается играть там, где запустили. Работает и для актора и для других объектов;
+метод с тремя аргументами работает как и предыдущий, но появилась возможность установки таймаута;
+особенности метода с четырьмя аргументами:
+для актора аргумент position - это смещение звука относительно актора. Звук смещается вместе с актором. Также, необходимо использовать флаг s2d (при s3d звука не будет);
+для других объектов аргумент position является позицией на уровне. В этом случае необходимо использовать флаг s3d.
+
+
+play_no_feedback
+
+
+function play_no_feedback(obj, flags, timeout, position, volume);
+в случае проигрывания в голове актора - параметр position устанавливает смещение относительно актора; звук перемещается вместе с актором; необходимо использовать флаг s2d (при s3d звука не будет);
+в случае проигрывания в пространстве - параметр position устанавливает позицию проигрывания звука на уровне; необходимо использовать флаг s3d;
+если задано циклическое проигрывание звука, то оно не прекратится, даже если перезагрузить уровень;
+громкость задается в интервале от 0.0 до 1.0;
+поскольку метод без обратной связи, в процессе проигрывания звука нельзя изменить его громкость, позицию, а также оставить проигрывание.
+Данный метод подходит для проигрывания не цикличных звуков, для который не требуется дальнейшее изменение параметров.
+
+Внимание!
+
+При использовании методов play и play_at_pos необходимо сохранять созданный звуковой объект во внешнюю локальную переменную, иначе сборщик мусора затрет звук.
