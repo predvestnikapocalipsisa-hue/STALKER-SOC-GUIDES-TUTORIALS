@@ -1,0 +1,288 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+Один из основных скриптов, грузится движком
+
+все функции из него считаются глобальными
+
+ 
+
+function load_scheme(filename, scheme, stype)
+
+загружает схему поведения НПС из файла скрипта
+
+подробнее можно поглядеть в modules.scriot
+
+ 
+
+function action(obj,...)
+
+Задает объекту некоторое действие или несколько действий
+
+ 
+
+function round (value)
+
+округляет число value до целого
+
+также в lua есть глобальная функция math.ceil(value) - округляет число, до нижнего значения т.е. math.ceil(2.9342) = 2
+
+ 
+
+function distance_between(obj1, obj2)
+
+возвращает дистанцию между объектами, судя по всему в "метрах"
+
+ 
+
+function distance_between_safe(obj1, obj2)
+
+аналогична предыдущей функции, НО! не вылетает, если один из объектов = nil
+
+ 
+
+function has_alife_info(info_id)
+
+Проверка на инфопоршны, даже если игрока не существует
+
+info_id - строка, имя инфопоршена
+
+ 
+
+function reset_action (npc, script_name)
+
+Отменяет выполнение схемы у НПС
+
+ 
+
+function GiveInfoViaPda(obj_receiver, obj_sender, info_number)
+
+Скидывает на ПДА кому-угодно сообщение от кого-угодно (судя по всему осталось от 1935-го билда, где можно было общаться через ПДА)
+
+obj_receiver - npc получатель
+
+obj_sender - npc отправитель
+
+info_number - айдишник инфопоршена
+
+ 
+
+function interrupt_action(npc, script_name)
+
+Если в данный момент у НПС выполняется какое-то действие, прерывает его и отключает скриптовый режим
+
+ 
+
+function random_choice(...)
+
+случайно возвращает одно из введенных значений
+
+ 
+
+function new_action(...)
+
+так и не понял, что она делает - используется толь в скрипте copy of a1.script
+
+ 
+
+function set_current_time (hour, min, sec)
+
+Задает игровое время
+
+ 
+
+function str_split (str)
+
+разбивает строку на 4 части, ориентируясь по разделителю "_"
+
+(судя по всему из ранних билдов, ибо сейчас нигде не используется)
+
+ 
+
+function random_number (min_value, max_value)
+
+Возвращает случайное число в диапазоне от min_value до max_value
+
+ 
+
+function day_time()
+
+Возвращает время в миллисекундах
+
+ 
+
+function local_hours()
+
+Возвращает время в часах
+
+ 
+
+function parse_names( s )
+
+разбивает строку S на таблицу из имен чего-либо, возвращает таблицу
+
+ 
+
+function parse_nums( s )
+
+разбивает строку S на таблицу из чисел, возвращает таблицу
+
+ 
+
+function is_object_online(obj_id)
+
+Возвращает является ли объект в онлайне
+
+ 
+
+function get_clsid(npc)
+
+Возвращает id класса объекта
+
+ 
+
+function isWeapon(object)
+
+Возвращает является ли объект оружием
+
+благодаря этой функции НПС просят актора убрать оружие
+
+ 
+
+function yaw( v1, v2 )
+
+Возвращает какое-то значение поворота для этих точек
+
+ 
+
+function vector_rotate_y (v, angle)
+
+Вращает вектор вокруг оси y против часовой стрелки
+
+возвращает вектор
+
+ 
+
+function clear_table (t)
+
+Функция очищает таблицу t
+
+ 
+
+function stop_play_sound(obj)
+
+прерывает звук от объекта
+
+ 
+
+function object_type(obj)
+
+возвращает строку-название типа объекта , например "stalker" "monster"
+
+ 
+
+function is_object_monster(obj)
+
+Возвращает является ли оbj монстром
+
+ 
+
+function switch_online (id)
+
+function switch_offline (npc)
+
+переводят объект в оффдайн и онлайн
+
+ 
+
+function get_actor_id()
+
+Возвращает id актора
+
+ 
+
+function IsMonster (object, class_id)
+
+Возвращает является ли объект монстром
+
+ 
+
+function IsStalker (object, class_id)
+
+Возвращает является ли объект сталкером (актору тоже выдает true)
+
+ 
+
+function level_object_by_sid( sid )
+
+Возвращает объект по его story_id
+
+ 
+
+function id_by_sid( sid )
+
+возвращает id объекта по его story_id
+
+ 
+
+function set_postprocess(name_ini_file)
+
+function remove_postprocess()
+
+задает/снимает постпроцесс имя файла указывается с расширением .PPE
+
+ 
+
+function set_inactivate_input_time(delta)
+
+отключает управление актором на время delta в секундах
+
+ 
+
+function set_sleep_relocate(point, look, timeout)
+
+Задает актору позицию положения, позицию куда смотреть, время сна в минутах.
+
+Это все в силе, если раскомментировать часть функции
+
+ 
+
+function odd( x )
+
+Проверяет целую часть числа x на нечётность
+
+ 
+
+function on_actor_critical_power()
+
+function on_actor_critical_max_power()
+
+function on_actor_bleeding()
+
+function on_actor_satiety()
+
+function on_actor_radiation()
+
+function on_actor_weapon_jammed()
+
+function on_actor_cant_walk_weight()
+
+function on_actor_psy()
+
+Функции, которые выполняются при кровотечении, истощении, голоде и т.п. - редактируются тольок в самом _g.script
+
+ 
+
+function set_actor_rank(rank)
+
+задает актору кол-во очков опыта, равное rank ("novice" "stalker" "veteran" "master")
+
+ 
+
+function get_texture_info(id_name, id_default)
+
+Возвращает имя файла текстуры по ее id
+
+Также возвращает x2 - ширину текстуры y2 - высоту тестуры
+
+ 
+
+Часть функций была опущена из-за того, что они являются служебными для объектов, описанных в _g.script
