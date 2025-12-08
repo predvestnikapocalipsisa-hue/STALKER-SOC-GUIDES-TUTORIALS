@@ -1,0 +1,150 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+[smart_terrain]
+type = general_lair ;для сталкеров тут должно быть general_lager
+capacity = 10 ;количество работ в смарте
+communities = boar ;Группировка в смарте(здесь группировка монстра), для сталкеров тут должно быть stalker или иная группировка
+stay = quick ;Чесно говоря не очень понял что это даёт
+switch_0 = {=is_day}
+switch_1 = {!is_day};Переключение состояния смарта, если есть точки raid, то можно устроить атаку на другой смарт
+
+указываем кого может принять локация:
+
+\gamedata\config\misc\smart_terrain_presets.ltx
+\gamedata\config\misc\general_lager.ltx
+\gamedata\config\misc\general_lair.ltx
+
+
+Создадим смарт для НПС
+
+Открываем сдк, жмем spawn element>ai>smart terrains, шлепаем сие на локацию, затем переходим в shape>sphere(можно и box по желанию) и снова вставляем сие на локацию, увеличиваем до нужных размеров (не сильно больших), переходим обратно в режим spawn element, жмем кнопку attach object и кликаем на созданной нами сфере. открываем properties правым щелчком мыши или eneter по умолчанию. открываем custom data и пишем в ней:
+[smart_terrain]
+type = general_lager
+capacity = 5
+
+Создаем пути для НПС (Работы) вот примеры путей:
+
+smart_name_kamp_1 		 \  smart_name_kamp_1_task
+smart_name_sleep_1
+smart_name_walker_1_walk \ smart_name_walker_1_look
+smart_name_walker2_1_walk\ smart_name_walker2_1_look
+smart_name_patrol_1_walk
+smart_name_guard_1_walk  \ smart_name_guard_1_look
+smart_name_sniper_1_walk \ smart_name_sniper_1_look
+smart_name_raid_1_walk
+
+Ещё  можно задать флаг count в точки kamp и raid
+|count= число
+Этим параметром можно задать  количество людей в точках.
+
+Соответсвенно слева путь НПС, а справа направление его взгляда.
+smart_name - имя вашего смарта (его нужно вставлять перед любым названием пути, так же необходимо писать номер пути между видом пути и walk\look)
+имя точки следущее "esc2_tunnel3_kamp_1", esc2_tunnel3 название смарта, kamp используемая схема поведения,1 номер кемпа(может быть несколько)
+
+
+теперь по подробнее о видах работ для нпс:
+
+kamp 	- Это лагерь сталкеров у костра. Вокруг этой точки они будут рассказывать анекдоты, есть колбасу\хлеб, пить водку.
+sleep 	- место для сна НПС состоит из двух точек, НПС ложится на нулевой точке и смотрит в первую.
+walker 	- обычное бродяжничество по точкам НПС, при использовании точек для пути больше двух - smart_name_walker_1_look не применяется (путь у этого вида волкера должен быть не замкнут и состоять из точек пути больше одного)
+walker2 - тот же волкер что и выше, только он ходит по замкнутым путям, лук пути почти не используются.
+patrol 	- патруль лагеря, используется во множественном количестве (количество точек пути в одном пути больше единицы, путь должен быть замкнут),не применяются look пути
+guard 	- часовой, используется в двойном количестве (в пути имеется две точки), очень часто используется look пути
+sniper  - работа для снайпера, задается двумя точками и look путями. В имени НПС должно присутствовать слово sniper.
+raid 	- путь по которому начинают двигаться члены смарта когда состояние лагеря switch_1, можно испольвать для атаки на другой смарт
+
+
+Создадим смарт для мутантов.
+
+Создаем пути для мутантов (Работы) вот примеры путей:
+smart_name_home_1 - что-то вроде кемпа
+smart_name_raid_1 - путь по которому начинают двигаться члены смарта когда состояние лагеря switch_1
+
+Открываем сдк, жмем spawn element>ai>smart terrains, шлепаем сие на локацию, затем переходим в shape>sphere(можно и box по желанию) и снова вставляем сие на локацию, увеличиваем до нужных размеров (не сильно больших), переходим обратно в режим spawn element, жмем кнопку attach object и кликаем на созданной нами сфере. Мы создали смарт с зоной влияния. открываем properties правым щелчком мыши или eneter по умолчанию. открываем custom data и пишем в ней:
+[smart_terrain]
+type = general_lair
+communities = boar
+capacity = 4
+
+переходим в режим way points, добавляем новый путь (он будет состоять из одной точки) и обзываем его smart_name_home_1, где smart_name это имя вашего смарта, все, смарт готов, осталось только создать самих мутантов, берем любого, нужного вам мутанта, ставим в зону влияния смарта и идем в custom data, в ней пишем:
+[smart_terrains]
+smart_terrain_name = true
+
+
+для таких смартов можно сделать торговцев https://drive.google.com/open?id=1Rbe7PSgrk-Oi9f2MO2ypEHjvrRmCbHKO&usp=drive_fs
+
+и можно сделать диалоги через флаг в точке пути.
+
+Только все эти диалоги начинает нпс!
+
+[esc_test_smart_walker_1_walk]
+points = p0
+p0:flags = 0x1
+p0:name = name00|dialog=escape_lager_volk_talk
+p0:position = -152.0,-18.0,-144.3
+p0:game_vertex_id = 45
+p0:level_vertex_id = 98126
+
+то есть name00|dialog=escape_lager_volk_talk
+
+escape_lager_volk_talk это айди диалога из любого файла с диалогами
+
+для этого открыли файл \gamedata\scripts\gulag_general.script							
+															
+
+На примере волкера, так надо сделать вместо:
+			local job_ltx = "[logic@"..way_name.."]\n"..
+							"active = walker@"..way_name.."\n"..
+
+							"[walker@"..way_name.."]\n"..
+							"sound_idle = state\n"..
+							"path_walk = walker_"..it.."_walk\n"		
+это:
+			local job_ltx = "[logic@"..way_name.."]\n"..
+							"active = walker@"..way_name.."\n"..
+
+							"[walker@"..way_name.."]\n"..
+							"sound_idle = state\n"..
+							"path_walk = walker_"..it.."_walk\n"..				
+							get_meet(way_name)							
+
+Обязательно в функцию function load_job(sj, gname, type, squad, groups, st)
+
+после
+ 	ltx = "[meet@generic_lager_guard]\n"..
+		  "meet_state		= 10|wait@wait\n"..
+		  "meet_state_wpn	= 10|backoff@threat_weap\n"..
+		  "victim			= 10|actor\n"..
+		  "victim_wpn		= 10|actor\n"..
+		  "use				= true\n"..
+		  "use_wpn			= false\n"..
+		  "syndata			= backoff@threat_weap\n"..
+		  "precond			= visibility\n"..
+
+		  "[meet@generic_lager_patrol]\n"..
+		  "meet_state		= 5|wait@wait\n"..
+		  "meet_state_wpn	= 10|backoff@threat_weap\n"..
+		  "victim			= 5|actor\n"..
+		  "victim_wpn		= 10|actor\n"..
+		  "use				= true\n"..
+		  "use_wpn			= false\n"..
+		  "syndata			= backoff@threat_weap\n"..
+		  "precond			= visibility\n"
+		  
+Вставляем 		
+					
+local get_meet = function(way_name, props)
+	if not props then
+		local ptr = patrol(way_name)
+		props = utils.parse_waypoint_data(way_name, ptr:flags(0), ptr:name(0))
+	end
+	
+	if props.dialog ~= nil then
+		local dialog_id = props.dialog
+		local dialog_ltx = "meet = meet@"..dialog_id.."\n"..
+		"[meet@"..dialog_id.."]\n"..
+		"meet_dialog = "..dialog_id.."\n"
+		return dialog_ltx
+	end
+	
+	return ""
+end
