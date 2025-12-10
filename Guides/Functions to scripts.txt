@@ -647,7 +647,7 @@ end
 	
 	spawn_item_to_box(spawn_item, "esc_wolf")
 --------------------------------------------------------------------------------------------------------------
--- Закрыть скриптом оконо торговли, можно по аналогии сделать с ui_inventory
+-- Закрыть скриптом текущее оконо, в данном случае торговли
 --// поставить вызов OnTrade(info_id)  в начало функции actor_binder:info_callback(npc, info_id)  - файл bind_stalker.script
 
 local UITradeWnd
@@ -666,3 +666,5 @@ function HideTradeWnd()
     UITradeWnd:GetHolder():start_stop_menu(UITradeWnd, true)
     end 
 end
+
+--Если вместо инфопоршней на открытие\закрытие окна торговли указать инфопоршни на открытие\закрытие пда -"ui_pda" и "ui_pda_hide - или окна инвентаря - ui_inventory\ui_inventory_hide - будет тоже самое.
