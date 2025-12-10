@@ -237,3 +237,38 @@ game_graph():vertex(*gvid*):level_id()
 game_graph():valid_vertex_id(*gvid*)
 
 возвращает boolean - true\false  -существует или нет геймвертекс
+
+
+
+
+
+Новый спавн только по координатам. ОГСР от 3.432 
+-- в sak.script кладем  
+function get_lv_gv(level_name, pos) 
+    local lg, ct 
+    if level.name() == level_name then 
+        lg = level_graph() 
+        ct = cross_table() 
+    else 
+        lg = level_graph(level_name) 
+        ct = cross_table(level_name) 
+    end 
+ 
+    local lv = lg:vertex_id(pos) 
+    if not lg:valid_vertex_id(lv) then 
+        lv = lg:nearest_vertex_id(pos) 
+    end 
+    local gv = ct:vertex(lv):game_vertex_id() 
+    return lv, gv 
+end 
+ 
+function alife_create(section, level_name, pos) 
+    local lv, gv = get_lv_gv(level_name, pos) 
+    return alife():create(section, pos, lv, gv) 
+end 
+ 
+-- использование 
+function spawn_test() 
+    sak.alife_create("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
+				  --("секция", 			  "локация", 	 vector():set(координаты)) 
+end
