@@ -668,3 +668,8 @@ function HideTradeWnd()
 end
 
 --Если вместо инфопоршней на открытие\закрытие окна торговли указать инфопоршни на открытие\закрытие пда -"ui_pda" и "ui_pda_hide - или окна инвентаря - ui_inventory\ui_inventory_hide - будет тоже самое.
+
+-- Можно по короче:
+if info_id =="ui_trade" then
+	level.start_stop_menu(level.main_input_reciever, true)
+end
