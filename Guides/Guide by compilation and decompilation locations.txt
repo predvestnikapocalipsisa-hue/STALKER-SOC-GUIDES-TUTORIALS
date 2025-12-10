@@ -45,7 +45,7 @@ default				= 2947_config
 
 ; 2947+ (финалка включая обновления)
 [2947_config]:2945_config
-$game_data$			= D:\game\instal\STALKER COP\S.T.A.L.K.E.R. Call of Pripyat\S.T.A.L.K.E.R. Shadow of Chernobyl\Stalker-soc-epilogue-of-the-last-dawn\gamedata\
+$game_data$				= D:\game\instal\STALKER COP\S.T.A.L.K.E.R. Call of Pripyat\S.T.A.L.K.E.R. Shadow of Chernobyl\Stalker-soc-epilogue-of-the-last-dawn\gamedata\
 $game_levels$			= D:\game\instal\STALKER COP\S.T.A.L.K.E.R. Call of Pripyat\S.T.A.L.K.E.R. Shadow of Chernobyl\Stalker-soc-epilogue-of-the-last-dawn\gamedata\levels\
 spawn_version = soc
 
@@ -102,7 +102,10 @@ C:\SDK_default\gamedata\config\game_graphs.ltx
 
 Нужно прописать локацию всем, кто собирает через XrAi, тем кто через SkyLoader не обязателбно, программа сразу сканит папку, хотя опцию включить можно, чтобы брала все уровни из этого файла.
 C:\SDK_default\gamedata\config\game_levels.ltx
+В начале файла
 	level21
+  
+  и в конец файла
   
  [level21]
  name   = l01_marsh
@@ -134,7 +137,7 @@ C:\SDK_default\gamedata\config\game_levels.ltx
 
 - Отключить конфликты
 
-после чего в дополнительных спавнах нажимаем "добавить" и выбираем все локации которые есть, по крайней мере, локации спавн которых вы хотите обьеденить. 
+после чего в дополнительных спавнах нажимаем "добавить" и выбираем все локации, которые должны быть в моде, так как локации, не вошедшие в список, никакой связи больше с другими локами иметь не будут. 
 
 В имени создаваемого спавна ставим назвние all.spawn (то есть убираем галочку "по умолчанию")
 После чего собираем графы и спавн.
