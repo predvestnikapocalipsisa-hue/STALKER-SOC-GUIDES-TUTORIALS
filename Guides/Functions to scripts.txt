@@ -647,3 +647,22 @@ end
 	
 	spawn_item_to_box(spawn_item, "esc_wolf")
 --------------------------------------------------------------------------------------------------------------
+-- Закрыть скриптом оконо торговли, можно по аналогии сделать с ui_inventory
+--// поставить вызов OnTrade(info_id)  в начало функции actor_binder:info_callback(npc, info_id)  - файл bind_stalker.script
+
+local UITradeWnd
+
+function OnTrade(info_id)
+   if info_id =="ui_trade" then
+   UITradeWnd = level.main_input_receiver()
+   elseif info_id == "ui_trade_hide" then
+   UITradeWnd = nil
+   end
+end
+
+--// вызов функции закрывает окно торговли - можно ставить куда угодно -хоть на апдейт
+function HideTradeWnd()
+    if UITradeWnd then 
+    UITradeWnd:GetHolder():start_stop_menu(UITradeWnd, true)
+    end 
+end
