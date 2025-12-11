@@ -234,7 +234,65 @@ function actor_binder:on_key(key)
 	
 end
 --------------------------------------------------------------------------------------------------------------
-Для оригинала ТЧ: https://vk.com/@-226619903-testovaya-statya
+Для оригинала ТЧ:
+создаем скрипт dik_hot_keys.script
+
+local con = nil -- переменная для объекта консоли
+local con_command = "mm_net_player_name" -- консольная команда
+local def_value = "_" -- значение по умолчанию - символ подчеркивания
+ 
+function update()
+	if not con then -- инициализируем схему
+		con = get_console() -- кешируем консоль
+		con:execute( con_command .." ".. def_value ) -- инициализируем дефотлным значением, т.к. кнопка не нажата
+		for k,v in pairs(_G[script_name()]) do -- перебираем функции в текущем файле
+			 -- v это функция 	и её имя является кодом клавиши
+			if type(v)=='function' and DIK_keys[string.upper(k)] then
+				local key = "k"..string.gsub(k,"dik_","") -- формируем ключ и
+				con:execute("bind_console "..con_command.." "..k.." "..key) -- биндим кнопку на него
+			end
+		end
+	else
+		-- получаем из консоли значение параметра для нашей команды
+		local str = con:get_string(con_command) 
+		-- если оно не является значением по умолчанию
+		-- и в этом файле есть функция с таким именем, то выполняем её
+		if str~=def_value and this[str] then
+			this[str]()
+			con:execute(con_command.." "..def_value) -- записываем значение по умолчанию
+		end
+	end
+ 
+end
+ 
+
+function dik_f()
+    dialogs.relocate_item_section(db.actor, "wpn_bm16", "in")	         
+end
+
+
+Этот скрипт работает так, мы пишем функцию dik_ имя клавиши и на неё создаётся бинд, то есть заменяет собой бинд из user.ltx, поэтому к включению фонарика условно так не подвязываться, клавиша его включения просто выключается.
+
+В примере с клавишей F при её нажатии будет выдан обрез, возможно бесконечное количество раз .
+
+Чтобы это чудо себе поставить нужно открыть \gamedata\scripts\bind_stalker.script
+
+найти function actor_binder:update(delta)
+
+Вставляем:
+
+if self.timer1000 < time_global() then
+self.timer1000 = time_global()+1
+dik_hot_keys.update()
+end
+
+
+И необходимо добавить параметр self.timer1000 = 0 в функцию function actor_binder:reinit()
+
+
+
+Ещё есть пример:
+https://vk.com/@-226619903-testovaya-statya
 
 файлы
 https://drive.google.com/drive/folders/1UzgB239SlfY52QzXmvNgR3hH1DUmRkZq
