@@ -1,4 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+находясь в меню можно будет жать ПОБЕЛ и начется новая игра
+Откройте файл \gamedata\scripts\ui_main_menu.script
+
+Через поиск найдите
+function main_menu:OnKeyboard(dik, keyboard_action)
+в этот участок 
+if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+добавить
+if (dik == DIK_keys.DIK_SPACE) then
+      self:StartGame("gd_master")
+end
 ------------------------------------------------------------------------------------------------------------------------------------------------
 Созданию ярлыка для батника, сделал так в его свойствах в графе Объект:
 
