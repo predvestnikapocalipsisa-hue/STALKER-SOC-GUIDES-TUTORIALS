@@ -36,6 +36,10 @@
 	end
 	
 	И где нибудь в файле добавить следующие функции:
+
+	function actor_binder:on_item_drop (obj)
+		dsh_drag_drop.on_drop( obj )
+	end
 	
 	function actor_binder:on_cell_item_focus( obj )
 		dsh_drag_drop.on_cell_item_focus( obj )
@@ -51,4 +55,5 @@
 		dsh_drag_drop.on_cell_item_mouse( obj, x, y, action )
 	end
 	
+
 ================================================================================================================================		
