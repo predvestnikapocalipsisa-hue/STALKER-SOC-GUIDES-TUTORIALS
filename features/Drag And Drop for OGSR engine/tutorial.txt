@@ -1,0 +1,54 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+================================================================================================================================
+
+	Drag and Drop - это взаимодействие двух предметов при перетаскивании первого предмета на другой в инвентаре.
+	
+	эту механику можно заметить, например, в аномали. Когда для переноса артефакта в СИМК нужно перенести иконку
+	артефакта на иконку СИМК.
+	
+	Так же такая механика была в моде DSH, откуда я и взял необходимые скрипты.
+	
+
+================================================================================================================================	
+	
+
+	Для адаптации этой механики в свой мод для начала необходимо перенести в свою папку scripts файл dsh_drag_drop.script
+	
+	Далее нужно подключить необходимые каллбеки в bind_stalker.script 
+
+	Вот что для этого нужно прописать:
+	
+	function actor_binder:net_destroy()
+		
+	    self.object:set_callback( callback.on_cell_item_focus, nil )
+		self.object:set_callback( callback.on_cell_item_focus_lost, nil )
+		self.object:set_callback( callback.on_cell_item_mouse, nil )
+		
+	end
+	
+	function actor_binder:reinit()
+	
+		self.object:set_callback(callback.on_cell_item_focus, self.on_cell_item_focus, self)
+		self.object:set_callback(callback.on_cell_item_focus_lost, self.on_cell_item_focus_lost, self)
+		self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
+		
+	end
+	
+	И где нибудь в файле добавить следующие функции:
+	
+	function actor_binder:on_cell_item_focus( obj )
+		dsh_drag_drop.on_cell_item_focus( obj )
+	end
+
+
+	function actor_binder:on_cell_item_focus_lost( obj )
+		dsh_drag_drop.on_cell_item_focus_lost( obj )
+	end
+
+
+	function actor_binder:on_cell_item_mouse( obj, x, y, action )
+		dsh_drag_drop.on_cell_item_mouse( obj, x, y, action )
+	end
+	
+================================================================================================================================		

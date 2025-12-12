@@ -1,0 +1,45 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+
+local drop_on_id = false
+local subscribed = false
+
+
+function on_cell_item_focus( obj )
+  drop_on_id = obj:id()
+end
+
+function on_cell_item_focus_lost( obj )
+  if obj:id() == drop_on_id then
+    drop_on_id = false
+  end
+end
+
+function on_drop( obj )
+  on_cell_item_focus_lost( obj )
+end
+
+
+function on_cell_item_mouse( obj, x, y, action )
+  if action ~= ui_events.DRAG_DROP_ITEM_DROP then return end
+  if drop_on_id then
+    local drop_on_obj = level.object_by_id( drop_on_id )
+    if drop_on_obj then
+	
+	  dsh_drag_drop.abobus(obj, drop_on_obj) -- наша функция
+	  
+    end
+    drop_on_id = false
+  end
+end
+
+function abobus(obj, drop_on_obj) -- пример функции
+	local first_section = obj:section() -- секция первого предмета
+	local second_section = drop_on_obj:section() -- секция предмета на который переносим первый предмет
+	
+	if first_section == "wpn_ak74" and second_section == "wpn_ak74u" then
+		sak.create_items_actor("bread",1)
+	end
+	
+end
+	
