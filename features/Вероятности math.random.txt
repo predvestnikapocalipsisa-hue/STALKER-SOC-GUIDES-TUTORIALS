@@ -74,3 +74,45 @@ end
 function spawn_item() 
 sak.create_items_actor(stalker_types[math.random(4)],10)
 end
+
+-- Полный рандом и предмета и места
+function spawn_random()
+        local fr_prob={
+        {position={x=-205,y=-19,z=-138},gv=61,lv=47845},
+        {position={x=-153,y=-30,z=-233},gv=35,lv=96517},
+        {position={x=-85,y=-4,z=-75},gv=76,lv=180679}
+        }
+        local a = fr_prob[math.random(table.getn(fr_prob))] 
+        local stalker_types  = {"bread", "kolbasa", "conserva", "vodka"}
+        alife():create(stalker_types[math.random(4)], vector():set(a.position.x,a.position.y,a.position.z), a.lv, a.gv)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Рандомный спавн от положения гг
+function main323()
+  local obj=level.object_by_id(db.actor)
+  lv_id=obj:level_vertex_id()
+  gv_id=obj:game_vertex_id()
+
+  local lv_new
+  local pos_new = vector()
+
+  local level_vertexes={
+    l01_escape = 595580,
+    l02_garbage = 384039,
+    l03_agroprom = 438379,
+    l04_darkvalley = 392517,
+    l06_rostok = 69283,
+    l07_military = 915663,
+    l10_radar = 796328,
+    l11_pripyat = 295965
+  }
+
+  if math.random(0,1)>0.5 then lv_new = lv_id + math.random(1000,5000) 
+  else lv_new = lv_id - math.random(1000,5000) end
+  if lv_new < 1 or lv_new > level_vertexes[level.name()] then lv_new = math.random(1000,5000) end
+
+  pos_new = level.vertex_position(lv_new)
+
+  local obj = alife():create("esc_wolf_respawn", pos_new, lv_new, gv_id) -- сам спавн
+  level.map_add_object_spot(obj.id, "green_location", obj:name())
+end
