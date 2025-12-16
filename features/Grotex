@@ -1,0 +1,51 @@
+недавно получил функцию для включения и выключения фонарей (фонари это один из вариантов)
+
+выключение
+function light_off()
+	local lamp_table = {"name1", "name2", "name3"}
+		for k,v in pairs(lamp_table)
+			do
+		local sobj = 
+alife():object(v)
+		local obj =
+	level.object_by_id(sobj.id)
+	obj:get_hanging_lamp():turn_off()
+	end
+end
+
+включение
+function light_on()
+	local lamp_table = {"name1", "name2", "name3"}
+		for k,v in pairs(lamp_table)
+			do
+		local sobj = 
+alife():object(v)
+		local obj =
+	level.object_by_id(sobj.id)
+	obj:get_hanging_lamp():turn_on()
+	end
+end
+
+
+эти функции вставляются в xr_effects.script
+name_n это имя обьекта, пишется в сдк
+
+
+вызывал функции light_off и light_on через логику:
+через диалог не пробовал, но сработает и через них
+
+[logic]
+active = ph_button@active
+
+[ph_button@active]
+anim = lab_primary_switcher_idle
+tooltip = tips_labx16switcher_press
+on_press = ph_button@deactivate  %=light_off%
+
+[ph_button@deactivate]
+anim = lab_primary_switcher_off
+on_press = ph_button@active %=light_on%
+
+anim = lab_primary_switcher_idle - анимка
+tooltip = tips_labx16switcher_press - текст, высвечивающийся при наведении
+on_press - при нажатии срабатывает ph_button@deactivate  %=light_off%
