@@ -1,4 +1,5 @@
--- -*- mode: lua; coding: windows-1251-dos -*-
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из СБОРНИКА, поэтому кидаем его в папку gamedata\scripts\
 --------------------------------------------------------------------------------------------------------------
 файлы с функциями(скрипты) создаются своими руками в папке gamedata\scripts и называются "имя_файла.script", нигде больше их регать не надо.
@@ -265,7 +266,6 @@ function update()
  
 end
  
-
 function dik_f()
     dialogs.relocate_item_section(db.actor, "wpn_bm16", "in")	         
 end
@@ -297,6 +297,47 @@ https://vk.com/@-226619903-testovaya-statya
 файлы
 https://drive.google.com/drive/folders/1UzgB239SlfY52QzXmvNgR3hH1DUmRkZq
 
+
+
+--------------------------------------------------------------------------------------------------------------
+ЦИКЛЫ for do
+--------------------------------------------------------------------------------------------------------------
+Функция, которая по имени объектов запускает для них клиентский метод:
+function main ()
+local table = {"имя", "имя"}
+        for k,v in pairs(table) do
+        local sobj = alife():object(v)
+        local obj = level.object_by_id(sobj.id)
+                obj:клиентская функция()
+        end        
+end
+
+запустить серверный метод:
+function main ()
+local table = {"имя", "имя"}
+        for k,v in pairs(table) do
+        local sobj = alife():object(v)
+           sobj:серверная функция()
+        end        
+end
+
+аналог по стори  айди с серверными методами
+function main ()
+local story_table = {3,6,14,7}
+        for k,v in pairs(story_table) do
+        local sobj = alife():story_object(v)
+                sobj:серверная функция()
+        end        
+end
+
+тоже стори но для клиентских
+function main ()
+local story_table = {3,6,14,7}
+        for k,v in pairs(story_table) do
+        local obj = level_object_by_sid (v)
+                obj:клиентская функция()
+        end        
+end
 
 --------------------------------------------------------------------------------------------------------------
 Также функции можно вызывать через логику
@@ -537,4 +578,5 @@ end
 on_info = {±инфо} %=kill_object%
 --или в диалоге, но учитывайте что нужно ставить на фразу, которую говорит гг
 <action>xr_effects.kill_object</action>
+
 как видите с клиентским методом никак определять obj не пришлось, ведь он и представляет из себя айди.
