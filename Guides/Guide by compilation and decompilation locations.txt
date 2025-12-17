@@ -78,6 +78,10 @@ pause
 Сделав все правки на локации (как их делать будет описано позже в статье, а так же в уже существующих файлах описаны методы редактирования локаций)
 мы должны приступить к компиляции.
 
+нажимаем Scene - Options и открываем Custom data нужно полностью очистить поле. Это нужно чтобы избежать вылетов с аргументами:
+ Duplicate section 'level_map' found.
+ Duplicate section 'map_usage' found.
+
 Нажимаем Compile, надо учитывать то, с чем вы работали:
 -только spawn elements, достаточно нажимать Make game
 -только ai сетка это make ai map(Но в компиляторе сетку можно будет собрать только после сборки геометрии)
@@ -162,12 +166,6 @@ C:\SDK_default\gamedata\config\game_levels.ltx
 - папка spawns 
 - файлы levels\имя локации\level.gct 
 
-Иногда можно словить вылеты с такими аргументами:
-Arguments     : Duplicate section 'level_map' found.
-Arguments     : Duplicate section 'map_usage' found.
-
-происходит это из-за файлов level.ltx из \gamedata\levels\имя локации\
-там эти дубликаты и лежат, для решения можно очистить всё в этих файлах, а лучше в СДК открыть настройки сцены и очистить custom_data
 ========================================================= Террейн =======================================================================
 Для локации нужно прописать террейн в textures.ltx, иначе он будет вылетать по отсутствию шейдера "deffer_impl_flat.vs", или будет мутный\мыльный террейн, если даже если шейдер есть.
 C:\SDK_default\gamedata\textures\textures.ltx
@@ -237,3 +235,58 @@ sector
 Чтобы залезть в свойства обьекта, мы должны выделить его и нажать Enter, ну или нажав правой кнопкой мыши - properties 
 
 ==============================================================================================================================================================
+ВЫЛЕТЫ
+
+Рассмотрим вылеты, которые могут случаться после сборки локации. Чаще всего они связаны с недостающими файлами. Убедитесь что собирали спавн+графы, также проверьте что локации попали в спавн.
+
+
+Этот вылет чаще всего возникает при отсутствии level.gct, можно перенести этот файл, либо всю папку с локацией.
+
+Expression    : cross_table().header().game_guid() == game_graph().header().guid()
+Function      : CAI_Space::load
+File          : E:\stalker\sources\trunk\xr_3da\xrGame\ai_space.cpp
+Line          : 121
+Description   : graph doesn't correspond to the cross table
+
+
+Схож с предыдущим, говорит о том что сетка изменилась, а графы не пересобрались.
+
+[error]Expression    : crossHeader.level_guid() == levelHeader.guid()
+[error]Function      : CAI_Space::load
+[error]File          : D:\a\OGSR-Engine\OGSR-Engine\ogsr_engine\xrGame\ai_space.cpp
+[error]Line          : 97
+[error]Description   : cross_table doesn't correspond to the AI-map
+
+
+Графы уже новые, а спавн не пересобирали.
+
+Expression    : header().graph_guid() == ai().game_graph().header().guid()
+Function      : CALifeSpawnRegistry::load
+File          : E:\stalker\sources\trunk\xr_3da\xrGame\alife_spawn_registry.cpp
+Line          : 167
+Description   : Spawn doesn't correspond to the graph : REBUILD SPAWN!
+
+
+Либо локация не вошла в спавн из-за несобранной аи сетки, либо актора нет на локации, либо на указанных в спавне локациях отсутствует актор.
+
+[error]Expression    : m_actor
+[error]Function      : CGameSpawnConstructor::process_actor
+[error]File          : F:\S.T.A.L.K.E.R.Sources\x-ray_universal_compiler\src\utils\xrCompiler_AI\game_spawn_constructor.cpp
+[error]Line          : 400
+[error]Description   : There is no ACTOR spawn point!
+
+
+Вылет возникает в тех случаях когда графы остались старые, а спавн изменился
+
+Corresponding graph vertex for the spawn point gar_bandit_stroyka1 is located on the ANOTHER level
+Current level  : [1][l01_escape]
+Conflict level : [2][l02_garbage]
+Probably, you filled offsets in "game_levels.ltx" incorrect
+
+
+Иногда можно словить вылеты с такими аргументами:
+Arguments     : Duplicate section 'level_map' found.
+Arguments     : Duplicate section 'map_usage' found.
+
+происходит это из-за файлов level.ltx из \gamedata\levels\имя локации\
+там эти дубликаты и лежат, для решения можно очистить всё в этих файлах, а лучше в СДК открыть настройки сцены и очистить custom_data
