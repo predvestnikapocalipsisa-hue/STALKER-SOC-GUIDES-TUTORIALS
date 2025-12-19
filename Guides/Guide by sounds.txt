@@ -35,6 +35,71 @@ https://drive.google.com/file/d/1009teVKw80xY3jVlfQ6sMiS9lcFKFA3e/view?usp=shari
 
 Готовый файл *.wav кидаем в X-Ray SDK\level_editor\rawdata\sounds
 
+Запускаем LevelEditor.bat и в Sounds - Sound Editor редактируем наш файл
+
+Тут можно посмотреть парамеры для звуков
+https://modfaq.ru/%D0%98%D0%BC%D0%BF%D0%BE%D1%80%D1%82_%D0%B7%D0%B2%D1%83%D0%BA%D0%B0
+
+Ключ			 Описание ключа	Пример значения	Варианты значений и их описание
+Quality			 Битрейт (в Кбит/с); Чем выше, тем лучше качество, и соответственно отличается размер файла	0,00	от 0,00 до 1,00  0,00 = 47 Кбит/с  1,00 = 237 Кбит/с
+
+Min Dist		 Максимальное расстояние слышимости для игрока, после которого звук начнёт затухать	1,00	от 0,01 до 1000,00
+Max Dist		 Максимальное расстояние слышимости для игрока	300,00	от 0,10 до 1000,00
+Max AI Dist		 Максимальное расстояние слышимости для AI
+
+Внимание!
+Ключ Max AI Dist должен быть меньше или равен Max Dist, иначе произойдет 4 вариант вылета: SoundRender Source loader.cpp	300,00	от 0,10 до 1000,00
+Base Volume		 Громкость	1,00	от 0,00 до 2,00
+Game Type		 Игровой тип. Влияет на распространение звука по уровню и реакцию AI	undefined	См. спойлер ниже
+Attenuation		 Кривая затухания звука	См. рисунок	См. рисунок
+Auto Att		 Авто-затухание		By Min — задать минимальное (влияет на Max Dist) By Max — задать максимальное (влияет на Min Dist)
+
+File Length		 Размер файла в килобайтах	170.36 Kb	Значение изменить нельзя. Оно задается только автоматически при открытии звука
+Total Time		 Возможно должен показывать продолжительность звука в секундах, но не работает	0.00 sec	Значение изменить нельзя
+Control			 Управление воспроизведением		Play — воспроизвести Stop — остановить воспроизведение
+
+Auto Play		 Только для SDK! Авто-воспроизведение файла при его выборе	off	off — выключено on — включено
+
+MANAGE			 Только для SDK 0.5/0.7! Cинхронизация (Авто-экспорт) звуков выделенных в списке (Items) при наличии их *.thm файлов (необходимо один раз экспортировать их до этого, чтобы они создались)	SyncCurrent	Отсутствует
+
+Ключ Game Type
+Варианты значений и их описание
+Значение	Действие	Пример использования	Пример файлов	Соответствие параметров оружия
+
+AI игнорирует.
+Не влияет на уровень шума.
+
+undefined	Неопределённое	Интерфейс, окружение, эффекты, фоновая музыка	Файлы в папках detectors, interface, nature и affects по пути gamedata\sounds ,Файлы amb*_l.ogg и amb*_r.ogg по пути gamedata\sounds\music
+
+AI запоминает источник звука.
+Влияет на уровень шума. При превышения максимума шума — проверяет источник звука на опасность (см. xr_danger.script).
+
+Item taking				Доставание предмета	Оружие, бинокль	Файлы *_draw.ogg по пути gamedata\sounds\weapons	snd_draw
+Item hiding				Скрытие предмета	Оружие, бинокль	Файл *_holster.ogg по пути gamedata\sounds\weapons	snd_holster
+Item using				Использование предмета	Дверь	Файлы door_*.ogg по пути gamedata\sounds\device	
+Weapon empty clicking	Кончились патроны или осечка	Оружие	Файлы whine*.ogg по пути gamedata\sounds\weapons	snd_empty
+Weapon recharging		Перезарядка	Оружие	Файлы *_reload.ogg, *_switch.ogg, *_open.ogg, *_close.ogg, *_load.ogg по пути gamedata\sounds\weapons	snd_reload snd_add_cartridge snd_open_weapon snd_close_weapon snd_reload_grenade snd_switch
+NPC step				Шаг	Игрок, NPC	Файлы по пути gamedata\sounds\material\actor\step	
+NPC talking				Озвучка	NPC	Файлы в папках music, reactions, states, talk и threat по пути gamedata\sounds\characters_voice\human_*\имя_группировки	
+NPC attacking			Боевой крик	NPC, монстр	Файлы во всех папках по пути gamedata\sounds\characters_voice\human_*\имя_группировки\fight Кроме папки death	
+NPC eating				Ест	Монстр	Файлы имя_монстра_eat_*.ogg по пути gamedata\sounds\monsters\имя_монстра	
+Object breaking			Разрушение	Динамические объекты	Файлы в папке bottle по пути gamedata\sounds\material	
+Object colliding		Коллизия	Динамические объекты	Файлы в папках barrel, large_furniture, large_metal_trash, metal_box по пути gamedata\sounds\material	
+Object exploding		Взрыв	Граната РПГ	Файл rpg7_explode.ogg по пути gamedata\sounds\weapons	snd_explode
+World ambient			Неизвестно	Сердцебиение, вертолёт, гром молний	Файлы в папках heart, helicopter по пути gamedata\sounds Файлы thunder-*.ogg по пути gamedata\sounds\nature snd_fly_sound
+
+AI сразу проверяет источник звука на опасность.
+Вне зависимости от уровня шума. Кроме случаев, когда AI находится за пределами Max AI Dist.
+
+Weapon shooting		Стрельба	Оружие	Файлы *_shot_*.ogg, *_shot*.ogg, *_shot.ogg, *_shot_both.ogg, *_grenshoot.ogg, *_explosion.ogg, *_checkout.ogg по пути gamedata\sounds\weapons	snd_shoot snd_silncer_shot snd_shoot_duplet snd_shoot_grenade snd_explode snd_checkout
+Weapon bullet hit	Рикошет от пули	Оружие	Файлы *_empty.ogg по пути gamedata\sounds\weapons	
+NPC injuring		Ранение	Игрок	Файлы hurt*.ogg и pain*.ogg по пути gamedata\sounds\actor	
+NPC dying			Посмертный крик	Игрок, NPC, монстр	Файлы die*.ogg по пути gamedata\sounds\actor ,Файлы в папке death по пути gamedata\sounds\characters_voice\human_*\имя_группировки\fight ,Файлы die_*.ogg по пути gamedata\sounds\monsters\имя_монстра
+
+Устаревшие параметры
+Item picking up	Неизвестно				
+Item dropping	Неизвестно				
+Anomaly idle	Неизвестно			
 
 Для озвучки диалога нужно открыть сам диалог:
 \gamedata\config\gameplay\dialogs_escape.xml
