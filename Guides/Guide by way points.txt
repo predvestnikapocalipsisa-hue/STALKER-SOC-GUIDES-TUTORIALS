@@ -105,7 +105,7 @@ def_state_moving1 = assault
 def_state_moving2 = assault
 team = followers
 
-Логика из урока:
+custom_data из урока:
 [smart_terrains]
 none = true
 
@@ -126,11 +126,23 @@ on_signal = my_signal | %=main% walker
 
 %=main% это выполнение функции из \gamedata\scripts\xr_effects.script
 
-Иногда бывает, что в первую точку нпс идёт еле как, а начиная со второй начинает бежать как нужно. Для этого есть:
-def_state_moving1 = <название_анимации> - состояние, в котором NPC движется к первой точке пути, если она близко (patrol по умолчанию)
-def_state_moving2 = <название_анимации> - состояние, в котором NPC движется к первой точке пути, если она не слишком далеко (rush по умолчанию)
-def_state_moving3 = <название_анимации> - состояние, в котором NPC движется к первой точке пути, если она далеко (sprint по умолчанию)
-def_state_standing = <название_анимации> - дефолтное состояние в котором он стоит и смотрит на точку, если в этой точке не задана другое состояние.
+НПС ИДЕТ В ДРУГУЮ ТОЧКУ ПОСЛЕ ДИАЛОГА
+Установим нпс такую custom_data:
+[smart_terrains]
+none = true
+
+[logic]
+active = walker
+
+[walker]
+path_walk = my_way
+path_look = my_look
+on_info = {+my_info} walker1
+
+[walker1]
+path_walk = my_way1
+
+Таким образом при получении инфопоршн my_info в диалоге - нпс переключится на схему [walker1] 
 
 Анимации которые можно использоватьв логике из state_lib.script
 Ходят:
