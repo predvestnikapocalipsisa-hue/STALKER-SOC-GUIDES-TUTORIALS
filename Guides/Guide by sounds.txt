@@ -187,6 +187,12 @@ stalker    = 0,scenario\escape\wolf_thanks_1
 
 
 ЗВУКИ В ОБЪЕКТАХ
+Для примера заспавним priemnik_gorizont. Выбираем режим редактирования Spawn Element, далее Spawns - physics - destroyable_object
+ПКМ Properties находим визуал Visual:		physics - decor - priemnik_gorizont
+
+Выбираем режим редактирования Sound Source тыкаем на priemnik_gorizont, далее  ПКМ Properties в WAVE name выбираем наш готовый звуковой файл, или пкм Properties в Custom data вставить:
+[collide]
+ignore_static
 
 [logic]
 active = ph_sound
