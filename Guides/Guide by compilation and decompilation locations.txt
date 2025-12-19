@@ -105,6 +105,18 @@ C:\SDK_default\gamedata\config\game_levels.ltx
  offset  = 3000.0,	1000.0,	0.0
  id   = 21
 
+Если не сделать карту в ПДА, то будет вылет pLtx->section_exist(Level().name())
+C:\SDK_default\gamedata\config\game_maps_single.ltx
+
+l01_marsh
+
+[l01_marsh]
+texture         = map\map_marsh
+global_rect     = 22.0, 2113.0, 352.0, 2443.000000              
+bound_rect      = -445.000000,-445.000000,755.000000,755.000000  
+weathers		= pripyat
+music_tracks    = l04_darkvalley_musics
+
 Если на локации  не будет источников освещения, то у вас может не проходить  валидейт, поэтому  добавляем хотя бы по одному лайт и глоу на локацию.
 
 нажимаем Scene - Options и открываем Custom data нужно полностью очистить поле. Это нужно чтобы избежать вылетов с аргументами:
@@ -201,20 +213,6 @@ C:\SDK_default\gamedata\textures\textures.ltx
 
 #define	USE_TDETAIL
 #include	"deffer_base_bump.vs"
-
-========================================================= Карта в ПДА =======================================================================
-
-Если не сделать карту в ПДА, то будет вылет pLtx->section_exist(Level().name())
-C:\SDK_default\gamedata\config\game_maps_single.ltx
-
-l01_marsh
-
-[l01_marsh]
-texture         = map\map_marsh
-global_rect     = 22.0, 2113.0, 352.0, 2443.000000              
-bound_rect      = -445.000000,-445.000000,755.000000,755.000000  
-weathers		= pripyat
-music_tracks    = l04_darkvalley_musics
 
 ========================================================= Обзор на СДК =======================================================================
 
