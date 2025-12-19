@@ -1,4 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+Файлы касающиеся навигации и координат:
+\gamedata\game.graph
+\gamedata\spawns\all.spawn
+\gamedata\levels\location\level.gct
+\gamedata\levels\l01_escape\level.ai
+
+Собрали аи сетку - придётся пересобирать графы, изменились графы - придется пересобирать спавн.
+
 Классы и функции, используемые для оффлайн передвижения
 https://www.amk-team.ru/forum/topic/7450-spravochnik-po-funkcijam-i-klassam/page/21/#findComment-738560
 

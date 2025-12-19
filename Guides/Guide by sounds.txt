@@ -226,6 +226,7 @@ active = ph_sound
 snd = radio_music
 on_hit = hit
 on_info = {+esc_radio_off} nil
+
 [hit]
 on_info = %+esc_radio_off%
 
