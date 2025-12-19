@@ -123,6 +123,10 @@ music_tracks    = l04_darkvalley_musics
  Duplicate section 'level_map' found.
  Duplicate section 'map_usage' found.
 
+Чтобы сохранить вроде достаточно Make Game
+
+если уже всё собрали, то пока что можно файл level.ltx очистить
+
 и ставим настройки компиляции - draft, medium, high
 
 драфт - плохое качество, используется только для быстрых тестов.
