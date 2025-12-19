@@ -68,6 +68,15 @@ local function нейм ()
 ***
 end
 
+такие функции могут быть вызваны только внутри файла где лежат.
+
+Также немало важно использовать локальные переменные:
+local test = 0
+
+таким образом во всех функциях скрипта test будет равен 0
+
+всё это для оптимизации.
+
 Используется это например так, в диалоге будет вызываться функция esc_timer, которая использует метод level.add_call(func1,func2), который при выполнении условий функции 1, выполняет функцию 2. В данном примере функция 1 это пародия таймера, и когда он сработает будет выполнена функция 2, которая убивает нпс по стори айди.
 
 function esc_timer()
@@ -87,11 +96,12 @@ end
 function esc_timer()
    local iTimer = time_global() + 10*1000
    level.add_call(function()
-                      return time_global() > iTimer
-                  end,function()
-                      local obj = level_object_by_sid(6)
-                         obj:kill(obj) 
-                      end)
+                     return time_global() > iTimer
+                  end,
+                  function()
+                  local obj = level_object_by_sid(6)
+                     obj:kill(obj) 
+                   end)
 end
 
 это использование безымянных функций.
