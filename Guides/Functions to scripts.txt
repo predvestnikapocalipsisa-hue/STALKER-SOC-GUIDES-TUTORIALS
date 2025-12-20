@@ -559,7 +559,7 @@ end
 		end
 --------------------------------------------------------------------------------------------------------------
 --Функция для замены одной текстуры на другую. Работает только на огср. Изначально эта функция лежала на вики огср, после чего мы ее переместили в ray_features. А теперь я сделал из нее модуль
-function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем. Пути указывать по типу такого: "act\\act_arm_perchatka1"
+function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем. Пути указывать по типу такого: "act\\act_arm_perchatka1" 
 	local t1 = texture_find(texture1) -- возвращает таблицу: ключ имя текстуры, значение объект
 	if t1 then
 		local tex = t1[ texture1 ]
@@ -568,6 +568,8 @@ function change_texture(texture1, texture2) -- texture1 это заменяем�
 			tex:load(name) -- С этим способом замены текстура будет заменяться везде где используется.
 		end
 end
+
+(если надо заменить, скажем, траву то не указываем папку а сразу build_details -- aboba.change_texture("build_details", "year\\build_details_winter")
 --------------------------------------------------------------------------------------------------------------
 -- Функция переносит ВСЕ ваши вещи в указанный объект. Точно также как на арене в баре. Тут это ящик со стори айди 2000
 function transfer_object_item(item) -- функцию кладем туда же, где и item_to_box()
@@ -698,4 +700,54 @@ end
     
     function set_env_ambient(string, CEnvironment*);
 };
+--------------------------------------------------------------------------------------------------------------
+  level.set_weather( weather, true )
+
+Это загрузит секции погоды в Current[0] и Current[1]. Далее погода
+будет плавно меняться от Current[0] к Current[1].
+--------------------------------------------------------------------------------------------------------------
+
+Проверка даты целиком (и вывод в лог). Проверка текущего дня, месяца и года 
+
+function proverka()
+    local game_time = game.get_game_time()
+    local year, month, day, hour, minute, second, ms = game_time:get()
+
+    local day   = day     
+    local month = month   
+    local year  = year    
+	
+    log1(string.format("День:   %d", day))
+    log1(string.format("Месяц:  %d", month))
+    log1(string.format("Год:    %d", year))
+
+    local date_str = game_time:dateToString(game.CTime.DateToDay) 
+    log1("Дата в формате ДД.ММ.ГГГГ: " .. date_str)
+end
+
+function current_day()
+	local game_time = game.get_game_time()
+	local year, month, day, hour, minute, second, ms = game_time:get()
+	local day   = day 
+
+	return day
+end
+
+function current_month()
+	local game_time = game.get_game_time()
+	local year, month, day, hour, minute, second, ms = game_time:get()
+	local month   = month 
+
+	return month
+end
+
+function current_year()
+
+	local game_time = game.get_game_time()
+	local year, month, day, hour, minute, second, ms = game_time:get()
+	local year   = year 
+
+	return year
+end
+
 --------------------------------------------------------------------------------------------------------------
