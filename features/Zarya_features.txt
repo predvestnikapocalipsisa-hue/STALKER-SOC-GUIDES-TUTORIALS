@@ -203,8 +203,27 @@ local items =
 
 Взаимодействие с параметрами текущей погоды. 
 
+ПРЕДУПРЕЖДЕНИЕ!!!:
+
+взаимодействовать скриптом можно только с параметрами которые описаны в CEnvDescriptor в lua_help:
+
+	C++ class CEnvDescriptor {
+ property			far_plane                (number);
+ property			fog_density              (number);
+ property			fog_distance             (number);
+ property			m_fSunShaftsIntensity    (number);
+ property			m_fTreeAmplitudeIntensity(number);
+ property			m_identifier;
+ property			sun_dir                  (___VECTOR);
+ property			wind_direction           (number);
+ property			wind_velocity            (number);
+    
+    function set_env_ambient(string, CEnvironment*);
+};
+
 
 ==============================================°=°=°====°======
+
 
 
 
