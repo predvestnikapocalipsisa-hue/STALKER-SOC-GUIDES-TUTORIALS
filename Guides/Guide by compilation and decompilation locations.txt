@@ -87,17 +87,19 @@ $maps$			= true| true|		$sdk_root$|			maps\|	*.level|	XRay levels
 
 и установить на локации графы, штук 5 минимум, по ним ходят нпс в алайфе:
 C:\SDK_default\gamedata\config\game_graphs.ltx
-  018		   = "Болота"
+[location_0]
+ 018		   = "Болота"
 
-Во всех графах выбираем локейшен 1 нашу локацию
+Во всех графах на локации  выбираем локейшен 1 нашу локацию
 
 
 Нужно прописать локацию всем, кто собирает через XrAi, тем кто через SkyLoader не обязателбно, программа сразу сканит папку, хотя опцию включить можно, чтобы брала все уровни из этого файла.
 C:\SDK_default\gamedata\config\game_levels.ltx
 В начале файла
-	level21
+[levels]
+  level21
   
-  и в конец файла
+и в конец файла
   
  [level21]
  name   = l01_marsh
@@ -108,6 +110,7 @@ C:\SDK_default\gamedata\config\game_levels.ltx
 Если не сделать карту в ПДА, то будет вылет pLtx->section_exist(Level().name())
 C:\SDK_default\gamedata\config\game_maps_single.ltx
 
+[level_maps_single]
 l01_marsh
 
 [l01_marsh]
