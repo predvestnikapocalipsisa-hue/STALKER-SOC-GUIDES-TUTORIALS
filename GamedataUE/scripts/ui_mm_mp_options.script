@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- file:		UI_MM_MP_CREATE.SCRIPT
 --
 
@@ -140,4 +141,5 @@ function mp_options:SetGameMode(mode, handler)
 	end
 
 end
+
 

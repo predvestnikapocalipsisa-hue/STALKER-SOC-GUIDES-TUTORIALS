@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	
 	local	obj = get_level_object("m_car0000")
@@ -46,3 +47,4 @@ function main()
 	                                                                                                              
 	obj:script(false,car.script_name())                                                                               
 end
+

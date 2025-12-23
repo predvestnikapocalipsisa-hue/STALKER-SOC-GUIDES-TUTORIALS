@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- file:	UI_MP_MAIN.SCRIPT
 -- description:	MP dialog with Join Game/Create Server/Options
 -- created:	26.04.2005
@@ -510,3 +511,4 @@ function mp_main:OnBtn_CancelDownload()
 	local mm = main_menu.get_main_menu()
 	mm:CancelDownload()
 end
+

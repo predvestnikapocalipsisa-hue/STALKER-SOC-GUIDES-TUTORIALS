@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	game.start_tutorial("part_1_pda")
 end

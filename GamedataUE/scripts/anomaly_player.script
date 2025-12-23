@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	local	script_table = {
 		{"script_object0000","idle"},

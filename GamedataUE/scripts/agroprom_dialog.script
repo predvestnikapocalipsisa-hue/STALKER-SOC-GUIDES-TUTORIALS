@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ------------------------------------------------------------------------------------
 -- Agroprom Krot
 ------------------------------------------------------------------------------------
@@ -36,3 +37,4 @@ end
 function give_30_money_to_stalker_for_info_about_ratcatcher(first_speaker, second_speaker)
 	first_speaker:transfer_money(30, second_speaker)
 end
+

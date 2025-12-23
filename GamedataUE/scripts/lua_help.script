@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 List of the classes exported to LUA
 
 C++ class entity_memory_object : memory_object {

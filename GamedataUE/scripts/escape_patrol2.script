@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local units = {
               {
               name = "escape_patrol_commander2",
@@ -79,3 +80,4 @@ function switch_offline (npc)
     end       
 end
 --------------------------------------------------------------------------------------              
+

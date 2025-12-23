@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main ()
         local obj = level_object_by_sid (704)
         if obj == nil then
@@ -7,3 +8,4 @@ function main ()
         //printf ("Object founded")
         obj:set_const_force (vector ():set (0, 1, 1), 10000, 1000)
 end
+

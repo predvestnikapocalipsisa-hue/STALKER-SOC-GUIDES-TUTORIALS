@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_LOAD_DIALOG.SCRIPT
 -- Description: Load Dialog for STALKER
 -- Created:     28.10.2004
@@ -356,6 +357,7 @@ function load_dialog:AddItemToList(file_name, date_time)
 	local list_box			= self:GetListWnd("list_window")
 	list_box:AddItem		(_itm)
 end
+
 
 
 

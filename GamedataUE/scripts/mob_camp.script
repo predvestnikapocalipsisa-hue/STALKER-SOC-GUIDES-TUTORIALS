@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Mob Camp
 ----------------------------------------------------------------------------------------------------
@@ -341,4 +342,5 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	-- load transfer enemy flag ()
 	storage.skip_transfer_enemy = ini:line_exist( section, "skip_transfer_enemy")
 end
+
 

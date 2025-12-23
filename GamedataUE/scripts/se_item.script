@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local registred_items = {}
 
 class "se_outfit" (cse_alife_item_custom_outfit)

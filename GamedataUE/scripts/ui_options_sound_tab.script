@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_OPTIONS_SOUND_TAB.SCRIPT
 -- Description: Sound tab for optins tab
 -- Created:     30.11.2004
@@ -48,3 +49,4 @@ function options_sound_tab:InitControls(x_pos, y_pos)
 	-- CODE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	
 end
+

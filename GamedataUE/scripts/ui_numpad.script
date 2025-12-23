@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:		UI_NUMPAD.SCRIPT
 -- Description:		Numpad for password input
 -- Created:		23.02.2005
@@ -202,4 +203,5 @@ function numpad:OnKeyboard(dik, keyboard_action)  --virtual function
 	
 	return true
 end
+
 

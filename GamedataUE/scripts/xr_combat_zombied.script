@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[----------------------------------------------------------------------------------------------------------
 Боевая схема зомбированных сталкеров
 Чугай Александр
@@ -310,3 +311,4 @@ function add_to_binder( npc, ini, st, planner )
 
 	xr_logic.subscribe_action_for_events( npc, st, action )
 end
+

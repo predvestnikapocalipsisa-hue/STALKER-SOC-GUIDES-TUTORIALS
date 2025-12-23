@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MULTIPLAYER_CREATE_MAP_TAB.SCRIPT
 -- Description: Map Tab for Multiplayer Create Server dialog
 -- Created:     02.12.2004
@@ -57,3 +58,4 @@ end
 function create_map_tab:OnButton_back()
 	level.start_stop_manu(self, true)
 end
+

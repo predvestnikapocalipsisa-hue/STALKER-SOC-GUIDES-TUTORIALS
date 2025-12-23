@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------------------------
 --	Схема патруль. Мужики в патруле
 --	автор: Тундук Владимир aka Sidorovich
@@ -741,3 +742,4 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	end
 	patrols[st.path_name]:add_npc (npc, st.commander)
 end
+

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MULTIPLAYER_CREATE.SCRIPT
 -- Description: Create Server dialog for Multiplayer menu
 -- Created:     02.12.2004
@@ -95,3 +96,4 @@ end
 function multiplayer_create_dialog:OnButton_back()
 	level.start_stop_menu(self, true)
 end
+

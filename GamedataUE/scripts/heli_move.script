@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[------------------------------------------------------------------------------------------------
 Helicopter movement
 Чугай Александр
@@ -395,3 +396,4 @@ function set_scheme( npc, ini, scheme, section )
 	st.immortal     = utils.cfg_get_bool( ini, section, "immortal",     npc, false, false )
 	st.mute         = utils.cfg_get_bool( ini, section, "mute",         npc, false, false )
 end
+

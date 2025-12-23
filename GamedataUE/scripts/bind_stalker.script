@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function init    (obj)
 	xr_motivator.AddToMotivator(obj)
 end
@@ -447,5 +448,6 @@ end
 
 test_section_iteration("system.ltx","space_restrictor")
 /**/
+
 
 

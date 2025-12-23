@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Proceed
 ----------------------------------------------------------------------------------------------------
@@ -53,3 +54,4 @@ end
 function map_task_fail(task, objective)
 	return has_alife_info("cit_leave_forever") and db.actor:object("cit_deadcity_maps") == nil
 end
+

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local index = 0
 
 function movement(obj, type, _ind)
@@ -23,3 +24,4 @@ function main()
     npc:script(false, script_name())
 
 end
+

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 --[[    local actor = get_actor()
 
@@ -26,3 +27,4 @@ function main()
 
     wait( time_infinite )]]
 end
+

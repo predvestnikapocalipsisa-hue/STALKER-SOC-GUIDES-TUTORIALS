@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function get_state(ini, section, obj)
 	
 	
@@ -40,4 +41,5 @@ function set_state(obj, actor, state)
 	abort("mob_state_mgr: object '%s': unknown state '%s' requested",
 		obj:name(), state)
 end
+
 

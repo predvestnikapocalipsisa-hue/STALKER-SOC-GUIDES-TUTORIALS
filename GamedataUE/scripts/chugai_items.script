@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local spawn_items = {}
 
 function main()
@@ -30,3 +31,4 @@ function main()
 						db.actor:game_vertex_id())
 	end	
 end
+

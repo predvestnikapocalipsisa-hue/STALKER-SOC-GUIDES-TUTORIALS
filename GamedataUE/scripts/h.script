@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --air_attack				(CLuaGameObject*);
 --air_attack_wait			(CLuaGameObject*, float dist = 20.0f, float time = 5.0f);
 --air_attack_active		();
@@ -37,3 +38,4 @@ function main()
 
 		
 end
+

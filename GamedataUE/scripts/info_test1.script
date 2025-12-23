@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 
 	wait(1000)
@@ -56,5 +57,6 @@ function test_task3(task_acomplisher)
 	printf("task 3 %s", task_acomplisher:name())
 	return task.in_progress
 end
+
 
 

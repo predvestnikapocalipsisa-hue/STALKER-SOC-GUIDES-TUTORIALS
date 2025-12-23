@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- Приложение силы к физическому объекту
 -- Created by Tunduk Vladimir aka Sidorovich
 
@@ -74,3 +75,4 @@ function set_scheme (npc, ini, scheme, section, gulag_name)
 	end   
 	st.point = path:point (index)
 end
+

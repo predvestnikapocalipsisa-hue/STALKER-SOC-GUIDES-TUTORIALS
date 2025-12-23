@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Mob remarks
 ----------------------------------------------------------------------------------------------------
@@ -164,3 +165,4 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.time           = utils.cfg_get_string(ini, section, "time", npc, false, "")
 
 end
+

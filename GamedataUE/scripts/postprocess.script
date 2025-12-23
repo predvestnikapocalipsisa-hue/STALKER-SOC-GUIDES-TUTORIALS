@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 local pi_2 = 1.57079632679489661923
 local func_sinus = 0

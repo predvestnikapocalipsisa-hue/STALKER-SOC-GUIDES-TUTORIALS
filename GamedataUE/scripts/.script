@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 schemes = {} -- соответствие схем модулям
 stypes = {} -- типы схем
 
@@ -1040,3 +1041,4 @@ function get_actor_id()
 	if(level.actor() == nil) then return -1 end
 	return level.actor():id()
 end 
+

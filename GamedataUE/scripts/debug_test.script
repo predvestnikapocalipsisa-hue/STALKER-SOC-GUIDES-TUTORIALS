@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function a()
 	local a = 10/0
    printf( "Hello %s")

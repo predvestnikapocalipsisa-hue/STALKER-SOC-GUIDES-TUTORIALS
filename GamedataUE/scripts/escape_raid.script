@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local members = {}
 local moved = {}
 zone = nil
@@ -150,3 +151,4 @@ function switch_offline (id)
        sim:set_switch_offline (id, true)
     end
 end
+

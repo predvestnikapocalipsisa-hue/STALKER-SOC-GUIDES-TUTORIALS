@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[
 function _main()
 	game_over_dlg = ui_game_over.dlg_game_over()

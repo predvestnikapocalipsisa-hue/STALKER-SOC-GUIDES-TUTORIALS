@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MAIN_MULTI_TAB.SCRIPT
 -- Description: Multiplayer tab for Main Menu
 -- Created:     20.12.2004
@@ -68,4 +69,5 @@ function main_multi_tab:InitControls(x, y, handler)
 	handler:Register(btn)
 	self:AttachChild(btn)
 end
+
 

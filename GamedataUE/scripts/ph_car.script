@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Physic vehicle control
 ----------------------------------------------------------------------------------------------------
@@ -1231,3 +1232,4 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.headlights       = utils.cfg_get_string(ini, section, "headlights",      npc, false, gulag_name, "off")
 	st.on_death_info    = utils.cfg_get_string(ini, section, "on_death_info",   npc, false, gulag_name, nil)
 end
+

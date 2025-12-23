@@ -1,1 +1,3 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 isLua51	= (nil ~= _VERSION) and (string.find(_VERSION,"Lua 5.1",1,true) ~= nil)
+

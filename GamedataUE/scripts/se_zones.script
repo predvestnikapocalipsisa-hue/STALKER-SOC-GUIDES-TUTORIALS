@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local not_spawn_levels = {
 	l05_bar = true
 }

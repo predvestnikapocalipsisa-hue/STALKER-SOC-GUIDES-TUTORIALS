@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "game_sv_LastStanding" (game_sv_mp_script)
 
 function ps_create()
@@ -139,3 +140,4 @@ function game_sv_LastStanding:OnRoundStart()
    game_sv_mp_script.OnRoundStart(self)
 
 end
+

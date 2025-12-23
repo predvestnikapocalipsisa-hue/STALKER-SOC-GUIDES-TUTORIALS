@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 news = {
 	tips_esc_trader_about_anomalies	= xr_sound.get_safe_sound_object([[characters_voice\scenario\trader\trader_tutorial_anomalies_1]]),
 	gar_dolg_warning				= xr_sound.get_safe_sound_object([[characters_voice\scenario\duty\duty_warning1]]),

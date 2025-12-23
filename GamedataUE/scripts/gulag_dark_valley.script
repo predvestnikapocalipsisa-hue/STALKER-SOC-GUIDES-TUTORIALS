@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 --------------------------------------------------------------------------
 -- Member counts
@@ -1400,3 +1401,4 @@ gulags.val_watchtower.job = function(sj, gname, type, squad, groups)
 
     gulags.val_watchtower.ltx = ltx
 end
+

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 -- Разговор. Разработчик: Andrey Fidrya (Zmey) af@svitonline.com
 
@@ -341,3 +342,4 @@ function set_talker(object, enable)
 
 	xr_motivator.checkStorage(object)
 end
+

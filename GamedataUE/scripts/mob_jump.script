@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Mob Jump
 ----------------------------------------------------------------------------------------------------
@@ -118,4 +119,5 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 		utils.abort("Bad jump scheme usage! `on_signal` line must be specified")
 	end 
 end
+
 

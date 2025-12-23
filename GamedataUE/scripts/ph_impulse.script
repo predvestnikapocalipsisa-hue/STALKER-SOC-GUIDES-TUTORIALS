@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Apply directional force to the object
 ----------------------------------------------------------------------------------------------------
@@ -153,4 +154,5 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.duration  = utils.cfg_get_number(ini, section, "duration",   npc, false,     def_duration)
 	st.interval  = utils.cfg_get_number(ini, section, "interval",   npc, false,     def_interval)
 end
+
 

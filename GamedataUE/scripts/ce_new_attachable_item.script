@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "CCE_NewAttachableItem" (attachable_item)
 
 function CCE_NewAttachableItem:__init() super()
@@ -7,4 +8,5 @@ end
 function CCE_NewAttachableItem:__finalize()
 	printf		("CCE_NewAttachableItem::~CCE_NewAttachableItem called!")
 end
+
 

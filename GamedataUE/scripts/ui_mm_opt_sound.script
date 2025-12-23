@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "opt_sound" (CUIWindow)
 
 function opt_sound:__init() super()
@@ -38,3 +39,4 @@ function opt_sound:InitControls(x, y, xml, handler)
 --	btn = xml:Init3tButton("tab_sound:btn_default_set",	self)	
 --	handler:Register(btn, "btn_default_sound")
 end
+

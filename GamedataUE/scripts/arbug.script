@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function set_ar(object_name)
 	local obj = level.object("m_stalker_e")
 	local weapon = obj:object(object_name)

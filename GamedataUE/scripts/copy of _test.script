@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 привет
 sss = "2andy{Scope+GrenadeLauncher+Silencer}, di_ma123{GrenadeLauncher}, oles, alexMX"
 local i = string.find(sss,";")
@@ -43,4 +44,5 @@ for i in default_items do
 			" g_l=",default_items[i].GrenadeLauncher,
 			" silencer=",default_items[i].Silencer )
 end
+
 

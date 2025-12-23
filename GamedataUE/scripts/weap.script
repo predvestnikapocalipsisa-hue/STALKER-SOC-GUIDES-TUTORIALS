@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	local level = level.name()
     	local spawn_items = {	"wpn_pm",

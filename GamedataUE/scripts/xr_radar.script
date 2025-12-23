@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --
 -- Разработчик: Andrey Fidrya (af@svitonline.com) aka Zmey
 -- 
@@ -179,3 +180,4 @@ function main()
 
 	return 1
 end
+

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --Character selection dialog example
 --ddd---
 class "char_dialog" (CUIScriptWnd)
@@ -172,4 +173,5 @@ function char_dialog:OnKeyboard(dik, keyboard_action)  --virtual function
    end
    return true
 end
+
 

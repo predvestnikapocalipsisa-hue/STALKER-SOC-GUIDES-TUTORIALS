@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MULTIPLAYER_FIND.SCRIPT
 -- Description: Find Server dialog for Multiplayer menu
 -- Created:     02.12.2004
@@ -136,3 +137,4 @@ end
 function multiplayer_find_dialog:OnButton_back()
 	self:GetHolder():start_stop_menu(self, true)
 end
+

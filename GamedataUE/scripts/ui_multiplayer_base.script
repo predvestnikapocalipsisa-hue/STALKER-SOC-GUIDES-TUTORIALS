@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MULTIPALYER_BASE.SCRIPT
 -- Description: Common for for <Find Server> and <Create Server> menues
 --              Has - [edit field "Player"]
@@ -157,3 +158,4 @@ function multiplayer_base:OnKeyboard(dik, keyboard_action)
 
 	return true
 end
+

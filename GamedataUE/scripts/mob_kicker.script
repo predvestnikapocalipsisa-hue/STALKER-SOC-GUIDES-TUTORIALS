@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --------------------------------------------------------------------------------
 local max_corpse_dist = 10
 local state_move_to_corpse  =   0
@@ -176,4 +177,5 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.logic = xr_logic.cfg_get_switch_conditions (ini, section, npc)
 	st.alife_mode   = mob_alife_mgr.cfg_get_mode (ini, section, npc)
 end
+
 

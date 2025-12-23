@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main ()
   for k,v in db.obj_by_id do
     if v:name () == "max" then
@@ -16,3 +17,4 @@ function main ()
     end
   end
 end
+

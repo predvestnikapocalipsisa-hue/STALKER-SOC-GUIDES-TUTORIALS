@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- DELETE THIS SCRIPT
 
 --[[------------------------------------------------------------------------------------------------
@@ -30,3 +31,4 @@ function level_tip:update()
 		end
 	end
 end
+

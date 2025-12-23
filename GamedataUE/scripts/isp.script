@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- second passing bedug script
 function get_actor()
 	while not db.actor do
@@ -63,3 +64,4 @@ function main()
 
 	
 end
+

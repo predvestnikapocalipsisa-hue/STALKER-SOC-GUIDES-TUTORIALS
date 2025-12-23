@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function dd()
 	local xxx = 5555
   -- level.object()

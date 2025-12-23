@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:		UI_MM_MP_SERVER.SCRIPT
 -- Description:		server tab for MP menu
 -- Created:		10.06.2005
@@ -43,4 +44,5 @@ function mp_server:InitControls(x, y, xml, handler)
 	handler.edit_server_name = xml:InitEditBox("tab_server:edit_server_name", self)
 	handler.edit_password = xml:InitEditBox("tab_server:edit_password", self)
 end
+
 

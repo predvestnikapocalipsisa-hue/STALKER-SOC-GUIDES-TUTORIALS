@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "game_cl_LastStanding" (game_cl_mp_script)
 
 function game_cl_LastStanding:__init() super()
@@ -213,3 +214,4 @@ function game_cl_LastStanding:OnKeyboardRelease(key)
 
 	return game_cl_mp_script.OnKeyboardRelease(self, key)
 end
+

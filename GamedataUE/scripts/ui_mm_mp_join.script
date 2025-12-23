@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- file:		UI_MM_MP_JOIN.SCRIPT
 -- description:		join tab in mm_mp
 -- created:		16.05.2005
@@ -93,3 +94,4 @@ function mp_join:InitControls(x, y, xml, handler)
 	handler:Register(btn, "btn_server_info")
 
 end
+

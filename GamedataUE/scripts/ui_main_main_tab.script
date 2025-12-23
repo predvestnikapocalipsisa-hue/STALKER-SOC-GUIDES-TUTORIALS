@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MAIN_MAIN_TAB.SCRIPT
 -- Description: main tab for main menu :)
 -- Created:     16.12.2004
@@ -168,3 +169,4 @@ function main_main_tab:InitControls(x, y, handler)
 	self:AttachChild(btn)
 ]]
 end
+

@@ -1,2 +1,3 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main (need_items)
 end

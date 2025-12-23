@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function set_switch_online(story_id,value)
 	alife():set_switch_online(alife():story_object(story_id):id(),value)
 end
@@ -13,3 +14,4 @@ end
 function object_online(object_id)
 	return (alife() == nil) or alife():object(object_id).online
 end
+

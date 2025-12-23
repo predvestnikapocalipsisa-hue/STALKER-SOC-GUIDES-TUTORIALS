@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --server entity
 function _printf(ss)
 --if editor() == false then

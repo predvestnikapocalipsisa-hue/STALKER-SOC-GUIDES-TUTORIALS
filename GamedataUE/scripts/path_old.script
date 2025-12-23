@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	local dog  = get_level_object( "m_dog1" )
     local time = time_global()

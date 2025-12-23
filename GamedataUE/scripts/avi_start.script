@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 class "test_avi_dlg" (CUIScriptWnd)
 
@@ -94,4 +95,5 @@ function main()
 	end
 
 end
+
 

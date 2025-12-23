@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function have_kruglov_flash(first_speaker, second_speaker)
   	return first_speaker:object("kruglov_flash") ~= nil
 end

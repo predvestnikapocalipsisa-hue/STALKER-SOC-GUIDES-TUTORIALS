@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Грабители
 ----------------------------------------------------------------------------------------------------
@@ -630,4 +631,5 @@ function set_robber(object, activated_by_script, enabled, team, path_rob, dist, 
 	end
 	xr_motivator.checkStorage(object)
 end
+
 

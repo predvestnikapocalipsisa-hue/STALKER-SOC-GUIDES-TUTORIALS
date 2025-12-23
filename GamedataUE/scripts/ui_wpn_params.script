@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function normalize(val)
 	if val > 100 then
 		val = 100
@@ -120,3 +121,4 @@ function GetAccuracy(section)
 
 	return normalize(val)
 end
+

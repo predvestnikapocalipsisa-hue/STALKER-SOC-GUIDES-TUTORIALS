@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Подсвечивает себя при входе актёра
 ----------------------------------------------------------------------------------------------------
@@ -48,3 +49,4 @@ function set_scheme(obj, ini, scheme, section, gulag_name)
 	st.hint     = utils.cfg_get_string(ini, section, "hint",     obj, true,  "", "")
 	st.location = utils.cfg_get_string(ini, section, "location", obj, false, "", "crlc_small")
 end
+

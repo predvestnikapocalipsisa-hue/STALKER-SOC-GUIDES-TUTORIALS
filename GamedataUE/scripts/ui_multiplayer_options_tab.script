@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MULTIPLAYER_OPTIONS_TAB.SCRIPT
 -- Description: Options tab for Create Server menu
 -- Created:     04.12.2004
@@ -20,4 +21,5 @@ end
 
 function options_tab:InitCallbacks()
 end
+
 

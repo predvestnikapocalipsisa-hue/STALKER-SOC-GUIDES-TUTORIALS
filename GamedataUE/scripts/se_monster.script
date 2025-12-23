@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[
 Изменения script_version:
 	4 - сохранение поля job_online
@@ -216,3 +217,4 @@ function se_monster:fill_exclusives()
 		end
 	end
 end
+

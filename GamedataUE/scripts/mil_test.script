@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -----------------------------------------------------------------------------------
 -- Test Definitions
 -----------------------------------------------------------------------------------
@@ -204,6 +205,7 @@ function main()
 	test_utils.setup_test(object_list, smart_terrains)
 	test_utils.run_global()
 end
+
 
 
 

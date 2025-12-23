@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local ini = ini_file("test_script.ltx")
 printf	("%s",ini:r_string("test1","test2"))
 
@@ -21,3 +22,4 @@ self.object:spawn_ini():
 			.def("r_float",			(float	(CScriptIniFile::*)	(LPCSTR, LPCSTR))(CScriptIniFile::r_float))
 			.def("r_vector",		(Fvector(CScriptIniFile::*)	(LPCSTR, LPCSTR))(CScriptIniFile::r_fvector3))
 			.def("line_count",		(u32	(CScriptIniFile::*)	(LPCSTR))		 (CScriptIniFile::line_count))
+

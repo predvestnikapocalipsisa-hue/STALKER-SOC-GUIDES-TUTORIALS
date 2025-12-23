@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local x
 
 function spawn_callback( id, obj )
@@ -16,3 +17,4 @@ function main()
 
 	printf( "%s spawned!!!", x:name() )
 end
+

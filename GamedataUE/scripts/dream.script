@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Dream manager
 ----------------------------------------------------------------------------------------------------
@@ -213,3 +214,4 @@ function sleep_video_name_callback()
 	-- function returns video file name or empty string
     return dream_manager:get_dream()
 end
+

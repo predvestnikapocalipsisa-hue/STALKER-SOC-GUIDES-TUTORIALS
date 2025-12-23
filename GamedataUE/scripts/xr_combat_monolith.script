@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[----------------------------------------------------------------------------------------------------------
 Боевая схема сталкеров группировки "Монолит"
 Чугай Александр
@@ -263,3 +264,4 @@ function add_to_binder( npc, ini, st, planner )
 	action:add_effect      ( world_property( prop_on_pos,  true  ) )
 	planner:add_action( act_go_to_pos, action )
 end
+

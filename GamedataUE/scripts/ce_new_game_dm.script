@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "C_new_game_sv_Deathmatch" (game_sv_Deathmatch)
 
 function C_new_game_sv_Deathmatch:__init() super()
@@ -18,3 +19,4 @@ end
 function Money_SetStart	(id_who)
 
 end
+

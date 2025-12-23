@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 local killCountProps = {
 	neutral_novice = 1, neutral_experienced = 2, neutral_veteran = 3, neutral_master = 4,

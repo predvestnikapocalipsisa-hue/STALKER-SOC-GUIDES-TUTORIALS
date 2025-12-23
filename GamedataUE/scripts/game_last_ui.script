@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "ui_game_LastStanding" (UIGame_custom_script)
 
 function ui_game_LastStanding:__init() super()
@@ -82,3 +83,4 @@ end
 function ui_game_LastStanding:SetTodoCaption(str)
    		self:CustomMessageOut(self.m_todo_caption, str, GetARGB(255,0,255,0))
 end
+

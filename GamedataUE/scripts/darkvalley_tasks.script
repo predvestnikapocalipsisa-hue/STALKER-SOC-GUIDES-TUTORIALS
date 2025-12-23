@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Proceed
 ----------------------------------------------------------------------------------------------------
@@ -110,5 +111,6 @@ function escort_task_fail(task, objective)
            has_alife_info("val_escort_guard2_dead") and
            not has_alife_info("val_escort_actor_helped")
 end
+
 
 

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Do nothing
 ----------------------------------------------------------------------------------------------------
@@ -95,4 +96,5 @@ function set_scheme(obj, ini, scheme, section, gulag_name)
 		abort("Wrong point nums in sr_teleport [%s]", tostring(section))
 	end
 end
+
 

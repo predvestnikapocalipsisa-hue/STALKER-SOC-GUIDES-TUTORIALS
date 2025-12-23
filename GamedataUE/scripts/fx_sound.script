@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- FX Sound
 ----------------------------------------------------------------------------------------------------
@@ -95,4 +96,5 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.velocity = utils.cfg_get_number(ini, section, "velocity",	npc, false, 3)
 		
 end
+
 

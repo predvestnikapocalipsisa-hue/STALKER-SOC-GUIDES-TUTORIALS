@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	printf( "start" )
 	local dog = get_level_object("m_dog1")
@@ -12,3 +13,4 @@ function main()
 
     dog:script(false, this.script_name() )
 end
+

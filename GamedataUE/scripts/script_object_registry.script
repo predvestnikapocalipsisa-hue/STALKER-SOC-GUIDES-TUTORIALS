@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- function printf(fmt,...)
 -- 	print(string.format(fmt,unpack(arg)))
 -- end
@@ -37,3 +38,4 @@ for i in script_objects do
    local		cls  = create_class(script_objects[i])
    print		(cls:get_name())
 end
+

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Guide
 ----------------------------------------------------------------------------------------------------
@@ -209,4 +210,5 @@ function set_guide(object, enabled, path_main_walk, path_main_look, path_lead_wa
 	end
 	xr_motivator.checkStorage(object)
 end
+
 

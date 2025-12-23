@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_SPAWN_DIALOG.SCRIPT
 -- Description: temp file to load spawn files
 -- Created:     25.12.2004
@@ -195,6 +196,7 @@ function spawn_dialog:AddItemToList(file_name, date_time)
 	list_box:AddItem	(_itm)
 	
 end
+
 
 
 

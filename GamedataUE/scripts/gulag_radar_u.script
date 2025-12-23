@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local t = {}
 local gulags = {}
 
@@ -1060,3 +1061,4 @@ function checkMonster( npc_community, gulag_type )
 	end 
 	return false
 end
+

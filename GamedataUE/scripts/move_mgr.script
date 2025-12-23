@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- Movement manager
 -- Created by: Andrey Fidrya (Zmey), af@svitonline.com
 
@@ -600,4 +601,5 @@ function move_mgr:waypoint_callback(obj, action_type, index)
 			self.object:name(), tostring(self.path_walk), tostring(index), tostring(self.path_look))
 	end
 end
+
 

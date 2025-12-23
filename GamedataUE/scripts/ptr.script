@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function intr()
 	local obj = level.object("m_stalker_e")
 	local motivation_action_manager = obj:motivation_action_manager()

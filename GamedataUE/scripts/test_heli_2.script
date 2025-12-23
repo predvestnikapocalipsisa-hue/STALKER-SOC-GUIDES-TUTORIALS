@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 class "HeliManager";
 function HeliManager:__init()
@@ -166,4 +167,5 @@ function main______ ()
 	end
 	
 end
+
 

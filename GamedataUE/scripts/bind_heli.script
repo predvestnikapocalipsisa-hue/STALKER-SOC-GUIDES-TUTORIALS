@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[------------------------------------------------------------------------------------------------
 Helicoter binding
 Чугай Александр
@@ -226,3 +227,4 @@ function heli_die( obj )
 	st.last_alt       = heli:GetRealAltitude()
 	st.alt_check_time = time_global() + 1000
 end
+

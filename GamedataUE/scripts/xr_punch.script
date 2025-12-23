@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 -- Punch. Разработчик: Andrey Fidrya (Zmey) af@svitonline.com
 
@@ -166,5 +167,6 @@ function disable_scheme(npc, scheme)
 		st.enabled = false
 	end
 end
+
 
 

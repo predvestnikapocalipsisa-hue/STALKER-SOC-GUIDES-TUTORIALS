@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "opt_video_adv" (CUIWindow)
 
 function opt_video_adv:__init() super()
@@ -84,3 +85,4 @@ function opt_video_adv:InitControls(x, y, xml, handler)
 	btn		= xml:Init3tButton					("video_adv:btn_to_simply",	self)	
 	handler:Register							(btn, "btn_simply_graphic")	
 end
+

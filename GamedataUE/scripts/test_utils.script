@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 local object_list		= {}
 local smart_terrains	= {}
@@ -164,4 +165,5 @@ function run_global()
 	wait_game(2000)
 	offline_all()
 end
+
 

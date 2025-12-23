@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------------------------
 --  Айдишники саундов
 --  последнее обновление: 02.06.2004
@@ -62,4 +63,5 @@ jon_sounds              = global_sounds + 5000
 zombie_walk_speak       = jon_sounds + 0
 zombie_stand_speak      = jon_sounds + 1
 novice_speak            = jon_sounds + 10
+
 

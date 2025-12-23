@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 function is_food_present (npc)
     if npc:object ("bread") ~= nil or npc:object ("kolbasa") ~= nil or npc:object ("vodka") ~= nil then
@@ -513,4 +514,5 @@ function set_scheme (npc, ini, scheme, section, gulag_name)
 	st.path_walk = nil
 	st.path_look = nil 
 end
+
 

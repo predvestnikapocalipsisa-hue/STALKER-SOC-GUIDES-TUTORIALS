@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_OPTIONS_PROFILES_TAB.SCRIPT
 -- Description: Profiles Tab for Options dialog
 -- Created:     01.12.2004
@@ -97,3 +98,4 @@ function options_profiles_tab:InitControls(x_pos, y_pos)
 	-- CODE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	
 end
+

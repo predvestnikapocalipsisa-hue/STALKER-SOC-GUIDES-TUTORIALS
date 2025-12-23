@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "game_last_playerState"(game_PlayerState)
 
 function game_last_playerState:__init() super()
@@ -32,3 +33,4 @@ function game_last_playerState:net_Import (P)
    self.lifecount = P:r_u32()
 
 end
+

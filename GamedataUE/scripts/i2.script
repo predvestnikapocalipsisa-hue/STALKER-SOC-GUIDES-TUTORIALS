@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function get_actor()
 	while not db.actor do
 		wait()
@@ -17,3 +18,4 @@ function main()
 
 	get_actor():give_info_portion( "agroprom_military_case" )
 end
+

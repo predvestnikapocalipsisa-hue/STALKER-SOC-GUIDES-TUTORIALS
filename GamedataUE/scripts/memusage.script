@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function _printf(fmt,...) 
 	log(string.format(fmt,...))	
 end
@@ -7,3 +8,4 @@ function collect_info(npc, type)
 	collectgarbage("collect")
 	_printf("MEMUSAGE [%s]->[%s] %d Kb",npc:name(), type, collectgarbage("count"))
 end
+

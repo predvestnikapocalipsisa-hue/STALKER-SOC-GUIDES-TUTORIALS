@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local index = -1
 
 function move_callback( obj, action_type, ind )

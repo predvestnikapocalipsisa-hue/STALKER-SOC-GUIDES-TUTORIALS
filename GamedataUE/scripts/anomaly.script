@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local enter = false
 local need_reset = false
 
@@ -62,4 +63,5 @@ function action2(obj,...)
     end
     return  entity_action(act)
 end
+
 

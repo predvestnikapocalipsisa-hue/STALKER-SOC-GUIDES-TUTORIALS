@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Apply directional hit to the object
 ----------------------------------------------------------------------------------------------------
@@ -91,3 +92,4 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.bone     = utils.cfg_get_string(ini, section, "bone", npc, true, "")
 	st.dir_path = utils.cfg_get_string(ini, section, "dir_path", npc, true, "")
 end
+

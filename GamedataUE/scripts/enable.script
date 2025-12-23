@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function item(value)
 	local obj = level.object("m_stalker_e")
 	local radio = obj:object("hand_radio")

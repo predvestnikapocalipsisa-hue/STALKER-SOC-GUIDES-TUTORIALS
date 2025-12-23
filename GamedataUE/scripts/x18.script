@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local object_list		= {}
 local smart_terrains	= {}
 
@@ -73,3 +74,4 @@ function r(index)
 	test_utils.setup_test(object_list, smart_terrains)
 	test_utils.run_test(index)
 end
+

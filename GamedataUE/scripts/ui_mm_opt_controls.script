@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "opt_controls" (CUIWindow)
 
 function opt_controls:__init() super()
@@ -27,3 +28,4 @@ function opt_controls:InitControls(x, y, xml, handler)
 
 
 end
+

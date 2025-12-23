@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[------------------------------------------------------------------------------------------------
 Space restrictor binder
 Чугай Александр
@@ -103,3 +104,4 @@ function restrictor_binder:load(reader)
 
 	xr_logic.load_obj(self.object, reader)
 end
+

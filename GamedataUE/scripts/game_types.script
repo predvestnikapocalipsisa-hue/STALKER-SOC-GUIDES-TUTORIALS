@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 game_types={
 		--s.t.a.l.k.e.r internal types, do not change
 		GAME_ANY 						= 0,
@@ -13,3 +14,4 @@ game_types={
 		GAME_LASTSTANDING     =100,
 		GAME_DUMMY					=255 --max(unsigned8)
 }
+

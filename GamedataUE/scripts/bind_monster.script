@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -----------------------------------------------------------------------------------
 -- Monster binding
 -----------------------------------------------------------------------------------
@@ -185,3 +186,4 @@ function generic_object_binder:load(reader)
 		trade_manager.load(self.object, reader)
 	end
 end
+

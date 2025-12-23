@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -------------------------------------------------------------------------------
 class "torch_light"
 ---------------------------------
@@ -33,3 +34,4 @@ function torch_light:set_always_on (value)
     self.always_on = value
 end
 ---------------------------------
+

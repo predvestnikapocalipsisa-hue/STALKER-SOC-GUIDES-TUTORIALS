@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --
 -- DELME
 -- 
@@ -482,4 +483,5 @@ function set_scheme (npc, ini, scheme, section, gulag_name)
 	st.raid_look_info = nil
 	st.raid_process = false
 end
+
 

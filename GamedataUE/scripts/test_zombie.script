@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
          local npc = get_level_object("zombie")
          npc:script(true, script_name())
@@ -23,4 +24,5 @@ function main()
 
          npc:script(false, script_name())
 end
+
 

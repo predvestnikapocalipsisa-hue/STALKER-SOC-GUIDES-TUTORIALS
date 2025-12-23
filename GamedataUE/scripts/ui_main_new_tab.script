@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MAIN_NEW_TAB.SCRIPT
 -- Description: New Game Tab for Main Menu
 -- Created:     20.12.2004
@@ -104,4 +105,5 @@ function main_new_tab:InitControls(x, y, handler)
 	handler:Register(btn)
 	self:AttachChild(btn)
 end
+
 

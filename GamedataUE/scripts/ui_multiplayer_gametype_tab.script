@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 -- File:        UI_MULTIPLAYER_GAMETYPE_TAB.SCRIPT
 -- Description: "Game Type" tab for Create Server Dialog
 -- Created:     03.12.2004
@@ -85,4 +86,5 @@ end
 
 function gametype_tab:InitCallbacks()
 end
+
 

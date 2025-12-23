@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	local actor   	= get_actor()
 	for i=1,10 do
@@ -10,3 +11,4 @@ function main()
 		wait			(5000)
 	end
 end
+

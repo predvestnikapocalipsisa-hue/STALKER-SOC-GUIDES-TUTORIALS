@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 class "opt_gameplay" (CUIWindow)
 
 function opt_gameplay:__init() super()
@@ -27,3 +28,4 @@ function opt_gameplay:InitControls(x, y, xml, handler)
 	btn = xml:Init3tButton	("tab_gameplay:btn_check_updates", self)
 	handler:Register		(btn, "btn_check_updates")
 end
+

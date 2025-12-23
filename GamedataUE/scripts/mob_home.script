@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------------------------------------------------------------
 -- Mob Home
 ----------------------------------------------------------------------------------------------------
@@ -106,4 +107,5 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	
 	storage.aggressive			= ini:line_exist( section, "aggressive_home")
 end
+
 

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 -- Типы схем:
 stype_stalker    = 0
@@ -98,4 +99,5 @@ load_scheme("sr_postprocess", "sr_postprocess", stype_restrictor)
 load_scheme("sr_aes_deadzone","sr_aes_deadzone",stype_restrictor)
 load_scheme("sr_sleep",       "sr_sleep",       stype_restrictor)
 load_scheme("sr_cutscene",    "sr_cutscene",    stype_restrictor)
+
 

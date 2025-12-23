@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function main()
 	for k, v in db.storage do
 		if v then
@@ -8,3 +9,4 @@ function main()
 		end
 	end
 end
+

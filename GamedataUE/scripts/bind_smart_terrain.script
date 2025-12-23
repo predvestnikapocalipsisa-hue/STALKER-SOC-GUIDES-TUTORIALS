@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --[[------------------------------------------------------------------------------------------------------------------
 Smart terrain binder
 Нужен для того, чтобы серверный объект smart terrain получал обновления.
@@ -65,3 +66,4 @@ function smart_terrain_binder:update( delta )
 
 	self.se_smart_terrain:update()
 end
+

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --function printf(fmt,...)
 --    log(string.format(fmt,unpack(arg)))
 --end
@@ -436,3 +437,4 @@ function CSE_NewAttachableItem:FillProps	(pref,items)
 	properties_helper():create_choose	(items, prefix .. "choose\\15",self,"_choose_15",choose_type.game_animation)
 	properties_helper():create_choose	(items, prefix .. "choose\\16",self,"_choose_16",choose_type.game_motion)
 end
+
