@@ -48,45 +48,6 @@ C:\Windows\System32\cmd.exe /c "D:\Stalker\Game.bat"
 @start bin\XR_3DA.exe -nointro
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
-Меняет кодировку с кириллицы 1251 на UTF8
-
-Открой папку с файлами .script.
-В адресной строке проводника (сверху) введи powershell и нажми Enter — откроется окно PowerShell в этой папке.
-Скопируй и вставь эту команду целиком:
-
-Get-ChildItem *.script | ForEach-Object {
-    $content = Get-Content $_.FullName
-    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-    [System.IO.File]::WriteAllLines($_.FullName, $content, $utf8NoBom)
-}
-
-Get-ChildItem *.xml | ForEach-Object {
-    $content = Get-Content $_.FullName
-    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-    [System.IO.File]::WriteAllLines($_.FullName, $content, $utf8NoBom)
-}
-
-Get-ChildItem -Recurse -Filter *.xml | ForEach-Object {
-    $filePath = $_.FullName
-    # Пробуем прочитать как UTF-8
-    try { $utf = [System.IO.File]::ReadAllText($filePath, [System.Text.UTF8Encoding]::new($false)) } catch { $utf = $null }
-    # Пробуем прочитать как ANSI (1251)
-    $ansi = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::GetEncoding(1251))
-
-    # Если UTF-8 прочитался НЕ как кракозябры (есть буквы "а-яА-Я"), оставляем как есть
-    if ($utf -match '[а-яА-ЯёЁ]') {
-        # Уже UTF-8 — ничего не делать
-        Write-Host "⏩ Уже UTF-8: $($_.Name)" -ForegroundColor Cyan
-    }
-    # Иначе — это ANSI, конвертируем в UTF-8 без BOM
-    else {
-        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-        [System.IO.File]::WriteAllText($filePath, $ansi, $utf8NoBom)
-        Write-Host "✅ Перекодирован: $($_.Name)" -ForegroundColor Green
-    }
-}
-
-------------------------------------------------------------------------------------------------------------------------------------------------
 
 Мб кому полезно будет, созадаем файл .bat указываем внутри свой путь до папки levels и скрипт удалит все файлы кроме .gct .spawn .ai .game .graph
 
@@ -211,7 +172,55 @@ start "" "%~dp0bin_orig\XR_3DA.exe" -start server(all/single/alife/new) client(l
 
 
 
+------------------------------------------------------------------------------------------------------------------------------------------------
+Открой папку с файлами
+В адресной строке проводника (сверху) введи powershell и нажми Enter — откроется окно PowerShell в этой папке.
+Скопируй и вставь эту команду целиком:
 
+Добавить строку ко всем файлам в папке
+
+Get-ChildItem *.script | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw
+    if (-not $content.StartsWith("-- -*- mode: lua; coding: windows-1251-dos -*-")) {
+        Set-Content $_.FullName ("-- -*- mode: lua; coding: windows-1251-dos -*-`n" + $content)
+    }
+}
+
+Меняет кодировку с кириллицы 1251 на UTF8
+
+Get-ChildItem *.script | ForEach-Object {
+    $content = Get-Content $_.FullName
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllLines($_.FullName, $content, $utf8NoBom)
+}
+
+для папки текст\рус
+Get-ChildItem *.xml | ForEach-Object {
+    $content = Get-Content $_.FullName -Encoding Default
+    Set-Content $_.FullName -Value $content -Encoding UTF8
+}
+
+потом заменить *.xml на *.ltx (эта команда учитывает подпапки)
+
+Get-ChildItem -Recurse -Filter *.xml | ForEach-Object {
+    $filePath = $_.FullName
+    # Пробуем прочитать как UTF-8
+    try { $utf = [System.IO.File]::ReadAllText($filePath, [System.Text.UTF8Encoding]::new($false)) } catch { $utf = $null }
+    # Пробуем прочитать как ANSI (1251)
+    $ansi = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::GetEncoding(1251))
+
+    # Если UTF-8 прочитался НЕ как кракозябры (есть буквы "а-яА-Я"), оставляем как есть
+    if ($utf -match '[а-яА-ЯёЁ]') {
+        # Уже UTF-8 — ничего не делать
+        Write-Host "⏩ Уже UTF-8: $($_.Name)" -ForegroundColor Cyan
+    }
+    # Иначе — это ANSI, конвертируем в UTF-8 без BOM
+    else {
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText($filePath, $ansi, $utf8NoBom)
+        Write-Host "✅ Перекодирован: $($_.Name)" -ForegroundColor Green
+    }
+}
 ------------------------------------------------------------------------------------------------------------------------------------------------
 [l13_atp]
 texture	    	= map\map_mp_atp
