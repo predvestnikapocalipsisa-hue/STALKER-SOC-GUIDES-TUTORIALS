@@ -1,0 +1,105 @@
+--[[----------------------------------------------------------------------------------------------
+ђ бЇ абҐў ­ЁҐ Ё еа ­Ґ­ЁҐ ­ бва®ҐЄ б¬ ав вҐааҐ©­®ў
+—гЈ © Ђ«ҐЄб ­¤а
+------------------------------------------------------------------------------------------------]]
+
+local params_loaded = false
+
+local stay_times
+
+--[[ ЄҐиЁа®ў ­­лҐ ЇаҐ¤гбв ­®ў®Є а ­Ј®ў Ё ЈагЇЇЁа®ў®Є
+д®а¬ в:
+	presets = {
+		preset_name1 = {
+			community1 = {rank_min1,rank_max1},
+			community2 = {rank_min2,rank_max2},
+			...
+		},
+		preset_name2 = false,
+		...
+	}
+false ®§­ з Ґв, зв® Їлв «Ёбм Їа®зЁв вм, ­® ­Ґ ­ и«Ё в Є®© ЇаҐ¤гбв ­®ўЄЁ
+]]
+local presets = {}
+
+-- ў®§ўа й Ґв в Ў«Ёжг б ЇаҐ¤гбв ­®ўЄ®© Ё«Ё false
+function read_preset( preset_name )
+	local ltx = ini_file( "misc\\smart_terrain_presets.ltx" )
+
+	if ltx and ltx:section_exist( preset_name ) then
+		local preset = {}
+		local result, field, str
+		local t
+		local n = ltx:line_count( preset_name )
+		local rank_min, rank_max, rank_interval
+
+		for i = 0, n-1 do
+			result, field, str = ltx:r_line( preset_name, i, "", "" )
+
+			t = parse_names( str )
+
+			rank_min, rank_max = 10000, 0
+
+			for i, rank_name in ipairs( t ) do
+				rank_interval = ranks.get_rank_interval( rank_name )
+
+				if rank_interval[1] < rank_min then
+					rank_min = rank_interval[1]
+				end
+
+				if rank_interval[2] > rank_max then
+					rank_max = rank_interval[2]
+				end
+			end
+
+			preset[field] = { rank_min, rank_max }
+		end
+
+		return preset
+	else
+		return false
+	end
+end
+
+-- § Јаг§Ёвм а §«Ёз­лҐ ®ЎйЁҐ ¤«п ўбҐе б¬ ав®ў ­ бва®©ЄЁ
+function load_params()
+	params_loaded = true
+
+	local ltx = system_ini()
+
+	stay_times = {}
+
+	local result, field, str
+	local n = ltx:line_count( "smart_terrain_stay_time" )
+
+	for i = 0, n-1 do
+		result, field, str = ltx:r_line( "smart_terrain_stay_time", i, "", "" )
+
+		stay_times[field] = parse_nums( str )
+	end
+end
+
+-- Ї®«гзЁвм ўаҐ¬Ґ­­®© Ё­вҐаў «
+function get_stay_time_interval( name )
+	if not params_loaded then
+		load_params()
+--		print_table( stay_times )
+	end
+
+	if not stay_times[name] then
+		abort( "unknown stay_time interval '%s'", name )
+--		name = "default"
+	end
+
+	return stay_times[name][1], stay_times[name][2]
+end
+
+-- Ї®«гзЁвм ЇаҐ¤гбв ­®ўЄг
+function get_preset( preset_name )
+	if presets[preset_name] == nil then
+		presets[preset_name] = read_preset( preset_name )
+	end
+
+	return presets[preset_name]
+end
+
