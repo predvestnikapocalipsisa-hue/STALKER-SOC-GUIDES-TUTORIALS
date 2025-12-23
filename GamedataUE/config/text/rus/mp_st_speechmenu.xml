@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="windows-1251" ?>
+<string_table>
+	<string id="speech_attack">
+		<text>Р’СЃРµ РІ Р°С‚Р°РєСѓ!</text>
+	</string>
+	<string id="speech_covermeartifact">
+		<text>Р‘РµСЂСѓ Р°СЂС‚РµС„Р°РєС‚! РџСЂРёРєСЂРѕР№С‚Рµ</text>
+	</string>
+	<string id="speech_followme">
+		<text>Р—Р° РјРЅРѕР№!</text>
+	</string>
+	<string id="speech_guardartifact">
+		<text>РћС…СЂР°РЅСЏРµРј Р°СЂРµС„Р°РєС‚. РџРѕРєР° РЅРµ Р±РµСЂРµРј!</text>
+	</string>
+	<string id="speech_holdingpos">
+		<text>РћСЃС‚Р°СЋСЃСЊ РЅР° РїРѕР·РёС†РёРё</text>
+	</string>
+	<string id="speech_holdpos">
+		<text>Р”РµСЂР¶РёРј РїРѕР·РёС†РёСЋ!</text>
+	</string>
+	<string id="speech_icoverartifact">
+		<text>Р‘РµСЂРёС‚Рµ Р°СЂС‚РµС„Р°РєС‚! РЇ РїСЂРёРєСЂРѕСЋ</text>
+	</string>
+	<string id="speech_needhelp">
+		<text>РќСѓР¶РЅР° РїРѕРјРѕС‰СЊ</text>
+	</string>
+	<string id="speech_needmoney">
+		<text>РќРµС‚ РґРµРЅРµРі, РєСѓРїРёС‚Рµ СЌРєРёРїРёСЂРѕРІРєСѓ</text>
+	</string>
+	<string id="speech_no">
+		<text>РќРµС‚</text>
+	</string>
+	<string id="speech_noenemy">
+		<text>РќРёРєРѕРіРѕ РїРѕР±Р»РёР·РѕСЃС‚Рё</text>
+	</string>
+	<string id="speech_report">
+		<text>Р”РѕР»РѕР¶РёС‚Рµ СЃРёС‚СѓР°С†РёСЋ!</text>
+	</string>
+	<string id="speech_retreat">
+		<text>РћС‚СЃС‚СѓРїР°РµРј!</text>
+	</string>
+	<string id="speech_roger">
+		<text>Р’Р°СЃ РїРѕРЅСЏР»</text>
+	</string>
+	<string id="speech_silence">
+		<text>Р—Р°С‚РєРЅРёС‚РµСЃСЊ!!</text>
+	</string>
+	<string id="speech_sticktogether">
+		<text>Р”РµСЂР¶РёРјСЃСЏ РІРјРµСЃС‚Рµ</text>
+	</string>
+	<string id="speech_takeartifact">
+		<text>Р‘РµСЂРµРј Р°СЂС‚РµС„Р°РєС‚!</text>
+	</string>
+</string_table>
