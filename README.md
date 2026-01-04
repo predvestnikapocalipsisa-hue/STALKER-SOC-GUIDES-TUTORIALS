@@ -8,6 +8,7 @@
 Изначально репозиторий был на гугл диске, был портирован на Github для удобства.
 
 ====================================================================
+
 [Гайды](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Guides)
 
 [WiKi с разбором некоторых файлов](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/wiki)
