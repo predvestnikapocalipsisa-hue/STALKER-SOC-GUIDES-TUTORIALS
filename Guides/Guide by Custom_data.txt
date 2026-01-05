@@ -4,6 +4,23 @@ Custom_data - это текстовое поле в объекте, где хр�
 Ещё есть User data, её можно настроить, если открыть модель.object в Actor editor'e в поле Object, у нпс в ней может быть следующее:
 #include "models\capture\kurtka_mask_damage_no.ltx" так настраивается прочность визуалов нпс
 
+изначально Custom_data берет начало из движка, если строка указана, то начнется считывание. 
+
+Открыв \config\creatures\m_stalker.ltx видим:
+custom_data						= stalker_custom_data.ltx		; option for Level Editor
+
+файл пустой, но можно поставить какие-нибудь параметры для всех новых нпс
+
+эту строку можно установить и в \config\creatures\actor.ltx для того, чтобы при размещении актора на локации его логика заполнялась автоматически.
+
+Для нпс, которых спавним из \config\creatures\spawn_sections.ltx 
+
+можно тоже установить параметр custom_data, в котором должен быть указан путь до файл лежащего в папке \gamedata\config\ , например:
+custom_data	= stalker_custom_data.ltx
+а файл лежит \gamedata\config\stalker_custom_data.ltx
+
+Если рассматривать СДК\АСДС в общем в all.spawn:
+
 В custom_data любого персонажа или объекта может присутствовать секция [logic], она нужна для настройки логики объекта
 
 В секции должен присутствовать один из ключей:
