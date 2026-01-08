@@ -10,7 +10,7 @@
 ====================================================================
 
 Все файлы вы можете найти во вкладке [Code](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main)
-там есть распакованный [all.spawn](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/all.spawn), папки [config и scripts](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Gamedata UE), [Гайды](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Guides) и [фичи](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/features) от нашей команды.
+там есть распакованный [all.spawn](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/all.spawn), папки [config и scripts](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/GamedataUE), [Гайды](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Guides) и [фичи](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/features) от нашей команды.
 
 
 
