@@ -2,7 +2,15 @@
 
 https://youtu.be/w2Iny-_yuiw - Видео разбор
 
-Данный гайд предполагает, что вы владеете базовыми навыками модостроя и примерно понимаете, что нужно делать и служит лищь шпаргалкой.
+Рестриктор, он же зона влияния, выдает и забирает поршни, может выполнять функции, исполнять различные схемы логики sr_ , представляет из себя сферическую или кубическую область.
+
+Ещё есть способ спавна рестрикторов без "all.spawn" для этого нужен "spawn_restrictor.script": https://drive.google.com/open?id=1m9lLXTt9TtQLmaNm83Z3p6Fv4WSYuzCm&usp=drive_fs
+И лучше глянуть: https://youtube.com/watch?v=OTM1pl4Vf18
+
+
+Про оформление custom_data читаем в "Гайд на Custom_data.txt"
+
+
 
 Resrtictor type в all.spawn
 Тип рекстриктора можно указать при спавне в переменной restrictor_type
@@ -25,9 +33,12 @@ restrictor_type = 4      ;eRestrictorTypeIn
 
 Хочу немного добавить на счёт OUT и IN рестрикторов, что в природе они всё-таки встречаются, на базе их пишется логика для обороны лагеря во время штурма его другой группировкой, яркие примеры война группировок в ЧН, где защитники лагеря находятся во время тревоги в рестрике АУТ, что-бы не покидали охраняемую территорию и не участвовали в преследовании нападающих, в это время после нападающие ограничиваются действием рестрика ИН чтобы не рвались на рожон пока противник не обезврежен. Также рестрикером ИН ограничиваются зоны высокой пси активности, для логики [sr_psy_antenna], также в этой логике можно использовать АУТ что-бы фантомы не разлетались по всей локации.
 
-Рестриктор, он же зона влияния, в основном выдает и забирает поршни, а так же может выполнять функции, представляет из себя сферическую или кубическую область.
 
-например спустя 10000 мс(10 секунд) вызвать функцию:
+
+Рестрикторы могут работать как таймер и активировать функции из скриптов:
+
+например спустя 10000 мс(10 секунд) вызвать функцию
+
 [logic]
 active = sr_idle1
 
@@ -53,9 +64,11 @@ on_info = nil %=sms1 =remove_object%
 
 %=название_функции +инфопоршн =remove_object%
 
-"название_функции" может быть и таким: "имя_скрипта.название_функции", например, "sak.nagrada", иногда не удобно кидать свои функции в "xr_effects.script", для этого требуются правки в "xr_logic.script", подробнее в гайде на логику
+"название_функции" может быть и таким: "имя_скрипта.название_функции", например, "sak.nagrada", иногда не удобно кидать свои функции в "xr_effects.script", для этого требуются правки в "xr_logic.script", подробнее в гайде на кастом дату
 
 Так можно использовать функции проверок из \gamedata\scripts\xr_conditions.script
+
+пока не выполнено условие из функции схема sr_idle не будет активирована
 
 [logic]
 active = sr_idle1
@@ -66,9 +79,6 @@ on_info = {=название_функции} sr_idle
 [sr_idle]
 
 
-Ещё есть способ спавна рестрикторов без "all.spawn" для этого нужен "spawn_restrictor.script": https://drive.google.com/open?id=1m9lLXTt9TtQLmaNm83Z3p6Fv4WSYuzCm&usp=drive_fs
-И лучше глянуть: https://youtube.com/watch?v=OTM1pl4Vf18
-
 В логике рестрикторов и прочего инфопоршни выдаются таким образом:
 = %+my_info%
 
@@ -76,13 +86,8 @@ on_info = {=название_функции} sr_idle
 = %-my_info%
 
 
-Виды Custom data для рестриктора. Про оформление custom_data читаем в "Гайд на Custom_data.txt"
-0.Логику можно писать как в сдк так и вынести в отдельный файл
-[logic]
-cfg = scripts\sar_monolith.ltx
 
-
-1.Если игрок внутри, то выдан инфопоршень "name_info"
+1.Если игрок внутри рестриктора, то выдан инфопоршень "name_info"
 [logic]
 active = sr_idle
 
@@ -98,20 +103,16 @@ on_actor_inside = nil %=test1%
 
 1.1.Если игрок внутри, то выдан инфопоршень "my_info", а когда мы выйдем из рестриктора, то этот инфо заберётся.
 [logic]
-active = sr_idle@tutorial
+active = sr_idle
 
-[sr_idle@tutorial]
-on_actor_inside = %+my_info% sr_idle@tutorial2
+[sr_idle]
+on_actor_inside = %+my_info% sr_idle2
 
-[sr_idle@tutorial2]
+[sr_idle2]
 on_actor_outside = %-my_info% nil
 
-2.Можно сделать чуть сложнее, пока не выполнено условие в on_info, то есть пока не получен инфопоршень "name_info", рестриктор не будет работать
-Если нужно разные условия наделать, это это так делается:
-on_info
-on_info2
-on_info3
-on_info4
+2.Пока не выполнено условие в on_info, то есть пока не получен инфопоршень "name_info", рестриктор не будет работать, а после выполнения переключится в sr_idle
+
 
 [logic]
 active = sr_idle1
@@ -130,28 +131,28 @@ active = sr_idle
 [sr_idle]
 on_actor_inside = {=gulag_population_le(esc_my:0)} nil %+name_info%
 
-4.Если получен esc_return схема переходит на sr_idle@killers и если получен escape_lager_spawn_killers, то запускается sr_idle@killers_wait в нем таймер на 60000 миллисекунд
+4.Если получен esc_return схема переходит на sr_idle2, потом, если получен escape_lager_spawn_killers, то запускается sr_idle3 в нем таймер на 60000 миллисекунд и выдача инфо
 
 [logic]
-active = sr_idle@wait
+active = sr_idle
 
-[sr_idle@wait]
-on_info = {+esc_return} sr_idle@killers
+[sr_idle]
+on_info = {+esc_return} sr_idle2
 
-[sr_idle@killers]
-on_info = {+escape_lager_spawn_killers} sr_idle@killers_wait
+[sr_idle2]
+on_info = {+escape_lager_spawn_killers} sr_idle3
 
-[sr_idle@killers_wait]
+[sr_idle3]
 on_timer = 60000 | nil %+esc_killers_raid%
 
 4.1.Запуск таймера при получении инфопоршня, а после выполнится функция hit_nanesti из xr_effects.script
 [logic]
-active = sr_idle@tutorial
+active = sr_idle
 
-[sr_idle@tutorial]
-on_info = {+level_changer_icons} sr_idle@tutorial2
+[sr_idle]
+on_info = {+level_changer_icons} sr_idle2
 
-[sr_idle@tutorial2]
+[sr_idle2]
 on_timer = 10000 | %=hit_nanesti%
 
 5.Запуск сна start_x18_dream из xr_effects.script
