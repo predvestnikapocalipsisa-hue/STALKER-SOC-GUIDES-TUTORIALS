@@ -9,7 +9,7 @@
 
 ====================================================================
 
-Все файлы вы можете найти во вкладке Code
+Все файлы вы можете найти во вкладке [Code](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main)
 там есть распакованный all.spawn, папки config и scripts, гайды и фичи от нашей команды.
 
 [Гайды](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Guides)
