@@ -226,7 +226,7 @@ end
 -- Функция убивает гавного героя
 function aes_kill_actor ()
     if db.actor ~= nil and db.actor.health > 0 then
-		db.actor:kill (actor)
+		db.actor:kill (db.actor)
 	end   
 end
 --------------------------------------------------------------------------------------------------------------
