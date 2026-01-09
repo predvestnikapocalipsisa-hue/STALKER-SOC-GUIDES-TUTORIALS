@@ -231,6 +231,24 @@ path_walk = kamp_task
 
 
 
+В тоже время можно установить количество работ циклом в скрипте, такое очень хорошо подходит для mob_home и kamp:
+if type == "prm_dump_zombies" then
+  for i=1,gulag.capacity do
+    t = { section = "logic@prm_dump_zombies",
+      idle = 0,
+      prior = 3, state = {0},
+      in_rest = "", out_rest = "",
+    }
+    table.insert(sj, t)
+  end
+end
+
+если в смарте планируется несколько схем логики, то разумно делать так:
+for i=1, число работ do
+
+с другой стороны никто не запрещает в эту строку внедрять i и тем самым мы получаем экономию места в скрипте и вместе с уникальными схемами логики для нпс
+    for i = 1, 2 do
+        t = { section = "logic@gname_guard" .. i,
 
 
 
