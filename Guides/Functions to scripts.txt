@@ -201,11 +201,24 @@ function teleport1()
 	alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,sobj.id)
 end
 --------------------------------------------------------------------------------------------------------------
--- Перенос нпс на координаты ОГСР(работает перенос на другую локацию)
+-- Перенос нпс на координаты ОГСР(работает перенос на другую локацию) 
+-- принимает obj:id() и obj.id
 function teleport2()
 local obj = level_object_by_sid(3)
 alife():teleport_object(obj:id(), vector():set(32.4324226379395, 0.487558364868164, -264.061706542969), 205410, 262)	
 end
+
+--обозначаем по имени из all.spawn
+local obj = alife():object("esc_wolf")
+alife():teleport_object(obj.id, vector():set(32.4324226379395, 0.487558364868164, -264.061706542969), 205410, 262)
+
+
+-- аналог по имени точки
+local patrol = patrol( "yan_scientist_guider_walk" )
+  alife():teleport_object(
+    sobj.id, patrol:point( 0 ),
+    patrol:level_vertex_id( 0 ), patrol:game_vertex_id( 0 )
+  )
 --------------------------------------------------------------------------------------------------------------
 -- Перенос нпс на координаты ОГСР в масштабе одной локации
 function teleport3()
