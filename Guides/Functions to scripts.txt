@@ -8,6 +8,11 @@ end
 
 -- Пример вызова
 Имя_файла.send_message(tostring(значение))
+
+-- В ОГСР\ХЕ вывод инфы в лог\консоль
+log1("коммент")
+log1("коммент".. tostring(значение))
+log1(tostring(значение))
 --------------------------------------------------------------------------------------------------------------
 -- Спавн с использованием клиентских методов
 function spawn()
@@ -24,23 +29,27 @@ end
 function create_items_actor_without_sms(section)
 	return alife():create(section, vector(), 0, 0, db.actor:id())
 end
+-- Пример вызова
+Имя_файла.create_items_actor_without_sms("wpn_pm")
 
 -- удалить предмет из рюкзака героя без сообщения
 function out_item_namber_without_sms(section)
 	alife():release(alife():object(db.actor:object(section):id()), true)
 end
+-- Пример вызова
+Имя_файла.out_item_namber_without_sms("wpn_pm")
 --------------------------------------------------------------------------------------------------------------
 -- оригинальная выдача предметов
 function spawn()
    dialogs.relocate_item_section(db.actor, "wpn_pm", "in")
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн себе в инвентарь 2 способ без дополнительных скриптов
+-- спавн себе в инвентарь без дополнительных скриптов
 function spawn2()
 	alife():create("bandage", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), db.actor:id())
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн себе в инвентарь 3 способ, позволяет указать количество
+-- спавн себе в инвентарь, позволяет указать количество
 function nagrada()
 	sak.create_items_actor("medkit",3)
 end
@@ -50,10 +59,20 @@ function zabral()
 	sak.out_item_namber("af_medusa",1)
 end
 --------------------------------------------------------------------------------------------------------------
+--Вещь дают БЕЗ СМС
+function create()
+	sak.create_items_actor_nomsg("medkit",3)
+end
+--------------------------------------------------------------------------------------------------------------
+--Вещь забирают БЕЗ СМС
+function out()
+	sak.out_item_namber_nomsg("medkit",3)
+end
+--------------------------------------------------------------------------------------------------------------
 -- Выдать вещь нпс
 function spawn2()
-	local obj = alife():object("esc_wolf")
-	alife():create("wpn_svd", obj.position, obj.m_level_vertex_id, obj.m_game_vertex_id, obj.id)
+	local sobj = alife():object("esc_wolf")
+	alife():create("wpn_svd", sobj.position, sobj.m_level_vertex_id, sobj.m_game_vertex_id, sobj.id)
 end
 --------------------------------------------------------------------------------------------------------------
 -- и такой вариант с общей функцией:
@@ -61,14 +80,10 @@ function spawn2(npc, item)
   local obj = alife():object(npc)
   alife():create(item, obj.position, obj.m_level_vertex_id, obj.m_game_vertex_id, obj.id)
 end
--- вызов:
-sak.spawn2("esc_wolf","wpn_svd")
+-- Пример вызова
+Имя_файла.spawn2("esc_wolf","wpn_svd")
 --------------------------------------------------------------------------------------------------------------
--- НПС передает предмет нам, при этом у НПС предмет исчезает\Либо мы ему
-function main1(first_speaker, second_speaker)
-	sak.relocate_item_my(second_speaker, "wpn_ak74u", "in")
-end
--- Эту функцию поместил в sak.script, если что можно и в любой другой скрипт
+-- НПС передает предмет нам, при этом у НПС предмет исчезает\Либо мы ему передаем
 function relocate_item_my(victim, section, type)
   if db.actor and victim then
     if type == "in" then
@@ -81,6 +96,9 @@ function relocate_item_my(victim, section, type)
     news_manager.relocate_item(db.actor, type, section)
   end
 end
+
+-- Пример вызова
+Имя_файла.relocate_item_my(second_speaker, "wpn_ak74u", "in")
 --------------------------------------------------------------------------------------------------------------
 -- забрать все деньги у актора
 function out_all_money()
@@ -132,7 +150,6 @@ end
 -- Заспавнить нпс, который не сможет уйти в оффлайн
 function main1 ()
 	sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-	alife():set_switch_online(sobj.id, true)
 	alife():set_switch_offline(sobj.id, false)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -147,8 +164,8 @@ function spawn_pda()
 	sobj.angle = vector():set(0,1,0)
 end
 --------------------------------------------------------------------------------------------------------------
--- Новый спавн только по координатам. ОГСР от 3.432
--- в _g.script кладем 
+-- ОГСР от 3.432
+-- получение левел и гейм вертекс по имени локации, кладем в _g.script 
 function get_lv_gv(level_name, pos)
     local lg, ct
     if level.name() == level_name then
@@ -167,6 +184,8 @@ function get_lv_gv(level_name, pos)
     return lv, gv
 end
 
+--------------------------------------------------------------------------------------------------------------
+-- Новый спавн только по координатам, кладем в _g.script  
 function alife_create(section, level_name, pos)
     local lv, gv = get_lv_gv(level_name, pos)
     return alife():create(section, pos, lv, gv)
@@ -177,6 +196,25 @@ function spawn_test()
     alife_create("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
  -- alife_create("секция",          "локация",    vector():set(координаты))
 end
+
+--------------------------------------------------------------------------------------------------------------
+-- Телепорт объекта по стори айди ОГСР
+function npc_teleport_sid(sid, level_name, pos)
+     local lv, gv = get_lv_gv(level_name, pos)
+     local npc = alife():story_object(sid)
+     alife():teleport_object(npc.id, pos, lv, gv)
+end
+-- вызов
+npc_teleport_sid(33, "l01_escape", vector():set(-152.0,-18.0,-144.3))
+
+function npc_teleport_sobj(name, level_name, pos)
+     local lv, gv = get_lv_gv(level_name, pos)
+     local sobj = alife():object(name)
+     alife():teleport_object(sobj.id, pos, lv, gv)
+end
+
+-- вызов
+npc_teleport_sobj("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
 --------------------------------------------------------------------------------------------------------------
 -- При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx
 function spawn_with_story()

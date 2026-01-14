@@ -15,17 +15,6 @@ function nagrada()
 sak.create_items_actor("medkit",3)
 sak.create_items_actor("bandage",5)
 end
-
---Вещь дают БЕЗ СМС
-function create()
-sak.create_items_actor_nomsg("medkit",3)
-end
-
---Вещь забирают БЕЗ СМС
-function out()
-sak.out_item_namber_nomsg("medkit",3)
-end
-
 ---------------------------------------------------------------------
 -- Ниже идут функции Сяка, просьба свои функции писать сверху
 ---------------------------------------------------------------------
