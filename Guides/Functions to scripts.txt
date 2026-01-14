@@ -187,7 +187,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- перенос гг на координаты
 function teleport()
-	db.actor:set_actor_position(vector():set(345,15,-26),410691,3547)
+	db.actor:set_actor_position(vector():set(345,15,-26))
 end
 --------------------------------------------------------------------------------------------------------------
 -- перенос гг на вейпоинт "esc_fabrika_bandit_day_night_sniper_walk", смотреть гг будет на вейпоинт "esc_fabrika_bandit_day_night_sniper_look"
@@ -290,19 +290,20 @@ function esc_timer()
    level.add_call(check_timer, kill_npc)
 end
 --------------------------------------------------------------------------------------------------------------
--- Перевести объект в оффлайн, работает с объектами из all.spawn
+-- Перевести объект в оффлайн
 function main0 ()
 	sobj = alife():story_object(2000)
 	alife():set_switch_online(sobj.id, false)
-	alife():set_switch_offline(sobj.id, true)
 end
---------------------------------------------------------------------------------------------------------------
--- Перевести объект в онлайн, работает с объектами из all.spawn
-function main1 ()
-	sobj = alife():story_object(2000)
+
+-- Перевести объект в онлайн
 	alife():set_switch_online(sobj.id, true)
+
+-- Разрешить объекту переходить в оффлайн
+	alife():set_switch_offline(sobj.id, true)
+
+-- Запретить объекту переходить в оффлайн
 	alife():set_switch_offline(sobj.id, false)
-end
 --------------------------------------------------------------------------------------------------------------
 -- Рандомный спавн обьекта "wpn_svd_m1" в игре:
 function spawn_random()
