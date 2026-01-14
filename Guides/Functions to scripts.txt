@@ -25,6 +25,13 @@ function spawn()
   return obj
 end
 --------------------------------------------------------------------------------------------------------------
+-- Отметить объект по стори айди 14, crlc_small - тип метки
+function otmechaem_laz()
+	local sobj = alife():story_object(014)
+	level.map_add_object_spot_ser(sobj.id, "crlc_small", "name")
+  --level.map_add_object_spot(sobj.id, "crlc_small", "name") -- без "_ser" метка пропадет после сейв лоада
+end
+--------------------------------------------------------------------------------------------------------------
 -- спавн предмета в рюкзак герою без сообщения
 function create_items_actor_without_sms(section)
 	return alife():create(section, vector(), 0, 0, db.actor:id())
@@ -83,7 +90,8 @@ end
 -- Пример вызова
 Имя_файла.spawn2("esc_wolf","wpn_svd")
 --------------------------------------------------------------------------------------------------------------
--- НПС передает предмет нам, при этом у НПС предмет исчезает\Либо мы ему передаем
+-- НПС передает предмет нам, либо мы ему передаем, при этом у предмет исчезает.
+-- Обязательно ставить на фразу НПС
 function relocate_item_my(victim, section, type)
   if db.actor and victim then
     if type == "in" then
@@ -98,7 +106,9 @@ function relocate_item_my(victim, section, type)
 end
 
 -- Пример вызова
-Имя_файла.relocate_item_my(second_speaker, "wpn_ak74u", "in")
+function my(npc)
+Имя_файла.relocate_item_my(npc, "wpn_rpg7", "in")
+end
 --------------------------------------------------------------------------------------------------------------
 -- забрать все деньги у актора
 function out_all_money()
@@ -107,23 +117,20 @@ db.actor:give_money(-money)
 end
 --------------------------------------------------------------------------------------------------------------
 -- Получаем деньги
-function give_3k(first_speaker, second_speaker)
-	dialogs.relocate_money(second_speaker, 3000, "in")
+function give_3k(npc)
+	dialogs.relocate_money(npc, 3000, "in")
 end
 --------------------------------------------------------------------------------------------------------------
--- Передача денег нпс
-function give_30_money_to_stalker_for_info_about_ratcatcher(first_speaker, second_speaker)
-	first_speaker:transfer_money(30, second_speaker)
+-- Передача денег нпс 
+-- Обязательно ставить на фразу НПС
+function give_30_money_to_stalker(npc)
+	db.actor:transfer_money(30, npc)
 end
 --------------------------------------------------------------------------------------------------------------
 -- Отдаем деньги
-function give_3k_out(first_speaker, second_speaker)
-	dialogs.relocate_money(first_speaker, 3000, "out")
-end
---------------------------------------------------------------------------------------------------------------
--- Передача денег в диалоге с кузнецовым
-function give_soldiers_bribe(actor, npc)
-	dialogs.relocate_money(npc, 500, "out")	
+-- Обязательно ставить на фразу НПС
+function give_3k_out(npc)
+	dialogs.relocate_money(npc, 3000, "out")
 end
 --------------------------------------------------------------------------------------------------------------
 -- выдача инфопоршня
@@ -137,9 +144,15 @@ function spawn_no_use_ai()
 	alife():use_ai_locations(sobj, false)
 end
 --------------------------------------------------------------------------------------------------------------
+-- спавн с заданным направлением, работает при правках xray-extensions, либо в ОГСР
+function spawn_pda()
+	sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45)
+	sobj.angle = vector():set(0,1,0)
+end
+--------------------------------------------------------------------------------------------------------------
 -- спавн кого\чего-либо
 function spawn()
-	alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45) --кордоновские координаты в деревне новичков
+	alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 end
 --------------------------------------------------------------------------------------------------------------
 -- спавн под координатами гг
@@ -158,10 +171,10 @@ function spawn_on_death()
 	alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45):on_death()
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн с заданным направлением, работает при правках xray-extensions, либо в ОГСР
-function spawn_pda()
-	sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45)
-	sobj.angle = vector():set(0,1,0)
+-- ОГСР спавн трупа\установка здоровья, работает только при спавне 
+function spawn_on_death()
+	sobj = alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45)
+	sobj:set_health(0)
 end
 --------------------------------------------------------------------------------------------------------------
 -- ОГСР от 3.432
@@ -194,7 +207,6 @@ end
 -- и в удобнном скрипте вызываем:
 function spawn_test()
     alife_create("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
- -- alife_create("секция",          "локация",    vector():set(координаты))
 end
 
 --------------------------------------------------------------------------------------------------------------
@@ -204,17 +216,16 @@ function npc_teleport_sid(sid, level_name, pos)
      local npc = alife():story_object(sid)
      alife():teleport_object(npc.id, pos, lv, gv)
 end
--- вызов
-npc_teleport_sid(33, "l01_escape", vector():set(-152.0,-18.0,-144.3))
+-- Пример вызова
+Имя_файла.npc_teleport_sid(33, "l01_escape", vector():set(-152.0,-18.0,-144.3))
 
 function npc_teleport_sobj(name, level_name, pos)
      local lv, gv = get_lv_gv(level_name, pos)
      local sobj = alife():object(name)
      alife():teleport_object(sobj.id, pos, lv, gv)
 end
-
--- вызов
-npc_teleport_sobj("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
+-- Пример вызова
+Имя_файла.npc_teleport_sobj("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
 --------------------------------------------------------------------------------------------------------------
 -- При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx
 function spawn_with_story()
@@ -240,23 +251,19 @@ function teleport1()
 end
 --------------------------------------------------------------------------------------------------------------
 -- Перенос нпс на координаты ОГСР(работает перенос на другую локацию) 
--- принимает obj:id() и obj.id
+-- принимает obj:id() и sobj.id
 function teleport2()
 local obj = level_object_by_sid(3)
-alife():teleport_object(obj:id(), vector():set(32.4324226379395, 0.487558364868164, -264.061706542969), 205410, 262)	
+alife():teleport_object(obj:id(), vector():set(32, 0.4, -264), 205410, 262)	
 end
 
 --обозначаем по имени из all.spawn
-local obj = alife():object("esc_wolf")
-alife():teleport_object(obj.id, vector():set(32.4324226379395, 0.487558364868164, -264.061706542969), 205410, 262)
-
+local sobj = alife():object("esc_wolf")
+alife():teleport_object(sobj.id, vector():set(32, 0.4, -264), 205410, 262)
 
 -- аналог по имени точки
 local patrol = patrol( "yan_scientist_guider_walk" )
-  alife():teleport_object(
-    sobj.id, patrol:point( 0 ),
-    patrol:level_vertex_id( 0 ), patrol:game_vertex_id( 0 )
-  )
+  alife():teleport_object(sobj.id, patrol:point( 0 ), patrol:level_vertex_id( 0 ), patrol:game_vertex_id( 0 ))
 --------------------------------------------------------------------------------------------------------------
 -- Перенос нпс на координаты ОГСР в масштабе одной локации
 function teleport3()
@@ -342,6 +349,45 @@ end
 
 -- Запретить объекту переходить в оффлайн
 	alife():set_switch_offline(sobj.id, false)
+--------------------------------------------------------------------------------------------------------------
+-- Удаление кого-то по стори айди
+function dell_kill_voron()
+	local sobj = alife():story_object(003) 
+	alife():release(sobj, true) 
+end
+--------------------------------------------------------------------------------------------------------------
+--Этой функцией можно удалить сколько угодно объектов по стори айди, достаточно указать номера вместо {3,6,14,7} 
+function main ()
+local story_table = {3,6,14,7}
+	for k,v in pairs(story_table) do
+	local sobj = alife():story_object(v)
+		alife():release(sobj, true)
+	end	
+end
+--------------------------------------------------------------------------------------------------------------
+--Удаление кого-то по айди name
+function remove_sobj(name)
+local sobj
+	for a=1,65535 do
+		sobj = alife():object(a)
+		if sobj and string.find(sobj:name(),name) then
+			alife():release(sobj, true)
+		end
+	end
+end
+
+-- Пример использования
+function remove_npc()
+	sak.remove_sobj("esc_wolf")
+end
+--------------------------------------------------------------------------------------------------------------
+-- Таким способом можно удалить несколько
+function clear_two()
+local tbl_remove = {"bar_stalker", "kat_bandit_0006"}
+	for _, v in pairs (tbl_remove) do
+		sak.remove_sobj(v)
+	end
+end
 --------------------------------------------------------------------------------------------------------------
 -- Рандомный спавн обьекта "wpn_svd_m1" в игре:
 function spawn_random()
@@ -462,52 +508,6 @@ end
 	news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, 70000)
 
 	news_manager.send_tip(db.actor, "%c[255,0,255,0]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, nil)
---------------------------------------------------------------------------------------------------------------
--- Отметить объект по стори айди 14, crlc_small - тип метки
-function otmechaem_laz()
-	local sobj = alife():story_object(014)
-	level.map_add_object_spot_ser(sobj.id, "crlc_small", "name")
-  --level.map_add_object_spot(sobj.id, "crlc_small", "name") -- без "_ser" метка пропадет после сейв лоада
-end
---------------------------------------------------------------------------------------------------------------
--- Удаление кого-то по стори айди
-function dell_kill_voron()
-	local sobj = alife():story_object(003) 
-	alife():release(sobj, true) 
-end
---------------------------------------------------------------------------------------------------------------
---Этой функцией можно удалить сколько угодно объектов по стори айди, достаточно указать номера вместо {3,6,14,7} 
-function main ()
-local story_table = {3,6,14,7}
-	for k,v in pairs(story_table) do
-	local sobj = alife():story_object(v)
-		alife():release(sobj, true)
-	end	
-end
---------------------------------------------------------------------------------------------------------------
---Удаление кого-то по айди name
-function remove_sobj(name)
-local sobj
-	for a=1,65535 do
-		sobj = alife():object(a)
-		if sobj and string.find(sobj:name(),name) then
-			alife():release(sobj, true)
-		end
-	end
-end
-
--- Пример использования
-function remove_npc()
-	sak.remove_sobj("esc_wolf")
-end
---------------------------------------------------------------------------------------------------------------
--- Таким способом можно удалить несколько
-function clear_two()
-local tbl_remove = {"bar_stalker", "kat_bandit_0006"}
-	for _, v in pairs (tbl_remove) do
-		sak.remove_sobj(v)
-	end
-end
 --------------------------------------------------------------------------------------------------------------
 -- Выдача тайника
 treasure_manager.get_treasure_manager():give_treasure("new_esc_secret")
