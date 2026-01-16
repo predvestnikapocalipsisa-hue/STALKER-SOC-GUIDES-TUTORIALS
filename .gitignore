@@ -1,8 +1,8 @@
 ﻿/Debug-Win32
 /Release-Win32
-/sources/.vs/SHB-Engine/v16
+/Xr_engine_orig/.vs/SHB-Engine/v16
 /gamedata/levels
 /gamedata/sounds
 /gamedata/textures
-/sources/app_data/logs
-/sources/app_data/savedgames
+/Xr_engine_orig/app_data/logs
+/Xr_engine_orig/app_data/savedgames
