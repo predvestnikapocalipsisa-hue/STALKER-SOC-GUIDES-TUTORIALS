@@ -91,7 +91,6 @@ end
 Имя_файла.spawn2("esc_wolf","wpn_svd")
 --------------------------------------------------------------------------------------------------------------
 -- НПС передает предмет нам, либо мы ему передаем, при этом у предмет исчезает.
--- Обязательно ставить на фразу НПС
 function relocate_item_my(victim, section, type)
   if db.actor and victim then
     if type == "in" then
@@ -106,7 +105,9 @@ function relocate_item_my(victim, section, type)
 end
 
 -- Пример вызова
-function my(npc)
+-- "in" - нпс отдает предмет нам
+-- "out" - мы отдаем предмет нпс
+function my(actor,npc)
 Имя_файла.relocate_item_my(npc, "wpn_rpg7", "in")
 end
 --------------------------------------------------------------------------------------------------------------
@@ -117,19 +118,12 @@ db.actor:give_money(-money)
 end
 --------------------------------------------------------------------------------------------------------------
 -- Получаем деньги
-function give_3k(npc)
+function give_3k(actor,npc)
 	dialogs.relocate_money(npc, 3000, "in")
 end
 --------------------------------------------------------------------------------------------------------------
--- Передача денег нпс 
--- Обязательно ставить на фразу НПС
-function give_30_money_to_stalker(npc)
-	db.actor:transfer_money(30, npc)
-end
---------------------------------------------------------------------------------------------------------------
 -- Отдаем деньги
--- Обязательно ставить на фразу НПС
-function give_3k_out(npc)
+function give_3k_out(actor,npc)
 	dialogs.relocate_money(npc, 3000, "out")
 end
 --------------------------------------------------------------------------------------------------------------
@@ -295,14 +289,16 @@ end
 -- Функция убивает гавного героя
 function aes_kill_actor ()
     if db.actor ~= nil and db.actor.health > 0 then
-		db.actor:kill (db.actor)
+		db.actor:kill(db.actor)
 	end   
 end
 --------------------------------------------------------------------------------------------------------------
--- Убить нпс через диалог, фразу должен  говорить  гг
+-- Убить нпс через диалог
 function kill(actor, npc)
 	npc:kill(npc)
 end
+-- нпс убивает актора
+	actor:kill(npc)
 --------------------------------------------------------------------------------------------------------------
 -- Убить нпс, вызов хоть откуда
 function kill_npc()
@@ -567,7 +563,7 @@ active = sr_idle
 on_actor_inside = nil %=run_postprocess(alcohol) =run_cam_effector(atp_zharka)%
 --------------------------------------------------------------------------------------------------------------
 -- вывод иконок в диалоге:
-function main3231(first_speaker, second_speaker)
+function main3231(actor,npc)
 local test = 33
 local total = ""
 local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
