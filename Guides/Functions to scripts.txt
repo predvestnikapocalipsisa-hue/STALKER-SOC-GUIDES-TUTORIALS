@@ -31,7 +31,7 @@ function otmechaem_laz()
 	level.map_add_object_spot_ser(sobj.id, "crlc_small", "name")
   --level.map_add_object_spot(sobj.id, "crlc_small", "name") -- без "_ser" метка пропадет после сейв лоада
 end
--- Такая же отметка, но определение по клиентскому айди
+-- Такая же отметка, но определение по клиентскому объекту
 	local obj = level.object_by_id(id)
 	level.map_add_object_spot_ser(obj:id(), "crlc_small", "name")
 --------------------------------------------------------------------------------------------------------------
@@ -84,6 +84,9 @@ function spawn2()
 	local sobj = alife():object("esc_wolf")
 	alife():create("wpn_svd", sobj.position, sobj.m_level_vertex_id, sobj.m_game_vertex_id, sobj.id)
 end
+-- Также есть выдача, но определение по клиентскому объекту
+	local obj = level.object_by_id(id)
+	alife():create("bandage", obj:position(), obj:level_vertex_id(), obj:game_vertex_id(), obj:id())
 --------------------------------------------------------------------------------------------------------------
 -- и такой вариант с общей функцией:
 function spawn2(npc, item)
@@ -216,6 +219,7 @@ end
 -- Пример вызова
 Имя_файла.npc_teleport_sid(33, "l01_escape", vector():set(-152.0,-18.0,-144.3))
 
+-- по имени объекта
 function npc_teleport_sobj(name, level_name, pos)
      local lv, gv = get_lv_gv(level_name, pos)
      local sobj = alife():object(name)
@@ -348,10 +352,14 @@ end
 
 -- Запретить объекту переходить в оффлайн
 	alife():set_switch_offline(sobj.id, false)
+
+-- Обозначить по клиентскому объекту	
+	local obj = level_object_by_sid(6)
+	alife():set_switch_online(obj:id(), false) 	
 --------------------------------------------------------------------------------------------------------------
 -- Удаление кого-то по стори айди
 function dell_kill_voron()
-	local sobj = alife():story_object(003) 
+	local sobj = alife():story_object(3) 
 	alife():release(sobj, true) 
 end
 --------------------------------------------------------------------------------------------------------------
