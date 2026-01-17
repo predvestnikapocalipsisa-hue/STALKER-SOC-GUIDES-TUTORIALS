@@ -6,6 +6,14 @@
 function escape_gulag_inactive()
 	return xr_conditions.gulag_population_active(db.actor, npc, {"esc_smart_terrain_vagon"}) == 0 -- "esc_smart_terrain_vagon" это название нашего лагеря
 end
+
+вариант с доп условиями/параметрами
+function escape_gulag_inactive()
+if (level.name() == "l02_garbage") and (xr_conditions.gulag_population_active(db.actor, npc, {"esc_smart_terrain_vagon"}) == 0) then
+return true
+end
+return false
+end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка наличия предмета "wpn_mp5", 1 это количество 
 function prov_item() 
