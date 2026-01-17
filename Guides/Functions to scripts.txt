@@ -31,6 +31,9 @@ function otmechaem_laz()
 	level.map_add_object_spot_ser(sobj.id, "crlc_small", "name")
   --level.map_add_object_spot(sobj.id, "crlc_small", "name") -- без "_ser" метка пропадет после сейв лоада
 end
+-- Такая же отметка, но определение по клиентскому айди
+	local obj = level.object_by_id(id)
+	level.map_add_object_spot_ser(obj:id(), "crlc_small", "name")
 --------------------------------------------------------------------------------------------------------------
 -- спавн предмета в рюкзак герою без сообщения
 function create_items_actor_without_sms(section)
