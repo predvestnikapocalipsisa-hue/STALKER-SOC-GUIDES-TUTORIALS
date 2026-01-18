@@ -18,7 +18,7 @@ log1(tostring(значение))
 function spawn()
   local sobj = alife():create(section, position, lvid, gvid)
   level.client_spawn_manager():add(sobj.id, 65535,
-    function (id, cobj)
+    function (id, obj)
       cobj:set_goodwill(-5000, db.actor)
     end
   )
