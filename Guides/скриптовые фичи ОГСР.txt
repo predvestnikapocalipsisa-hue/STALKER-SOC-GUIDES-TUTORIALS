@@ -1,0 +1,778 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+Источник: https://github.com/OGSR/OGSR-Engine/wiki/Scripts-ru-RU
+
+
+CAnomalyDetector
+Перенес anomaly_detector из CBaseMonster в CCustomMonster, что бы его можно было использовать не только для мутантов, но и для сталкеров тоже. Если кто не знает, это движковый обход аномалий. По умолчанию используется только для мутантов в состоянии покоя.
+
+Еще экспортировал его для скриптов. Доступ можно получить вот так:
+
+local anomaly_detector = obj:get_custom_monster():anomaly_detector()
+log3( "Anomaly_Detect_Radius = %s", anomaly_detector.Anomaly_Detect_Radius )
+log3( "Anomaly_Detect_Time_Remember = %s", anomaly_detector.Anomaly_Detect_Time_Remember )
+log3( "is_active = %s", anomaly_detector.is_active )
+anomaly_detector:activate()
+anomaly_detector:deactivate()
+Добавил Anomaly_Detect_Probability Этот параметр определяет вероятность обхода одной аномалии. По умолчанию = 1, т.е. все аномалии обходятся, при активном anomaly_detector.
+Методам activate() и deactivate() добавил аргумент force (по умолчанию false), которым можно заблокировать состояние активности. Т.е. если вызвать activate( true ), то anomaly_detector будет активен до тех пор, пока не будет вызван deactivate( true ) и наоборот. При переходе в состояние покоя вызывается activate() и deactivate() при выходе из состояния покоя. Вот что бы это не отключило скриптовый обход или не обход аномалий и нужен указанный аргумент.
+Добавил CAnomalyDetector::remove_all_restrictions() Что бы можно было заставить его удалить все ограничения немедленно.
+Добавил CAnomalyDetector::remove_restriction( anom_id ) Для удаления информации только об одной аномалии.
+Добавил возможность задать обход аномалий, созданных активацией артефактов Это определяется четвертым параметром в секции [artefact_spawn_zones]. Если его нет, то ничего не меняется. Пример:
+; Артефакты, которые при активизации создают аномальные зоны
+; формат: {секция_артефакта} = {секция_зоны}, radius, power[, eDefaultRestrictorTypeNone]
+;
+; eDefaultRestrictorTypeNone указывает, что эта аномалия должна обходиться
+; мобами. Если этого параметра нет, или он равен 0, то эту аномалию обходить
+; не будут. Если этот параметр равен 1, то аномалию обходить будут.
+[artefact_spawn_zones]
+
+caps_mosquito_bald = amk_zone_mosquito_bald_average,     3.0, 1.3, 1
+caps_gravi         = amk_zone_gravi_zone_average,        3.0, 1.2, 1
+caps_mincer        = amk_zone_mincer_average,            3.5, 1.2, 1
+caps_electra       = amk_zone_witches_galantine_average, 4.0, 1.2, 1
+caps_zharka        = amk_zone_zharka_static_average,     2.0, 1.2, 1
+caps_ameba         = amk_zone_buzz_average,              1.5, 0.5, 1
+caps_ice           = amk_zone_ice_average,               4.0, 1.0, 1
+В обход аномалий добавил настройку clsid, которые никогда обходить не нужно. Например, если добавить в конфиг моба
+Anomaly_Detect_Ignore = zone_radioactive
+то этот моб не будет обходить радиоактивные зоны. Несколько clsid задаются через запятую.
+
+Динамические пути
+Экспортировал для скриптов CPatrolPoint и CPatrolPath
+-- Создали путь с одной точкой, совпадающей с позицией актора. Метод add_point() возвращает CPatrolPoint,
+-- но особого смысла это не имеет, т.к. это копия, т.е. менять какие-то свойства в этой копии не имеет смысла,
+-- т.к. это никак не отразится на пути.
+local path = CPatrolPath()
+local pp   = path:add_point( db.actor:position() )
+
+local pp = path:point( 0 ) -- Возвращает первую точку пути. Опять-таки, менять ее свойства бессмысленно, т.к. это копия.
+
+local pp0 = CPatrolPoint() -- Создали точку
+pp0.m_name = "name00" -- и назначили ей имя.
+
+pp0:position( db.actor:position() )
+-- Назначили ей текущие координаты актора. Метод position() автоматически вычислит m_level_vertex_id и m_game_vertex_id
+-- по этим координатам. При желании можно все назначить в ручную:
+
+pp0.m_position = db.actor:position()
+pp0.m_level_vertex_id = db.actor:level_vertex_id()
+pp0.m_game_vertex_id  = db.actor:game_vertex_id()
+pp0.flags = 0
+
+-- На чтение эти свойства тоже доступны.
+
+-- Вот теперь, созданную и инициализированную точку можно добавить в путь:
+
+path:add_vertex( pp0 )
+
+-- Путь готов к использованию.
+Добавил obj:set_home( CPatrolPath, ... ), который принимает CPatrolPath, вместо имени пути. Остальные аргументы у него те же самые.
+Добавил метод at_home(), который возвращает true/false, если моб находится в пределах max_radius, и at_home( pos ), который проверяет, что pos находится в пределах max_radius.
+Добавил level.patrol_path_add( patrol_name, CPatrolPath ) и level.patrol_path_remove( patrol_name )
+level.patrol_path_add( patrol_name, CPatrolPath ) -- Регистрирует новый или заменяет уже существующий путь с именем patrol_name.
+-- Добавленные таким образом пути нужно удалять при удалении актора, иначе будет вылет при выходе из игры или при загрузке сейва.
+
+level.patrol_path_remove( patrol_name ) -- Удаляет путь с именем patrol_name. Нужен как раз для того, что бы удалить пути, добавленные через level.patrol_path_add().
+Примеры использования:
+
+db.test_path = CPatrolPath()
+db.test_path:add_point( db.actor:position() )
+local pp = db.test_path:point( 0 )
+log3( "dsh: level_vertex_id = %s", pp.m_level_vertex_id )
+log3( "dsh: test_path = %s", level.patrol_path_exists( "test_path" ) )
+level.patrol_path_add( "test_path", db.test_path )
+log3( "dsh: test_path = %s", level.patrol_path_exists( "test_path" ) )
+local path = patrol( "test_path" )
+log3( "dsh: level_vertex_id = %s", path:level_vertex_id( 0 ) )
+level.patrol_path_remove( "test_path" )
+Вырождение артефакта при активации аномалии
+Добавлены варианты спавна:
+
+При смерти существа внутри аномалии
+При разрыве тела в мясорубке (вот это в движке включено по умолчанию, даже конфиги править не надо)
+Добавлены параметры для аномалий:
+
+; это настройки онлайн спавна
+
+spawn_blowout_artefacts = on ; главный переключатель возможности рождения
+artefact_spawn_probability = 0.05 ;вероятность, что во время срабатывания аномалии будет рожден артефакт
+
+birth_on_death_probability = 0.2 ; вероятность рождения артефакта после смерти существа в аномалии
+birth_on_torn_probability = 0.5 ; вероятность рождения артефакта при разрыве тела в мясорубке
+
+birth_on_nonalive = true ; возможность рождения при срабатывании на предмет
+birth_on_alive = true ; возможность рождения при срабатывании на живое существо
+birth_on_dead = true ; возможность рождения при срабатывании на труп
+Взято отсюда.
+
+level.add_call(...)
+level.add_call(...) теперь возвращает управляющий объект, у которого есть метод :set_pause( ms ). После использования этого метода, функция, заданная в add_call(...), будет вызвана через ms миллисекунд. Вот простейший пример:
+level.add_call(
+  function()
+    log3( "condition" )
+    return true
+  end,
+  function() log3( "action" ) end
+):set_pause( 3000 )
+Через 3 секунды будет выведено:
+
+condition
+action
+Вот чуть более сложный пример:
+
+local lcall
+local cnt = 10
+lcall = level.add_call(
+  function()
+    log3( "condition" )
+    cnt = cnt - 1
+    lcall:set_pause( 1000 )
+    return cnt == 0
+  end,
+  function() end
+)
+После запуска будет выведено 10 раз:
+
+condition
+с частотой раз в секунду.
+
+Окончательно починен level.remove_call(...) Теперь его можно спокойно использовать даже из обработчика, добавленного через level.add_call(...). Обработчики этим вызовом не удаляются, а помечаются, как удаленные. Удалены они уже будут в цикле обработки, в update().
+Заодно починен level.add_call(...) вида
+level.add_call( self, self.condition, self.action )
+т.е. используемые для объекта. level.remove_call(...) тоже работает с этой формой. level.remove_calls_for_object(...) тоже работает правильно.
+
+Хранилище скриптовых переменных (SCRIPT_VARS_STORAGE)
+Как использовать? Вот так вот:
+
+local xvars = get_stored_vars()
+xvars.test = 123
+xvars.test2 = {}
+xvars.test2.test1 = 456
+Всё просто, использовать, как стандартную таблицу. Есть пара особенностей. Хранить лучше только простые типы: строки, числа, таблицы и т.п, в том числе вложенные. Объекты, вектора, время и т.п., то, что является userdata, лучше не использовать.
+
+Вторая особенность - списки. Для прямого доступа к элементам списка ничего делать не нужно, но если захочется с этим списком работать, как с настоящим списком, т.к. итерировать, к примеру, или подсунуть его в unpack(...), то его нужно превратить в lua таблицу. Например:
+
+xvars.test = { 1, 2, 3 }
+local t = xvars.test()
+for i, v in ipairs( t ) do
+end
+Операция выполнения, т.е. (), возвращает lua table, с которой уже можно делать, что угодно. По умолчанию, преобразование не рекурсивное, т.е. не затронет вложенные таблицы. Что бы сделать его рекурсивным, нужно сделать вот так:
+
+local t = xvars.test( true )
+т.е. передать аргумент.
+
+Коллбэки zone_enter и  zone_exit для рестрикторов
+По сути, в CSpaceRestrictor была добавлена функциональность CScriptZone. Это нужно только для рестрикторов с логикой, которые на апдейте работают. Поэтому по умолчанию, все рестрикторы не выполняют код, который нужен для работы этих коллбеков. Тем более, что рестрикторы такая штука, довольно активно используемая в дебрях движка, не уверены, что включение этих коллбеков по умолчанию не сделает хуже. Чтобы активировать эти коллбеки, нужно сделать следующее. Это пример из скриптового биндера рестрикторов, в net_spawn():
+
+self.object:set_callback( callback.zone_enter, self.on_enter, self )
+self.object:set_callback( callback.zone_exit,  self.on_exit,  self )
+self.object:get_space_restrictor():schedule_register()
+После этого будут вызываться
+
+function restrictor_binder:on_enter( zone, obj )
+end
+
+function restrictor_binder:on_exit( zone, obj )
+end
+Здесь zone - это self.object, а obj - это то, что попало в рестриктор или ушло из него.
+
+Для оптимизации и опять же, с точки зрения рестрикторов с логикой, коллбеки вызываются только для живых существ. Ведь в логике, как правило, используются on_actor_inside и on_npc_in_zone или как оно там, в общем, проверяется попадание в рестриктор актора или мобов. Так чего лишний раз дергать коллбеки из-за какой-нибудь лампочки, которая находится в рестрикторе. Если и когда понадобится, можно сделать это настраиваемым.
+
+Добавлено еще несколько скриптовых методов:
+
+schedule_unregister() -- отключает код, который скажем так, сканирует периметр рестриктора. Метод обратный schedule_register().
+
+is_scheduled() -- возвращает статус этого сканирования.
+
+active_contact( id ) -- возвращает, если объект с переданным id находится внутри рестриктора.
+Все это, работает только если сканирование было включено через schedule_register().
+
+Работа с текстурами (поиск, замена)
+Пример скрипта для использования:
+
+log1("texture_find test for name: act\\act_arm_perchatka_cs")
+local t1 = texture_find("act\\act_arm_perchatka_cs") -- возвращает таблицу: ключ имя текстуры, значение объект
+if t1 then
+    local tex = t1[ "act\\act_arm_perchatka_cs" ]
+    log1("found, name=" .. tex:get_name())
+    local name = "act\\act_arm_perchatka_cs_black"
+    tex:load(name) -- С этим способом замены текстура будет заменяться везде где используется.
+end
+Поиск текстур по маске:
+
+log1("texture_find test for name: act\\act_arm_perchatka_cs*")
+local t1 = texture_find("act\\act_arm_perchatka_cs*") -- возвращает таблицу: ключ имя текстуры, значение объект
+if t1 then
+    for n, t in pairs(t1) do
+        log1("found, name=" .. t:get_name())
+    end
+end
+demo_record
+Добавлено скриптовое управление demo_record:
+level.demo_record_start()
+level.demo_record_stop()
+
+local HPB = level.demo_record_get_HPB()
+level.demo_record_set_HPB(HPB)
+
+-- направление
+-- HPB.x Left\Right
+-- HPB.y Up\Down
+-- HPB.z Rotate Left\Rotate Right
+
+local position = level.demo_record_get_position()
+level.demo_record_set_position(position)
+
+-- position x y z как обычно на уровне
+
+level.demo_record_set_direct_input(true/false) -- управление прямым вводом
+Также поправлено управление игрой в режиме demo_record. Включается на * (звездочку DIK_MULTIPLY)
+
+Эффекты ppe теперь должны отображаться в режиме от 3 лица. Так же добавлена команда g_effects_on_demorecord что б эффекты были и в режиме demo_record.
+Проверка нажатия клавиши
+key_state(DIK_Keys.DIK_RETURN)
+IReader, IWriter
+Были починены и экспортированы классы IReader и IWriter, которые используются для чтения и записи бинарных файлов.
+
+-- Чтение бинарного файла
+local file = getFS():r_open(file_path)
+file:open_chunk(0)
+local value1 = file:r_u32()
+local value2 = file:r_stringZ()
+file:close_chunk()
+getFS():r_close(file)
+
+-- Запись бинарного файла
+local file = getFS():w_open(file_path)
+file:open_chunk(0)
+file:w_u32(value1)
+file:w_stringZ(value2)
+file:close_chunk()
+getFS():w_close(file)
+Прочее
+Добавлены скриптовые экспорты из X-Ray Extensions. Документировать их здесь смысла нет, ибо их слишком много. Лучше смотреть все экспорты либо в исходниках, либо в lua_help.
+Другие экспорты, добавленные в OGSR Engine:
+-- Блокировка нажатия клавиш
+level.block_action(key_bindings.kTORCH)
+level.unblock_action(key_bindings.kTORCH)
+
+--Флажок у мобов для включения невидимости для аномалий
+obj:get_custom_monster().visible_for_zones = false --аномалии не будут будут срабатывать, если этот моб попадет в них.
+
+-- Возвращает кол-во патронов в скрытой части. Т.е. если оружие сейчас в режиме подствольника, то информация о патронах
+-- находится в скрытой части и наоборот. Этот метод возвращает кол-во патронов, если оружие в режиме подствольника. В этом
+-- случае уже существующий :get_ammo_in_magazine() возвращает кол-во патронов в подствольнике.
+obj:get_ammo_in_magazine2() 
+
+obj:get_hud_item_state() -- Возвращает текущее состояние худа предмета. Можно использовать соотв. global_flags:
+weapon_states = {
+  idle      = global_flags.eIdle,
+  fire      = global_flags.eFire,
+  fire2     = global_flags.eFire2,
+  reload    = global_flags.eReload,
+  showing   = global_flags.eShowing,
+  hiding    = global_flags.eHiding,
+  hidden    = global_flags.eHidden,
+  misfire   = global_flags.eMisfire,
+  mag_empty = global_flags.eMagEmpty,
+  switch    = global_flags.eSwitch,
+}
+
+obj:radius() -- Возвращает движковый радиус объекта.
+
+-- Это упрощенный аналог из x-ray extensions, без коллбэков и блэк-джека. Я думал, что можно использовать play_cycle(), но
+-- нет, play_cycle() запускает анимацию модели, а мне нужно было запустить худовую анимацию.
+obj:play_hud_animation( anim_name, bool_mix_in ) 
+
+sobj.m_level_vertex_id , sobj.m_game_vertex_id -- Теперь доступны для записи.
+
+sobj.m_flags -- Содержит Flags32 с серверным флагами. Это которые UsedAI_Locations и т.п.
+
+sobj.level_id -- id локации этого объекта
+
+sobj.level_name -- Имя локации этого объекта
+
+sobj.is_alive -- true - это живой моб, false - не живой или вовсе не моб.
+
+sobj.set_position( pos ) -- Устанавливает новую позицию объекта.
+
+sobj.cse_get_restrictor_type() -- Для рестрикторов возвращает его тип (u8)
+
+for id, sobj in alife():objects() do -- Перебор всех серверных объектов в игре
+-- !!!Ни в коем случае нельзя удалять/спавнить объекты внутри цикла!!!
+end
+
+alife():remove_in_restrictions( sobj ) -- Для очистки in-рестрикторов (добавленных для обхода аномалий, например)
+
+alife():remove_out_restrictions( sobj ) -- Для очистки out-рестрикторов
+
+-- Перерисовывает инвентарь или окно обыска. Имеет смысл использовать, если при открытом
+-- инвентаре изменилось состояние какого-нибудь предмета, например condition, что должно привести к перегруппировке таких
+-- предметов. Если не выполнить update_inventory_window(), что изменения будут видны только при следующем открытии инвентаря.
+update_inventory_window() 
+
+
+-- Экспортирован класс главного игрового окна с методом GetStatic. Можно например скрыть миникарту:
+local wnd = get_main_window()
+local st = wnd:GetStatic( "minimap:background" )
+if st then
+  local r = Frect()
+  st:GetWndRect( r )
+  log3("~~ [minimap:background] rect = { %.1f, %.1f, %.1f, %.1f }", r.x1, r.y1, r.x2, r.y2 )
+  r.x1 = -1000
+  st:SetWndRect( r )
+end
+
+
+alife().loaded_save_name -- имя загруженного сейва.
+
+alife().save_name -- имя последнего сделанного сейва.
+
+
+local obj = db.actor:object( "wpn_addon_scope" )
+-- К оружию в руках присоединит ПСО-1, который должен быть в инвентаре. Второй аргумент показывает, нужно аддон удалять из инвентаря или нет.
+db.actor:active_item():get_weapon_m():attach_addon( obj:get_inventory_item(), false )
+
+-- Обратная ситуация. Отсоединит ПСО-1 с активного оружия. Второй аргумент показывает, нужно спаунить прицел в инвентарь или нет.
+db.actor:active_item():get_weapon_m():detach_addon( "wpn_addon_scope", false )
+
+
+db.actor.conditions:fdelta_time() -- Возвращает кол-во игровых секунд (float), прошедших с последнего апдейта. Именно это время
+-- используется при расчете работы артефактов на поясе и при расчете изменения параметров актора: здоровье, сытость и т.п.
+
+db.actor.conditions.has_valid_time -- bool Показывает, что fdelta_time() вернет правильное время. Перед использованием
+-- fdelta_time() всегда нужно это проверять. Дело в том, что скриптовый апдейт вызывается перед обновлениями conditions.
+-- Из-за этого, на самом первом скриптовом апдейте fdelta_time() вернет мусор, в моем случае - это было очень большое число.
+
+
+sobj:get_inventory_item().item_condition -- Доступ к состоянию предмета через серверный объект.
+
+CUIWindow:GetCUIStatic() -- Новый метод для получения CUIStatic из CUIWindow
+
+level.get_change_level_wnd() -- Возвращает окно подтверждения перехода. Оно создается один раз и переиспользуется.
+
+level.change_level( game_vertex_id, level_vertex_id, pos, dir ) -- Выполняет переход на другую локацию. Тоже самое, как создать на месте актора level_changer, только без лишних телодвижений.
+
+-- Добавил sobj:get_space_restrictor() для получения доступа к CSE_ALifeSpaceRestrictor
+-- На текущий момент можно:
+local sr = sobj:get_space_restrictor()
+log3( "m_space_restrictor_type = %d", sr.restrictor_type )
+-- На запись тоже доступно. Что бы не лезть к этому свойству через нетпакет.
+-- Пригодиться, если какой-нибудь аномалии нужно будет поменять тип рестриктора.
+-- Например для того, что бы CAnomalyDetector игнорировал ее.
+
+-- Экспортировал прямой доступ к CSE_ALifeItemWeapon:
+local s_wpn = sobj:get_weapon()
+-- Доступны на чтение/запись:
+s_wpn.ammo_current
+s_wpn.ammo_elapsed
+s_wpn.weapon_state
+s_wpn.addon_flags
+s_wpn.ammo_type
+
+sobj.custom_data -- Прямой доступ к custom_data
+
+local trader = sobj:get_trader() -- Прямой доступ к свойствам торговца в неписе
+log3( "money = %d", trader.money ) -- на чтение/запись
+log3( "character_name = %s", trader.character_name ) -- только чтение
+
+
+-- Добавил возможность прямого изменения custom_data через spawn_ini()
+-- Вот пример использования:
+
+local ini = sobj:spawn_ini()
+ini.readonly = false
+ini:w_string( "test", "dsh_test", "123" )
+sobj:save_spawn_ini()
+log3( "custom_data = %s", sobj.custom_data )
+
+-- Перед изменением нужно обязательно сбросить флажок "readonly", иначе сработает ASSERT(),
+-- т.к. изменение по умолчанию запрещено. Далее можно использовать методы remove_line, w_bool, w_string, w_u32, w_s32,
+-- w_float, w_vector.
+-- Ну а в конце нужно сохранить изменения обратно в custom_data. Это делает sobj:save_spawn_ini().
+
+ini:get_as_string() -- Возвращает ini в виде строки
+
+ini:remove_section( "section_name" ) -- Удаляет секцию
+
+-- Добавлен итератор секций для CScriptIniFile. Пример использования:
+system_ini():iterate_sections(function(sect)
+    local cls = system_ini():r_clsid(sect, "class")
+    if cls and cls == clsid.equ_stalker_s then
+        ...
+    end
+end)
+
+
+level.set_cam_inert( float ) -- для прямого изменения cam_inert
+
+-- Это в дополнение к уже имеющемуся sobj:brain():can_choose_alife_tasks( bool )
+sobj:brain():can_choose_alife_tasks() -- bool для получения состояния
+
+sobj:brain().m_time_interval -- u32 Как часто свободного моба предлагать смартам
+sobj:brain().m_last_search_time -- u32 Когда это делалось в последний раз.
+
+obj:is_relation_enemy( obj2 ) -- Это аналог проверки obj.relation( obj2 ) == game_object.enemy or obj.relation( obj2 ) == game_object.worst_enemy
+-- В скриптах worst_enemy нигде не проверяется. Правда не факт, что кто-то используется -2 в [monster_relations].
+
+
+level.set_monster_relation( from, to, rel ) -- Эта функция позволяет менять отношения мутантов,
+-- т.е. то, что описано в секции [monster_relations] в game_relations.ltx. Пример использования:
+
+level.set_monster_relation( "rat", "actor",  0 ) -- сделать крыс нейтральными к актору
+level.set_monster_relation( "rat", "actor", -1 ) -- сделать крыс врагами для актора
+
+
+-----------------------------------------------------------------------------
+npc:ambush_cover( npc_pos, enemy_pos, radius, min_distance ) -- Должен найти вертекс в радиусе radius от npc_pos, который расположен на расстоянии не менее min_distance и максимально прикрыт со стороны enemy_pos и минимально со стороны npc_pos.
+
+npc:angle_cover( pos, radius, enemy_pos, min_enemy_distance, max_enemy_distance, enemy_vertex_id )
+
+-- Ко всем методам npc:*_cover(...) добавлена возможность скриптовой фильтрации. Пример использования:
+local cover_cache    = {}
+local cover_callback = function( cover )
+  local cover_vertex = cover:level_vertex_id()
+  local cached       = cover_cache[ cover_vertex ]
+  if cached ~= nil then return cached end
+  cover_cache[ cover_vertex ] = not (
+    check_vertex_locked( npc, cover_vertex )
+    or its_a_trap( npc, cover_vertex )
+  )
+  return cover_cache[ cover_vertex ]
+end
+local cover = npc:angle_cover( npc_pos, r, enemy_pos, min, max, enemy:level_vertex_id(), cover_callback )
+-- Т.е. последним параметром можно передать функцию, которая в параметрах
+-- принимает cover_point и возвращает true/false, указывающее движку, что
+-- этот ковер можно или нельзя использовать в данном случае.
+-----------------------------------------------------------------------------
+
+
+update_inventory_weight() -- Обновляет только статик веса в инвентаре.
+-- Если использовать update_inventory_window(), то это приводит не только к обновлению статика веса,
+-- но и к прыжкам иконок предметов, если там свободное место образовалось.
+-- Например, если мы что-то поместили на пояс или убрали с пояса.
+
+callback.zone_enter, callback.zone_exit -- Каллбеки для аномалий на вход объекта в зону и выход.
+-- В аргументах передаются клиентские объекты самой аномалии и объекта, который вошел или вышел.
+
+relation_registry.clear_personal_relations( id ) -- Для очистки реестра отношений моба с этим id.
+
+
+level.valid_vertex_id( u32 ) -- Проверяет переданный level_vertex_id на валидность и возвращает соотв. bool.
+level.is_accessible_vertex_id( u32 ) -- Проверяет не только то, что вертекс существует, как level.valid_vertex_id( u32 ), но и что он не заблокирован.
+
+level.vertex_count() -- u32 Возвращает кол-во вертексов на текущей локации.
+
+level.disable_vertex( u32 ) -- Для блокирования данного level_vertex-а. Т.е. мобы будут его обходить, как если бы там был рестриктор, запрещающий в него заходить.
+level.enable_vertex( u32 ) -- Обратный метод
+
+cross_table():vertex( u32 ):game_vertex_id() -- Для переданного level_vertex_id возвращает соответствующий ему game_vertex_id(). Конечно же это работает только для текущей локации.
+
+
+-- Для полного переименования героя нужно сделать:
+db.actor:get_inventory_owner():SetName( "Стрелок" )
+local sobj   = db.actor:get_alife_object()
+local trader = sobj:get_trader()
+trader.character_name = "Стрелок"
+-- В некоторых местах движка используется имя из InventoryOwner, а в других - из CSE_AlifeTraderAbstract.
+
+
+sobj:get_weapon_gl().ammo_type_2    -- Получение/изменение типа скрытых зарядов
+sobj:get_weapon_gl().ammo_elapsed_2 -- Получение/изменение кол-ва скрытых зарядов
+
+--По аналогии с iterate_inventory добавлены методы:
+obj:iterate_belt(func, obj) -- Перебор предметов на поясе
+obj:iterate_ruck(func, obj) -- Перебор предметов в рюкзаке
+
+CUIWindow:GetPosLeft() -- возвращает m_wndPos.x из CUIWindow
+CUIWindow:GetPosTop()  -- возвращает m_wndPos.y из CUIWindow
+
+CUIWindow:DetachAll() -- Удаляет все приаттаченые окна к окну CUIWindow.
+
+CUIStatic:EnableHeading() -- Позволяет сохранять оригинальное соотношение сторон статика на любых разрешениях экрана.
+
+obj:get_inventory_item().always_ungroupable = true -- Задать предмету безусловную негруппируемость в инвентаре
+
+obj:get_physics_shell():set_dynamic_ignore() -- Делать это нужно не раньше первого адейта этого объекта. Физ. объект станет проницаемым для мобов, как трупики при отключенной коллизии с ними.
+obj:get_physics_shell():set_ignore_static() -- Включает для этого объекта игнорирование статики.
+
+-----------------------------------------------------------------------------
+--Добавил возможность использовать движковый Feel::Touch с любым игровым объектом из скриптов
+class "feel_touch"
+function feel_touch:__init( obj )
+  self.object = obj
+  -- активирует движковый Feel::Touch для этого объекта. Первый аргумент - радиус, в котором обнаруживать появление или 
+  -- исчезновение объектов. Второй аргумент - то, что будет передано первым аргументом в последующие функции.
+  -- Следующие два аргумента - это указатели на функции ниже.
+  self.object:add_feel_touch( 5, self, self.feel_touch_new_delete, self.feel_touch_contact )
+end
+
+-- Функция будет вызвана при появлении в радиусе нового объекта или его исчезновении.
+-- Будут переданы клиентский объект и флаг, показывающий, что объект появился (true) или исчез (false).
+function feel_touch:feel_touch_new_delete( obj, bool_is_new )
+  log3( "%s: %s %s", self.object:name(), obj:name(), ( is_new and "detected" or "gone" ) )
+end
+
+-- Функция вызывается для каждого нового объекта и результат определяет, отслеживать этот объект или нет.
+-- Если эту функцию не указать, то обрабатываться будут любые мобы.
+function feel_touch:feel_touch_contact( obj )
+  return obj:is_actor()
+end
+
+function feel_touch:shutdown()
+  -- Деактивирует движковый Feel::Touch для этого объекта. Вызывать обязательно тогда, когда он уже не нужен.
+  -- Аргументы такие же, как и у add_feel_touch(), за исключением радиуса.
+  self.object:remove_feel_touch( self, self.feel_touch_new_delete, self.feel_touch_contact )
+end
+-----------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------
+-- Эти методы заставляют непися захватить объект:
+npc:ph_capture_object( obj )
+npc:ph_capture_object( obj, capture_bone )
+npc:ph_capture_object( obj, bone )
+npc:ph_capture_object( obj, bone, capture_bone )
+--[=[
+Здесь:
+capture_bone - имя кости, которой непись будет держать obj. Если не указано, то берется из custom_data визуала этого непися. Обычно там bip01_tail.
+bone - id кости obj, которую непись будет держать. Если не указано, то будет использоваться кость, ближайшая к capture_bone.
+--]=]
+npc:ph_release_object() -- отпускает объект.
+local cap = npc:ph_capture() -- возвращает экземпляр CPHCapture, т.е. можно проверить, если захваченные объект или нет.
+-- У cap будут доступные для чтения/записи свойства "capture_force", "distance", "pull_distance" и "time_limit". Эти свойства тоже самое, что указано в custom_data визуала, в секции [capture].
+cap.pull_force -- соответствует настройке из custom_data визуала, т.е. это сила, с которой предмет притягивается при захвате.
+cap.hard_mode -- запрещается ли выпадение предмета при его таскании. Для актора включено по умолчанию, для всех остальных выключено.
+cap.e_state -- Показывает текущий режим захвата. Принимает следующие значения:
+  ph_capture.pulling
+  ph_capture.captured
+  ph_capture.released
+-----------------------------------------------------------------------------
+
+obj:disable_anomaly( bool_keep_update ) -- теперь принимает опциональный аргумент, который указывает, что нужно продолжать вызывать апдейт при отключенной аномалии.
+
+sobj.angle, sobj.position --Свойства доступны для чтения и записи. Можно напрямую менять direction и position объекта, без извращений с нет-пакетами.
+
+level.get_current_ray_query() -- Получить текущий худовый рейтрейс. Может использоваться для получения подробной информации об объекте/статике, на которую смотрит актер.
+
+obj:get_weapon().scope_lense_fov_factor -- для скриптовой настройки увеличения в 3D прицелах.
+
+-----------------------------------------------------------------------------
+level.iterate_vertices_inside( P, R, partially_inside, func ) -- Вызывает func( lvid ) для каждого вертекса, который находится внутри радиуса R от позиции P. parṫtially_inside указывает, что вертексы могут быть частично внутри радиуса. Если false, то будут взяты только те вертексы, который целиком находятся внутри.
+--Пример:
+local vertexes = {}
+level.iterate_vertices_inside( around_pos, radius, false, function( lvid ) table.insert( vertexes, lvid ) end )
+--В данном случае, в списке vertexes будут вертексы, которые целиком находятся внутри radius позиции around_pos.
+
+level.iterate_vertices_border( P, R, func ) -- Делает тоже самое, только ищет вертексы, которые расположены по периметру радиуса. Т.е. те, которые расположены внутри частично и при это не полностью.
+-----------------------------------------------------------------------------
+
+local icon_p = CIconParams( section )
+icon_p:set_shader( b ) -- Устанавливает статику b правильную текстуру для отображения иконки предмета с секцией section. Если в этой секции будет icon_name, использует её, если не будет - возьмет с соотв. полотна.
+--Помимо этого, доступны для чтения следующие свойства:
+icon_p.icon_group
+icon_p.grid_width
+icon_p.grid_height
+icon_p.grid_x
+icon_p.grid_y
+icon_p.icon_name
+--Пример:
+self.item_icon = CUIStatic() --Создали статик для иконки предмета
+self.item_icon:SetAutoDelete( true )
+CIconParams( ui_item.data.section ):set_shader( self.item_icon ) --Прочитали иконку из секции предмета и поместили её на статик
+self:AttachChild( self.item_icon ) --Что-то делаем дальше с этим статиком...
+
+obj:explode_initiator( id ) -- Взрывает взрывчатку с указанием виновника. id - это id виновника, от имени кого взрыв будет наносить хиты.
+
+-----------------------------------------------------------------------------
+-- Вот таким образом можно заставить НПС бросить гранату:
+local obj = npc:object( "grenade_f1" )
+if npc:throw_target( db.actor:position(), db.actor ) then
+  npc:set_item( object.fire1, obj )
+end
+
+--[=[
+throw_target() -- возвращает true/false, которое показывает результат проверки, т.е. долетит граната до позиции или столкнется с препятствием раньше. Метод может иметь следующий вид:
+
+throw_target( pos, obj )
+throw_target( pos, level_vertex_id, obj )
+
+pos - позиция куда бросать гранату
+obj - враг, который не будет считаться препятствием при проверке траектории
+level_vertex_id - смещать позицию на случайную величину от двух до шести метров относительно этого вертекса
+--]=]
+-----------------------------------------------------------------------------
+
+obj:add_wounds( hit_power, hit_type, u16_element ) -- Открыть кровотечение у моба
+
+obj:unload_magazine(true, true) -- первый аргумент - заспавнить ли патроны владельцу, второй аргумент - разрядить ли ПГ, если он есть.
+
+npc:calculate_item_price(item, bool_buying) -- Позволяет получить для торговца цену покупки или продажи предмета у актора.
+-- item - клиентский объект предмета
+-- bool_buying - флаг покупаем или продаем
+
+obj:controller_psy_hit_active() -- bool Проверка возвращает, производится сейчас атака контроллера или нет. Это когда он к себе притягивает. obj - клиентский объект контроллера.
+
+-- Добавил скриптовый метод drop_item_and_throw(), который выбрасывает предмет из инвентаря в указанном наравлении. Пример использования:
+local dir = vector_rotate_y( db.actor:direction(), 180 )
+if ( dir.y < 0 ) then dir.y = -dir.y end
+dir:normalize():mul( 2 )
+db.actor:drop_item_and_throw( obj, dir )
+
+-----------------------------------------------------------------------------
+-- Опциональный параметр disp_base в секции сталкера означает его начальную дисперсию при стрельбе, к которой уже прибавляются остальные disp_* дисперсии. По умолчанию равно нулю, т.е. не оказывает никакого влияния. Можно менять находу скриптовыми методами:
+
+local disp_base = npc:stalker_disp_base() -- Возвращает текущее значение.
+
+npc:stalker_disp_base( 0.1 ) -- Устанавливает текущее значение.
+
+npc:stalker_disp_base( range, maxr ) -- Расчитывает и устанавливает текущее значение. range - расстояние до цели, maxr - максимальное расстояние от точки прицеливания, куда может промазать пуля. Т.е. дисперсия устанаваливается такой, что бы на этом расстоянии можно было промазать не более, чем на maxr.
+-----------------------------------------------------------------------------
+
+-- Добавлен экспорт clsid_table (таблица) в глобальное пространство. Пример использования:
+for name, clsid in pairs(_G.clsid_table) do
+  log1("--Name: ["..name.."] clsid: ["..clsid.."]")
+end
+
+-----------------------------------------------------------------------------
+-- Добавил экспорт для движкового psHUD_Flags - level.get_hud_flags() и для HUD().GetUI()->GameIndicatorsShown() - level.game_indicators_shown().
+-- Константы для добавления в _g.script (пока не делал экспорт):
+HUD_CROSSHAIR         = 1 * 2 ^ 0
+HUD_CROSSHAIR_DIST    = 1 * 2 ^ 1
+HUD_WEAPON            = 1 * 2 ^ 2
+HUD_INFO              = 1 * 2 ^ 3
+HUD_DRAW              = 1 * 2 ^ 4
+HUD_CROSSHAIR_RT      = 1 * 2 ^ 5
+HUD_WEAPON_RT         = 1 * 2 ^ 6
+HUD_CROSSHAIR_DYNAMIC = 1 * 2 ^ 7
+HUD_CROSSHAIR_RT2     = 1 * 2 ^ 9
+HUD_DRAW_RT           = 1 * 2 ^ 10
+HUD_CROSSHAIR_BUILD   = 1 * 2 ^ 11
+
+-- Нормальный (копия движкового) способ проверить что игра показывает худ:
+function hud_present()
+    return level.game_indicators_shown() and level.get_hud_flags():is(bit_or(HUD_DRAW, HUD_DRAW_RT))
+end
+-----------------------------------------------------------------------------
+
+-- Проверки могут пригодиться для того, что бы в net_destroy\on_unregister можно было проверить, объект ли это удаляется или же это уровень выгружается:
+alife():is_unloading() -- bool когда выгружаются серверные объекты
+level.is_removing_objects() -- bool когда выгружаются клиентские объекты
+
+npc:see_right_now( obj ) -- bool Аналогично npc:see( obj ), что проверяет, виден этот объект прямо сейчас или нет. see() проверяет наличие obj в визуальной памяти.
+
+-- Кастомные статики теперь можно просто скрывать и показывать обратно:
+hud():GetCustomStatic( "xxx" ):wnd():Show( false ) -- скрыть
+-- ну и true, когда понадобится показать. Т.е. все необходимое можно AddCustomStatic() один раз, а потом, по мере необходимости, скрывать и показывать, вместо того, что бы удалять и добавлять обратно.
+
+level.nearest_vertex_id( Fvector ) -- Возвращает ближайший вертекс к этой позиции. Использует тупой перебор всех вертексов.
+
+-- Каллбек для актора `trade_perform_operation`:
+self.object:set_callback( callback.trade_perform_operation, self.trade_perform_operation, self )
+-- ...
+function actor_binder:trade_perform_operation( trader, money_out, money_in )
+-- trader - это с кем торговал актор
+-- money_out и money_in - это сколько актор отдал торговцу денег и сколько получил.
+end
+
+level.get_character_community_team( "comm" ) -- возвращает team, соответствующий указанной группировке. Этот team можно использовать в obj:change_team(), например.
+
+npc:can_fire_to_enemy( enemy ) -- вернет true или false в зависимости от того, можно в данный момент стрелять в enemy из текущего оружия или нет. Если можно, то можно вызывать object.fire1. Если нет - только object.aim1. 
+-- Стрелять можно если:
+-- Непись видит врага или враг находится на линии огня
+-- Если голова непися повернута в направлении врага
+-- Если на линии огна находится препятствие, то оно не должно быть ближе 2.5 метра от непися и должно быть ближе к enemy, чем к неписю.
+
+obj:set_money( money ) -- метод для установки денег неписям и актору в том числе.
+
+obj:register_in_combat() / obj:unregister_in_combat() -- combat_planner делается это при входе в бой и выходе из него.
+
+obj:is_exploded() --Возвращает true, если взрывчатка уже взорвалась, но клиентский объект пока еще существует.
+
+obj:is_ready_to_explode() --Возвращает true, когда начинает взрываться взрывчатка.
+
+npc:remove_memory_object( obj ) --Метод для удаления объекта obj из памяти npc.
+
+-- Экспортирован эффектор раскачки в скрипты:
+local eff = level.get_effector_bobbing()
+-- Доступны следующие свойства:
+eff.run_amplitude
+eff.walk_amplitude
+eff.limp_amplitude
+eff.run_speed
+eff.walk_speed
+eff.limp_speed
+
+-- Методы для запрещения/разрешения вызывать консольные команды. На команды, которые вызываются из скриптов, через get_console():execute(...) данный запрет не действует.
+get_console():disable_command("name")
+get_console():enable_command("name")
+
+alife():spawn_id( "имя" ) --Возвращает `spawn_id` из `all.spawn` по имени объекта. При пересборке оллспавна spawn_id же постоянно меняются, и их приходится после каждой пересборки в скриптах менять. А так ничего менять не нужно будет.
+
+db.actor.inventory:is_active_slot_blocked() --bool Проверка на блокирование слота ( например на лестнице и тп )
+
+db.actor:active_item():get_weapon():UseScopeTexture() -- показывает, использует ли оружие текстурный прицел в данный момент.
+
+--В скриптовый каллбек `article_info` передается ещё один аргумент - текст артикла.
+
+self:AddCallback(
+	"control_"..opt,
+	ui_events.TRACKBAR_CHANGED, --Новый каллбек на изменение позиции тракбара.
+	function()
+		--log('TRACKBAR_CHANGED(%s) : %3.3f', opt, ctl:GetTrackValue()) --Новый метод для получения позиции тракбара
+	end
+)
+
+-- Добавлен метод `PlaySound("filename")` в класс меню.
+
+snd_obj:set_start_time(0.5) -- для sound_object добавлен метод для установки позиции начала звука
+
+sobj.visual_name = "новый_визуал" -- для серверных объектов имеющих визуал так можно читать/изменять название визуала
+
+-- Возможность открывать на чтение\запись ltx файлы в любом каталоге: --
+local setting_ini = ini_file(full_name, false) -- false тут нужен, значит файл будет искать как указано, без привязки к configs
+setting_ini.readonly = false -- обязательно при сохранении
+
+setting_ini:w_string("setting", "string_param", "string_value123")
+setting_ini:w_bool("setting", "bool_param", true)
+setting_ini:w_float("setting", "float_param", 123.123)
+
+setting_ini:save()
+----------------------------------------------------------------------------
+
+sobj:set_health(0.5) -- можно менять здоровье для серверного объекта
+
+obj:setVisible(false) -- отключить рендеринг клиентского объекта, можно так скрывать объекты
+
+local slot_n = obj:get_slot() -- возвращает номер слота (u8), в котором находится этот предмет.
+
+-- Добавлен флаг `FS.FS_NoLower` чтобы file_list_open_ex не приводил имен а файлов к нижнему регистру
+local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
+flist:Sort(FS.FS_sort_by_modif_down)
+for file in flist:GetAll() do
+  wnd:AddItemToList( file:NameFull(), file:Modif() )
+end
+
+-- Добавлен третий аргумент в sound_object что б играть звук как музыку (по сути только громкость будет регулироваться через ползунок громкости музыки в меню). Значения: `sound_object.effect` (дефолт) и `sound_object.music`.
+local snd = sound_object(path, 0, sound_object.music)
+
+-- Экспорт `CMainMenu:IsActive()` -- не понятно зачем это надо но пусть будет
+
+-- Добавлен каллбек `entity_alive_before_hit` для классов `CCar` & `CHelicopter`
+
+-- Добавлен метод `level.iterate_nearest` и каллбеки `on_footstep`, `on_actor_land`, `on_actor_jump` из Anomaly
+
+-- Новые скриптовые методы для класса ламп:
+local lamp = self.object:get_hanging_lamp()
+lamp:set_volumetric( true )
+lamp:set_volumetric_quality( 0.9 )
+lamp:set_volumetric_intensity( 0.05 )
+lamp:set_volumetric_distance( 0.3 )
+
+-- Расширен класс скриптовых партиклов. Добавлены методы `set_position`, `set_direction`, `set_orientation`, `last_position` из Anomaly и добавлена возможность играть партиклы в худовом режиме: `:play(true)` / `:play_at_pos(pos, true)`.
+
+-- Добавлен экспорт в скрипты функции `level.is_ray_intersect_sphere` для проверки пересечения луча со сферой:
+function is_actor_looking_to_pos( pos, radius )
+  return level.is_ray_intersect_sphere( device().cam_pos, device().cam_dir, pos, radius ) >= 0
+end
+--К примеру проверка, смотрит ли актор в область с радиусом 0.5 от object:position()
+local looking = is_actor_looking_to_pos( object:position(), 0.5 )

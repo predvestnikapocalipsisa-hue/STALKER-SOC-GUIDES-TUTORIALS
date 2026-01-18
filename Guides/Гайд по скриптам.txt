@@ -1,0 +1,727 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из \GitHub\STALKER-SOC-GUIDES-TUTORIALS\Guides\Scripts modules\sak.script, поэтому кидаем его в папку gamedata\scripts\
+--------------------------------------------------------------------------------------------------------------
+файлы с функциями(скрипты) создаются своими руками в папке gamedata\scripts и называются "имя_файла.script", нигде больше их регать не надо.
+Следите за тем, что пишете в скриптах, произвольные символы вызывают вылет, свои комментарии оставляем так:
+-- мой коммент
+
+Для начала давайте разберем функции, и то как они выглядят:
+
+function имя_функции ()
+	тело_функции
+end
+
+если внутри функции идёт if, то должно стоять условие, потом идёт then
+далее идёт действие, которое будет выполнено при успехе, можно сделать действие и при провале
+
+любой if всегда заканчивается end, как и функция, например:
+
+function имя_функции ()
+	if db.actor then
+		выдаем предмет
+	end
+end
+
+в этой функции проверяется существование актора, так как может случится вылет если актора не будет
+
+так же если требуется кучу раз сделать проверку на актора, то в начале файла делаем 
+local actor = db.actor
+
+и в проверках if actor then
+экономия места.
+
+так же end необходим в циклах for
+
+в функцияхя часто можно встретить подобное:
+dialogs.relocate_item_section(db.actor, "wpn_pm", "in")
+
+dialogs - dialogs.script
+
+relocate_item_section это функция из dialogs.script, а (db.actor, "wpn_pm", "in") это аргументы этой функции
+
+то есть, если вы откроете dialogs.script и найдёте функцию relocate_item_section, то увидите:
+function relocate_item_section(victim, section, type)
+
+и вместо (victim, section, type) мы при вызове указали (db.actor, "wpn_pm", "in")
+
+Когда в функцию не нужно ничего передавать делаем function имя_функции ()
+
+В диалогах и логике:
+первый аргумент это актор - главный герой, его клиентский объект
+второй аргумент это нпс, в логике которого была вызвана функция, либо тот с кем мы ведем разговор - его клиентский объект
+
+в оригинале в диалогах больше ничего не передать, а вот в ОГСР есть поддержка передачи аргументов в функции, вызываемые из диалогов, например:
+<precondition>my_script.test_func(123, true, nil, ...)</precondition>
+<action>my_script.test_func(123, true, nil, ...)</action>
+
+То есть в оригинале НЕЛЬЗЯ оформить action  так:
+<action>dialogs.relocate_item_section(db.actor, "wpn_pm", "in")</action>
+
+Если указать в конце переменной кол-во аргументов ... , то туда будут переданы стандартные аргументы, типа pSpeakerGO1->lua_game_object(), pSpeakerGO2->lua_game_object(), dialog_id, phrase_id.
+
+То есть если мы хотим взаимодействовать с нпс, обязательно делаем два аргумента (actor,npc)
+function my(actor,npc)
+	actor:kill(npc)
+end
+
+В логике похожая ситуация, функции вызываются например через on_info:
+on_info = %=new_fire%
+
+передается актор и нпс, при этом сама функция должна выглядеть:
+
+function new_fire(actor, npc)
+	npc:set_item(object.fire1, npc:best_weapon(), 1 ,1)  
+end
+
+т.е. видим что актор не участвует, но если не указать второй аргумент, не важно как вы записали первый - это будет актор
+
+Для передачи других аргументов в логике, например, чисел - делаем так:
+on_info2 = %=new_fire(4:1000)%
+
+в аргументы добавился третий - p
+
+далее оно само понимает куда подставить 4, а куда 1000
+
+function new_fire(actor, npc, p)
+npc:set_item(object.fire1, npc:best_weapon(), p[1] ,p[2])  
+end
+
+Закрепим, что функции внутри функции вызывются так:
+
+function имя_функции ()
+	имя_файла.функция()
+end
+
+--------------------------------------------------------------------------------------------------------------
+СПОСОБЫ ВЗАИМОДЕЙСТВИЯ С НПС И ПРОЧИМИ ОБЪЕКТАМИ
+--------------------------------------------------------------------------------------------------------------
+С нпс в функциях можно взаимодействовать не только через диалог или логику нпс, внутри которого была вызвана функция
+
+Для начала определим локальную переменную obj - это будет клиентский объект, с ней будем взаимодействовать через клиентские методы, под взаимодействием понимается примерно следующее:
+
+obj:set_money( 65000 ) установить количество денег 
+obj:set_character_rank(1000) установить ранг
+obj:set_npc_position(vector():set(-152.0,-18.0,-144.3))
+Эти методы были добавлены в ОГСР
+
+--установка отношений
+obj:set_relation(game_object.friend, db.actor)
+
+Для этого их нужно обозначить:
+для клиентских методов:
+local obj = level_object_by_sid(6)   	 -- стори айди
+local obj = level.object_by_id(id)		 -- клиентский айди(он не известен за ранее)
+
+и так вот применять:
+obj:set_item(object.fire1, obj:best_weapon(), 10 ,1000) 
+
+Есть ещё и серверные методы.
+
+для серверных методов
+local sobj = alife():story_object(6)	 -- стори айди
+local sobj = alife():object("esc_wolf") -- получаем айди по имени из all.spawn
+
+пример:
+alife():use_ai_locations(sobj, false)
+--удалить объект:
+alife():release(sobj)
+
+Как видим работать по стори айди легче всего, но получать айди через alife():object("esc_wolf") для нпс заспавненых через скрипт не получится, так как их имя превращается в "esc_wolf12445" т.е. к нему добавился айди
+
+клиентский айди вообще за ранее не известен, так как при новой игре назначается рандомно, актор всегда первый и его айди вроде 0
+
+Но можно и получить клиентский айди из серверного, obj из sobj
+делается это так:
+local sobj = alife():object("esc_wolf") -- Серверный объект
+local obj = level.object_by_id(sobj.id) -- Клиентский объект
+
+можно ещё по стори айди
+
+local sobj = alife():story_object(6) -- Серверный объект
+local obj = level.object_by_id(sobj.id) -- Клиентский объект
+
+
+Теперь наоборот получаем серверный через клиентский
+
+это может быть функция перебора имен, показанная выше или определение по стори айди для клиента.
+
+Клиентский объект это его айди, типа 16575, но тут надо понимать что заранее он не известен, поэтому смысл в том чтобы через диалог или логику делать так:
+--тут предполагается, что npc будет передан через диалог, например это тот с кем говорим или в скриптах как-нибудь.
+local obj = level.object_by_id(npc)
+local sobj = alife():object( obj:id() )
+
+--либо делать как в примере ниже
+local sobj = obj and alife():object(obj:id())
+--тут предполагается, что айди'шка передастся сразу, без доп усилий.
+
+
+если это диалог или логика, то можно
+local sobj = obj and alife():object(obj:id())
+главное сделать аргументы function имя_функции (actor,obj)
+
+Вот яркий пример использования серверного метода через клиентский объект и как вызов из логики без дополнительных данных.
+Через логику иначе и не выйдет, ведь она передает только клиентский объект.
+если в xr_effects.script
+добавить 
+
+function remove_object(actor, obj)
+local sobj = obj and alife():object(obj:id())
+  if sobj then
+    alife():release(sobj)
+  end
+end
+
+то в рестрикторе или где угодно можно сделать вызов и объект удалится
+on_actor_outside = nil %=remove_object%
+
+Теперь рассмотрим момент использования клиентских методов через логику/диалог
+в xr_effects.script
+добавить 
+
+function kill_object(actor, obj)
+  if obj then
+    obj:kill(obj)
+  end
+end
+
+--а в логике нпс/диалоге сделать вызов и объект должен погибнуть, вызов:
+on_info = {±инфо} %=kill_object%
+--или в диалоге
+<action>xr_effects.kill_object</action>
+
+как видите с клиентским методом никак определять obj не пришлось, ведь он и представляет из себя айди.
+
+Ещё есть функции, которые на вход требуют айди, то есть то есть sobj.id или obj:id(), подойдет и клиентский и серверный объект, например:
+
+local sobj = alife():story_object(014)
+local obj = level_object_by_sid(6)
+
+--увести в оффлайн:
+alife():set_switch_online(sobj.id, false) 
+alife():set_switch_online(obj:id(), false) 
+
+--поставить метку
+level.map_add_object_spot(sobj.id, "green_location", "текст")
+level.map_add_object_spot(obj:id(), "green_location", "текст")
+
+
+
+
+Только прошу заметить, что так:
+local sobj = alife():object("esc_wolf") -- Серверный объект
+не получится определить нпс, заспавненого через скрипт, для них используется универсальный вариант и для клиента и сервера. Тоже перебор по имени только sapwn_section теперь учитывается
+function perebor() 
+	for a=1,65635,1 do 
+	local obj=level.object_by_id(a) 
+		if obj and string.find(obj:name(),"esc_wolf") then 
+			-- действие, например, убить этого нпс:
+			obj:kill(obj)
+		end 
+	end 
+end
+
+
+
+Важный нюанс! Когда мы спавним нпс через скрипт, то его клиентская сторона образуется не сразу, поэтому есть такой вот способ, как без сейвлоадов сразу использовать клиентские методы на нашем нпс:
+function spawn()
+  local sobj = create(section, position, lvid, gvid)
+  level.client_spawn_manager():add(sobj.id, 65535,
+    function (id, cobj)
+      cobj:set_goodwill(-5000, db.actor)
+    end
+  )
+  return obj
+end
+Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне.
+
+В данной функции указываются координаты и секция вашего нпс, всё как обычно, а вот взаимодействие может быть разным, тут:
+cobj:set_goodwill(-5000, db.actor)
+изменение отношения этого нпс к актору, параметр cobj передаётся за счёт
+function (id, cobj)
+поэтому структуру не менять, а само взаимодействие с cobj можно сделать так:
+utils.send_to_nearest_accessible_vertex(cobj,107814)
+то есть передаём как удобно.
+--------------------------------------------------------------------------------------------------------------
+Использование функций в логике
+--------------------------------------------------------------------------------------------------------------
+
+Вызов функции:
+%=название_функции%
+
+Проверка функции:
+{=название_функции}
+
+Пример:
+
+[logic]
+active = sr_idle1
+
+[sr_idle1]
+on_timer = 10000 | %=название_функции% sr_idle
+
+Функции проверки должны лежать в \gamedata\scripts\xr_conditions.script
+
+Функции типа %=% должны лежать в \gamedata\scripts\xr_effects.script
+
+
+
+
+В некоторых скриптах можно увидеть такие моменты:
+level.client_spawn_manager
+
+и конечно же никакого файла level.script нет, а если и есть, то функции client_spawn_manager в нем точно нет, это так называемый движковый метод, большинство описано в lua_help.script
+
+Для быстродействия рекомендуется функции, использующиеся внутри файла оформлять как локальные:
+local function нейм ()
+***
+end
+
+такие функции могут быть вызваны только внутри файла где лежат.
+
+Также немало важно использовать локальные переменные:
+local test = 0
+
+таким образом во всех функциях скрипта test будет равен 0
+
+всё это для оптимизации.
+
+Используется это например так, в диалоге будет вызываться функция esc_timer, которая использует метод level.add_call(func1,func2), который при выполнении условий функции 1, выполняет функцию 2. В данном примере функция 1 это пародия таймера, и когда он сработает будет выполнена функция 2, которая убивает нпс по стори айди.
+
+function esc_timer()
+   local iTimer = time_global() + 10*1000
+   local function check_timer()
+            return time_global() > iTimer
+   end
+   local function kill_npc()
+            local obj = level_object_by_sid(6)
+            obj:kill(obj) 
+   end
+   level.add_call(check_timer, kill_npc)
+end
+
+Эти локальные функции можно вынести из функции esc_timer(), но можно оформить всё иным образом
+
+function esc_timer()
+   local iTimer = time_global() + 10*1000
+   level.add_call(function()
+                     return time_global() > iTimer
+                  end,
+                  function()
+                  local obj = level_object_by_sid(6)
+                     obj:kill(obj) 
+                   end)
+end
+
+это использование безымянных функций.
+
+ещё иногда можно встретить вызовы функций, в которых не указан файл скрипта, это нормально  когда функция локальная, либо в принципе находится в файле из которого вызывается, но если ничего из этого тогда эта функция из глобального пространства Луа _G
+выглядит красиво и компактно, но это лишняя нагрузка, лучше не лениться.
+
+В дополнение к таблице _G: Если через кейлоггер или еще как-то вызвать команду _G[имя скрипта] = nil, то движок вновь перекомпилирует указанный скрипт при первом к нему обращении. Что это дает? Это дает то, что если вы отлаживаете какой-либо код, то нет необходимости делать сейв/лоад после каждой правки. Если мы, допустим, правим файл amk.script, то достаточно после сохранения правок через кейлоггер вызвать
+
+_G.amk = nil
+
+и все - движок перекомпилирует его по новой и все изменения тут же вступят в силу без очередного сейв/лоада. Жаль, что эту фичу я для себя открыл только сейчас. Сколько времени можно было бы сэкономить.
+
+Это работает для всех файлов кроме биндеров. Дело в том, что для каждого объекта биндер зачем-то компилируется отдельно, поэтому чтобы увидеть изменения, например в bind_monster.script, то нужно написать _G.bind_monster = nil и заспавнить нового монстра. И на новом объекте изменения уже будут применены.
+--------------------------------------------------------------------------------------------------------------
+В диалогах функции вызываются через action:
+    <phrase id="121">
+        <text>tutorial_wounded_give_medkit_121</text>
+        <action>dialogs.transfer_medkit</action> 
+    </phrase>
+	
+	в инфопоршях аналогично:
+	<info_portion id="escape_stalker_meet">
+		<action>dialogs.transfer_medkit</action>
+	</info_portion>
+
+Но в инфо лучше не злоупотреблять, а то вылеты непонятны.
+
+dialogs это dialogs.script, а transfer_medkit это функция из этого скрипта
+--------------------------------------------------------------------------------------------------------------
+Так же в диалогах можно использовать функции проверки <precondition>, для того, чтобы некоторые фразы отображались, если соблюдены условия функции 
+
+            <phrase id="2">
+                <text>tutorial_wounded_give_medkit_2</text>
+                <precondition>dialogs.actor_have_medkit</precondition>
+                <next>121</next>
+            </phrase>
+			
+В данном примере диалог не выйдет на 2 фразу, пока не будет выполнено условие из <precondition>dialogs.actor_have_medkit</precondition>
+--------------------------------------------------------------------------------------------------------------
+Прекондишны можно ставить и на сам диалог, чтобы задать условие его появления.
+
+    <dialog id="escape_trader_talk_level" priority="2">
+        <precondition>escape_dialog.trader_alredy_give_job</precondition>
+        <phrase_list>
+			
+--------------------------------------------------------------------------------------------------------------            
+В квестах функции проверки выглядят так <function_complete>sak.prov</function_complete>
+		<objective>
+			<text>name_pod_kvest_1</text>
+			<function_complete>sak.prov</function_complete>
+		</objective>
+--------------------------------------------------------------------------------------------------------------            
+Сами функции проверки выглядят так:
+
+function название_функции()
+	if "набор условий" then
+		return true
+	end
+	return false
+end
+
+"набор условий" это нечто вроде if has_alife_info("инфопоршн1") and not has_alife_info("инфопоршн2") then  что означает, если получен "инфопоршн1" и не получен "инфопоршн2", то истина
+или if sak.have_item_namber("af_medusa",1) and sak.have_item_namber("wpn_pm",1) then что означает, если получен 1 "af_medusa" и 1 получен "wpn_pm", то истина
+--------------------------------------------------------------------------------------------------------------
+тут идет проверка на наличие и отсутствие определенных инфо, если одно из условий выполнено проверка пройдёт, а при отсутствии нет
+
+function trader_alredy_give_job()
+	if (has_alife_info("agroprom_military_case") and not has_alife_info("agroprom_military_case_done")) or
+	   (has_alife_info("escape_blockpost_case") and not has_alife_info("escape_blockpost_case_done")) or
+	   (has_alife_info("tutorial_artefact_start") and not has_alife_info("tutorial_artefact_done")) or
+	   (has_alife_info("tutorial_wounded_start") and not has_alife_info("esc_serious_talk"))
+	then
+		return true
+	end
+	return false
+end
+--------------------------------------------------------------------------------------------------------------
+Можно сделать более простую проверку на предмет af_medusa и также использовать в прекондишене
+--------------------------------------------------------------------------------------------------------------
+function prov() 
+	return sak.have_item_namber("af_medusa",1) ~= false
+end
+--------------------------------------------------------------------------------------------------------------
+Можно сделать проверку, если есть инфо "storyline_actor_start" и нет инфо "when_out_kordon", то будет выдан инфо "infoportion_xxx"
+function prov_info2()
+	if has_alife_info("storyline_actor_start") and not has_alife_info("when_out_kordon") then
+		db.actor:give_info_portion("infoportion_xxx")
+	end 
+end
+--------------------------------------------------------------------------------------------------------------
+ВЫПОЛНЕНИЕ ФУНКЦИИ ПРИ ВЫБРАСЫВАНИИ ПРЕДМЕТА ИЗ ИНВЕНТАРЯ(в данном случае, если выбросить аптечку - будут выданы предметы, ниже привел пример для ваших проверок)
+
+в \gamedata\scripts\bind_stalker.script
+в function actor_binder:on_item_drop (obj)
+добавляем строку
+sak.drop_item(obj)
+
+в вашем файле sak.script
+
+function drop_item(obj)
+local obj_sect = obj:section()
+
+	if obj_sect == "medkit" then
+		dialogs.relocate_item_section(db.actor, "wpn_bm16", "in")	
+	end
+	-- if obj_sect == "ваш_предмет" then
+		--ваше действие
+	-- end
+end
+--------------------------------------------------------------------------------------------------------------
+ВЫПОЛНЕНИЕ ФУНКЦИИ ПРИ ПОПАДАНИИ ПРЕДМЕТА В ИНВЕНТАРЬ(в данном случае при подборе с земли аптечки на будут выданы предметы, ниже привел пример для ваших проверок)
+
+в \gamedata\scripts\bind_stalker.script
+в function actor_binder:on_item_take (obj)
+добавляем строку
+sak.take_item(obj)
+
+в вашем файле sak.script
+
+function take_item(obj)
+local obj_sect = obj:section()
+
+	if obj_sect == "medkit" then
+		dialogs.relocate_item_section(db.actor, "wpn_bm16", "in")	
+	end
+	-- if obj_sect == "ваш_предмет" then
+		--ваше действие
+	-- end
+end
+--------------------------------------------------------------------------------------------------------------
+ВЫПОЛНЕНИЕ ФУНКЦИИ ПРИ ИСПОЛЬЗОВАНИИ ПРЕДМЕТА В ИНВЕНТАРЕ
+1.В ФАЙЛЕ "bind_stalker.script" в функции 
+function actor_binder:net_destroy() 
+
+после self.object:set_callback(callback.take_item_from_box, nil)
+вставляем  self.object:set_callback(callback.use_object, nil)
+
+2.далее в 
+function actor_binder:reinit()
+после self.object:set_callback(callback.take_item_from_box, self.take_item_from_box, self)
+вставляем self.object:set_callback(callback.use_object, self.use_object, self)
+
+между функциями вставляем 
+function actor_binder:use_object(obj)
+	sak.use_item(obj)
+end
+
+в вашем файле sak.script
+
+function use_item(obj)
+local obj_sect = obj:section()
+
+	if obj_sect == "medkit" then
+		dialogs.relocate_item_section(db.actor, "wpn_bm16", "in")	
+	end
+	-- if obj_sect == "ваш_предмет" then
+		--ваше действие
+	-- end
+end
+--------------------------------------------------------------------------------------------------------------
+ПРОВЕРКА НА НАЖАТИЕ КЛАВИШ
+1.В ФАЙЛЕ "bind_stalker.script" в функции 
+function actor_binder:net_destroy()
+
+	self.object:set_callback(callback.on_key_press, self.on_key, self)
+	
+2.далее в 
+function actor_binder:reinit()
+
+	self.object:set_callback(callback.on_key_press, self.on_key, self)
+	
+3.ниже
+
+function actor_binder:on_key(key, bind)
+	self.object:call("on_key", key, bind)
+end
+----------------------------------------------------------------------------------------------------------------------
+function actor_binder:on_key(key)
+	if key == DIK_keys.DIK_V then
+	if noclip_mode.noclip_active == true then
+		noclip_mode.noclip_active = false
+	else
+		noclip_mode.noclip_active = true
+	end
+	end
+	
+	if key == DIK_keys.DIK_NUMPAD1 then
+	if noclip_mode.delay_time > 0 then
+		noclip_mode.delay_time = noclip_mode.delay_time - 5
+		db.actor:give_game_news(string.format("Задержка = %G.. миллисекунд", noclip_mode.delay_time), "ui\\ui_iconsTotal",Frect():set(663,554,194,102), 0, 1000)
+	end
+	end
+	
+	if key == DIK_keys.DIK_NUMPAD2 then
+	noclip_mode.delay_time	= noclip_mode.delay_time + 5
+	db.actor:give_game_news(string.format("Задержка = %G.. миллисекунд", noclip_mode.delay_time), "ui\\ui_iconsTotal",Frect():set(663,554,194,102), 0, 1000)
+	end
+	
+end
+--------------------------------------------------------------------------------------------------------------
+Для оригинала ТЧ:
+создаем скрипт dik_hot_keys.script
+
+local con = nil -- переменная для объекта консоли
+local con_command = "mm_net_player_name" -- консольная команда
+local def_value = "_" -- значение по умолчанию - символ подчеркивания
+ 
+function update()
+	if not con then -- инициализируем схему
+		con = get_console() -- кешируем консоль
+		con:execute( con_command .." ".. def_value ) -- инициализируем дефотлным значением, т.к. кнопка не нажата
+		for k,v in pairs(_G[script_name()]) do -- перебираем функции в текущем файле
+			 -- v это функция 	и её имя является кодом клавиши
+			if type(v)=='function' and DIK_keys[string.upper(k)] then
+				local key = "k"..string.gsub(k,"dik_","") -- формируем ключ и
+				con:execute("bind_console "..con_command.." "..k.." "..key) -- биндим кнопку на него
+			end
+		end
+	else
+		-- получаем из консоли значение параметра для нашей команды
+		local str = con:get_string(con_command) 
+		-- если оно не является значением по умолчанию
+		-- и в этом файле есть функция с таким именем, то выполняем её
+		if str~=def_value and this[str] then
+			this[str]()
+			con:execute(con_command.." "..def_value) -- записываем значение по умолчанию
+		end
+	end
+ 
+end
+ 
+function dik_f()
+    dialogs.relocate_item_section(db.actor, "wpn_bm16", "in")	         
+end
+
+
+Этот скрипт работает так, мы пишем функцию dik_ имя клавиши и на неё создаётся бинд, то есть заменяет собой бинд из user.ltx, поэтому к включению фонарика условно так не подвязываться, клавиша его включения просто выключается.
+
+В примере с клавишей F при её нажатии будет выдан обрез, возможно бесконечное количество раз .
+
+Чтобы это чудо себе поставить нужно открыть \gamedata\scripts\bind_stalker.script
+
+найти function actor_binder:update(delta)
+
+Вставляем:
+
+if self.timer1000 < time_global() then
+self.timer1000 = time_global()+1
+dik_hot_keys.update()
+end
+
+
+И необходимо добавить параметр self.timer1000 = 0 в функцию function actor_binder:reinit()
+
+
+
+Ещё есть пример:
+https://vk.com/@-226619903-testovaya-statya
+
+файлы
+https://drive.google.com/drive/folders/1UzgB239SlfY52QzXmvNgR3hH1DUmRkZq
+
+
+
+--------------------------------------------------------------------------------------------------------------
+ЦИКЛЫ for do
+--------------------------------------------------------------------------------------------------------------
+for id, sobj in alife():objects() do -- Перебор всех серверных объектов в игре
+-- !!!Ни в коем случае нельзя удалять/спавнить объекты внутри цикла!!!
+end
+
+Функция, которая по имени объектов запускает для них клиентский метод:
+function main ()
+local table = {"имя", "имя"}
+        for k,v in pairs(table) do
+        local sobj = alife():object(v)
+        local obj = level.object_by_id(sobj.id)
+                obj:клиентская функция()
+        end        
+end
+
+запустить серверный метод:
+function main ()
+local table = {"имя", "имя"}
+        for k,v in pairs(table) do
+        local sobj = alife():object(v)
+           sobj:серверная функция()
+        end        
+end
+
+аналог по стори  айди с серверными методами
+function main ()
+local story_table = {3,6,14,7}
+        for k,v in pairs(story_table) do
+        local sobj = alife():story_object(v)
+                sobj:серверная функция()
+        end        
+end
+
+тоже стори но для клиентских
+function main ()
+local story_table = {3,6,14,7}
+        for k,v in pairs(story_table) do
+        local obj = level_object_by_sid (v)
+                obj:клиентская функция()
+        end        
+end
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+ДЛЯ БЫСТРОГО ТЕСТА ФУНКЦИЙ ИСПОЛЬЗУЕМ bind_stalker.script
+--------------------------------------------------------------------------------------------------------------
+
+
+находим if self.bCheckStart then
+и строкой ниже printf("SET DEFAULT INFOS")
+вставляем например выдачу инфо  db.actor:give_info_portion("tutorial_artefact_start")
+Это будет работать при начале новой игры, после каждой перезагрузки уровня\перехода на локацию.
+--------------------------------------------------------------------------------------------------------------
+Чтобы сделать запуск функции один раз при начале игры нужно вставить её в if not has_alife_info("global_dialogs") then чтобы получилось так
+if not has_alife_info("global_dialogs") then
+	db.actor:give_info_portion("tutorial_artefact_start") -- ваше действие
+	self.object:give_info_portion("global_dialogs")
+end
+--------------------------------------------------------------------------------------------------------------
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+ПОСТАВИТЬ Функции НА ПОСТОЯННУЮ ПРОВЕРКУ МОЖНО ЧЕРЕЗ:
+--------------------------------------------------------------------------------------------------------------
+
+
+В function proceed() в файле \gamedata\scripts\escape_tasks.script
+там запущена постоянная проверка на соблюдение условий, полезно, когда нужно чтобы условие проверялось вне квеств и диалога.
+Начало файла: 
+function proceed()
+ вставляем
+	if	not has_alife_info("tutorial_artefact_start") and sak.have_item_namber("af_medusa",1)
+	then		
+		db.actor:give_info_portion("tutorial_artefact_start")
+	end
+
+Разбираем: проверка будет работать пока не получен инфо "tutorial_artefact_start", так как после попадания в инвентарь "af_medusa" будет выдан инфо "tutorial_artefact_start" тем самым завершит проверку.
+
+Свои проверки так же начинаем с if и заканчиваем end, оформляем по принципу:
+	if "набор условий" and not has_alife_info("инфопоршн1") then
+		-- ваше действие
+		db.actor:give_info_portion("инфопоршн1")
+	end
+
+"набор условий" это нечто вроде if has_alife_info("инфопоршн1") and not has_alife_info("инфопоршн2") then
+
+то есть, если выполнено условие и не получен инфо, то выдаем этот инфо чтобы закрыть проверку, если так не сделать, то "ваше действие" будет выполнятся бесконечно, такой проблемы лишены квесты и прекондишены в диалогах, ведь там если истина, то сразу функция выключается
+--------------------------------------------------------------------------------------------------------------
+
+
+НО там же есть функция process_info_portion(info_id) 
+Вот пример
+ elseif info_id == "esc_tutorial_secret_place_found" then 
+  level_tasks.remove_location(025, "green_location")
+
+Это значит, что при получении инфо "esc_tutorial_secret_place_found" будет выполнено действие, и как можете заметить никакого более условия нет и не нужно.
+--------------------------------------------------------------------------------------------------------------
+
+
+Помимо "escape_tasks.script" можно использовать и "\gamedata\scripts\bind_stalker.script"
+
+находим function actor_binder:update(delta)
+и после строки 	object_binder.update(self, delta)
+вставляем имя_вашего_файла.имя_функции()
+
+например это будет sak.script и функция main
+получилось:
+function actor_binder:update(delta)
+	object_binder.update(self, delta)
+	sak.main()
+
+функцию main оформляем как и function proceed() из файла \gamedata\scripts\escape_tasks.script
+
+function main()
+	if sak.have_item_namber("af_medusa",1) and not has_alife_info("tutorial_artefact_start") then		
+		db.actor:give_info_portion("tutorial_artefact_start")
+	end
+end
+--------------------------------------------------------------------------------------------------------------
+
+Проверка дня и ночи 
+
+Можно сделать появление диалога у персонажа\события только в определённое время, например ночью или днем, чтобы поставить ограничение на диалог, делаем так и это позволит диалогу показываться только днем
+
+    <dialog id="escape_lager_volk_info">
+  <precondition>xr_conditions.is_day</precondition>
+        <phrase_list>
+
+если нужно только ночью, то откроем 
+C:\X-Ray_test\gamedata\scripts\xr_conditions.script
+
+и вставить в самое начало
+
+function is_night (actor, npc)
+    return level.get_time_hours() >= 21 and level.get_time_hours() < 6
+end  
+
+и тогда в диалоге 
+    <dialog id="escape_lager_volk_info">
+  <precondition>xr_conditions.is_night</precondition>
+        <phrase_list>
