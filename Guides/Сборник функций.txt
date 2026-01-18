@@ -1,5 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из СБОРНИКА, его копируем себе в gamedata\scripts\
+
+
+
+Восстановление здоровья,выносливости
+function medic_magic_potion(first_speaker, second_speaker)
+  db.actor.health = 1
+  db.actor.power = 1
+  db.actor.radiation = -1
+  db.actor.bleeding = 1
+end
 --------------------------------------------------------------------------------------------------------------
 -- Один из способов выводить получившееся значение в смс
 function send_message(msg) 
