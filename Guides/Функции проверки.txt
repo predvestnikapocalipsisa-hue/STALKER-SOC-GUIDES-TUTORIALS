@@ -100,6 +100,22 @@ function bar_actor_rank_stalker (actor,npc)
 	end
 end
 --------------------------------------------------------------------------------------------------------------
+-- Проверка очков ранга нпс
+function check_rank_stalker (actor,npc)
+	if npc:character_rank() > 300 then
+		return true
+	end
+end
+--------------------------------------------------------------------------------------------------------------
+-- Проверка ранга по наименованию из game_relations.ltx
+function npc_rank(actor, npc)
+        if ranks.get_obj_rank_name(npc) == "master" then
+                return true
+        end
+        return false
+end
+
+--------------------------------------------------------------------------------------------------------------
 -- Такой проверкой можно проверить жив ли нпс, если нет, то будет выполнено действие
 	local npc = alife():object("esc_vagon_wounded")
 	if npc ~= nil then
