@@ -27,7 +27,22 @@ function start_game_callback()
 	--/< ---------------------------------------------------------------
 end
 
--- Далее ниже "sak." это мой скрипт "sak.script", котором лежат эти функции, вместо него указывайте свой файл в который будете класть функции.
+
+-- Насобирал чужих функций, много от @dsh
+-- Многие уникальны только для оригинала
+
+
+-- Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
+function spawn()
+    local sobj = alife():object("esc_wolf")
+    if sobj then
+                local pk = get_netpk( sobj, 1 )
+                ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+                local data = pk:get()
+                    data.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
+                pk:set( data )
+    end
+end
 
 -- Спавн аномалий, общая функция
 function spawn_anomaly( section, pos, lv, gv, shape )
@@ -55,7 +70,7 @@ end
 
 -- Спавн конкретной аномалии оформляем так:
 function spawn_witches_galantine()
-	sak.spawn_anomaly("zone_witches_galantine_weak",vector():set(-152.0,-18.0,-144.3),98126,45,{shtype=0,radius=2.1,center={ 0, 0, 0 }})
+	Имя_файла.spawn_anomaly("zone_witches_galantine_weak",vector():set(-152.0,-18.0,-144.3),98126,45,{shtype=0,radius=2.1,center={ 0, 0, 0 }})
 end
 
 -- Спавн костра + свет + моделька по желинию
@@ -75,7 +90,7 @@ function create_campfire(pos, lvid, gvid, vis, lamp_height)
         sobj = alife():object(sobj.id)
     end
     -- аномалия
-    local sobj = sak.spawn_anomaly("zone_flame_small", pos, lvid, gvid, {shtype = 0,radius = 1,center = { 0, 0, 0 }})
+    local sobj = Имя_файла.spawn_anomaly("zone_flame_small", pos, lvid, gvid, {shtype = 0,radius = 1,center = { 0, 0, 0 }})
     -- лампочка
     local sobj = alife():create("lights_hanging_lamp", vector():set(pos.x, pos.y + (lamp_height or 0), pos.z),lvid, gvid)
     local pk = get_netpk(sobj, 1)
@@ -102,8 +117,8 @@ end
 
 -- Пример вызова
 function spawn_campfire()
-	sak.create_campfire(vector():set(-152.0,-18.0,-144.3),98126,45,"physics\\large_trash\\aes_zabor",5) -- 5 это на сколько будет выше свет
-	sak.create_campfire(vector():set(-152.0,-18.0,-144.3),98126,45,nil,5) -- без модельки
+	Имя_файла.create_campfire(vector():set(-152.0,-18.0,-144.3),98126,45,"physics\\large_trash\\aes_zabor",5) -- 5 это на сколько будет выше свет
+	Имя_файла.create_campfire(vector():set(-152.0,-18.0,-144.3),98126,45,nil,5) -- без модельки
 end
 
 -- Спавн источника освещения
@@ -156,7 +171,7 @@ function create_object()
 end
 
 -- СПАВН БТР И ВЕРТОЛЕТА с логикой
--- Функция спавна, её кладем куда вам удобно. у меня лежит в "sak.script"
+-- Функция спавна
 function spawn_military_tech_pack(obj, spawn_item, spawn_item_logic)
     local pk = get_netpk(obj, 1)
     ASSERT((pk and pk:isOk()), "can't read netpacket of %s", obj:name())
@@ -173,7 +188,7 @@ end
 
 -- Спавн БТР
 function spawn_btr()
-	sak.spawn_military_tech_pack(alife():create("m_car",vector():set(-129.5,-9.56,-147.3),122325,44) ,"m_car", "scripts\\esc_blockpost_btr.ltx")
+	Имя_файла.spawn_military_tech_pack(alife():create("m_car",vector():set(-129.5,-9.56,-147.3),122325,44) ,"m_car", "scripts\\esc_blockpost_btr.ltx")
 end
 -- если у вас в \gamedata\config\system.ltx
 -- в секции [m_car] нет параметра "visual", то добавим
@@ -181,7 +196,7 @@ visual			= physics\vehicles\btr\veh_btr_script_u_01.ogf
 
 -- Спавн вертолёта
 function spawn_helicopter()
-	sak.spawn_military_tech_pack(alife():create("helicopter",vector():set(-152.0,-18.0,-144.3),98126,45) ,"helicopter", "scripts\\esc_blockpost_btr.ltx")
+	Имя_файла.spawn_military_tech_pack(alife():create("helicopter",vector():set(-152.0,-18.0,-144.3),98126,45) ,"helicopter", "scripts\\esc_blockpost_btr.ltx")
 end
 
 -- Спавн нпс, который всегда будет в онлайне
@@ -200,7 +215,7 @@ end
 
 -- Вызов
 function spawn_npc_no_offline()
-	sak.spawn_no_offline("gar_dolg_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
+	Имя_файла.spawn_no_offline("gar_dolg_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
 end
 
 -- Спавн без привязки к АИ сетке
@@ -218,7 +233,7 @@ end
 
 -- Вызов
 function spawn_npc_not_UsedAI()
-	sak.spawn_not_UsedAI("wpn_ak74",vector():set(-152.0,-18.0,-144.3),98126,45)
+	Имя_файла.spawn_not_UsedAI("wpn_ak74",vector():set(-152.0,-18.0,-144.3),98126,45)
 end
 
 -- Убить нпс, который в оффлайне
@@ -237,8 +252,8 @@ end
 
 -- Вызов
 function kill_my_npc()
-	local obj = alife():object("esc_bridge_soldier5") -- Кузнецов
-	sak.kill_offline_npc(obj)
+	local sobj = alife():object("esc_bridge_soldier5") -- Кузнецов
+	Имя_файла.kill_offline_npc(sobj)
 end
 
 --Фиксим флаги, из-за них нпс не могут ходить между смартами в оффлайне и тд
@@ -301,7 +316,7 @@ end
 -- Пример использования
 function make_free()
 	local sobj = alife():object("esc_wolf")
-	sak.make_enemy_free(sobj)
+	Имя_файла.make_enemy_free(sobj)
 end
 
 -- возвращает уровень здоровья НПС, для проверки в оффлайне жив/мёртв НПС
