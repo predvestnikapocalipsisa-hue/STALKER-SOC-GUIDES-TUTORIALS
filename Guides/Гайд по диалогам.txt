@@ -8,11 +8,11 @@ https://youtu.be/c2BPlFVoQO0
 ---------------------------------------------------------------------
 Добавление диалогов нпс \gamedata\config\gameplay\character_desc_*.xml
 
-	<actor_dialog>my_kvest_dialog</actor_dialog>
+	<actor_dialog>my_actor_dialog</actor_dialog>
 актор будет говорить  первую фразу
 
 если нужно чтобы первую фразу говорил нпс:
-	<start_dialog>id_диалога</start_dialog>
+	<start_dialog>my_start_dialog</start_dialog>
 ---------------------------------------------------------------------
 Диалог будем писать в одном из существующих файлов: \gamedata\config\gameplay\dialogs_escape.xml
 ---------------------------------------------------------------------
@@ -21,8 +21,6 @@ https://youtu.be/c2BPlFVoQO0
 Начинаем его мы, то есть актор, а при соблюдении определённых условий появляются новые фразы и разветвления диалога
 ---------------------------------------------------------------------
 Скажу прямо, на глаз разобраться трудно, смотрим мой урок по Диалог_Эдитор и открываем диалог в проге и ознакамливаемся нормально.
-
-Диалог поделён на две секции, 0 фраза, её говорим МЫ, вторая ветка по сути не дописана, это бонус так сказать)
 ---------------------------------------------------------------------------------------------------
 Параметры диалога
 id - названия
@@ -35,7 +33,7 @@ priority - приоритета
 
 <precondition> - функция для ограничения показа диалога до выполнения условий функции - диалог не будет отображаться среди доступных
 ---------------------------------------------------------------------------------------------------
-<dialog id="my_kvest_dialog"> Это шапка диалога его айди
+<dialog id="my_actor_dialog"> Это шапка диалога его айди
 
 закрывается так:
 </dialog>
@@ -67,15 +65,16 @@ action - вызов\выполнение функции
 Если в диалоге не будет доступной фразы для ответа гг или нпс - случится вылет, поэтому всегда предусматриваем такую фразу
 ---------------------------------------------------------------------------------------------------
             <phrase id="0">
-                <text>my_kvest_dialog_0</text>
+                <text>my_actor_dialog_0</text>
                 <next>1</next>
                 <next>2</next>
+                <next>25</next>
             </phrase>
-Каждый диалог начинается с 0 фразы,её говорим мы и нпс нам ответит фразу 1, либо 2, в зависимости от условий их появления.		
+Каждый диалог начинается с 0 фразы, в actor_dialog её говорим мы и нпс нам ответит фразу 1, либо 2, либо 25, в зависимости от условий их появления.		
 ---------------------------------------------------------------------------------------------------
-Чтобы разнообразить первую фразу в диалоге, нужно не указывать текст в 0 фразе, тогда фраза отображаться не будет, но зачется как прочитанная
+в start_dialog можно разнообразить первую фразу, нужно не указывать текст в 0 фразе, тогда фраза отображаться не будет, но зачется как прочитанная
  
-           <phrase id="0">
+            <phrase id="0">
                 <text></text>
                 <next>1</next>
                 <next>2</next>
@@ -83,63 +82,62 @@ action - вызов\выполнение функции
             </phrase>
 
 Поэтому следующую фразу тоже делаем пустой
-           <phrase id="1">
+            <phrase id="1">
                 <text></text>
-                <next>11</next>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <next>1000</next>
             </phrase>
 
 В первую фрвзу можно поставить доп условия для её закрытия/показа
 
-Во фразе 11 уже ставим текст, с него начнётся диалог
+Во фразе 1000 уже ставим текст, с него начнётся диалог
 
 Так можно сделать много веток диалогов, которые будут показываться в зависимости от выполнения условий
 ---------------------------------------------------------------------------------------------------
 Рвзбор остальных фраз
 ---------------------------------------------------------------------------------------------------
             <phrase id="1">
-                <text>my_kvest_dialog_1</text>
-                <dont_has_info>my2_kvest_done</dont_has_info>
-                <next>11</next>
+                <text>my_actor_dialog_1</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
                 <next>10</next>
-                <next>9</next>
             </phrase>
 
-<dont_has_info>my2_kvest_done</dont_has_info> первая ветка диалога работает сразу и до получения инфопоршн "my2_kvest_done"
+<dont_has_info>my_kvest_done</dont_has_info> первая ветка диалога работает сразу и до получения инфопоршн "my_kvest_done"
 ------------------------------------------------------------------------------------------------
 ---
-            <phrase id="111">
-                <text>my_kvest_dialog_111</text>
+            <phrase id="101">
+                <text>my_start_dialog_101</text>
                 <dont_has_info>my_kvest_start</dont_has_info>
-                <next>1111</next>
-                <next>1112</next>
+                <next>1011</next>
+                <next>1012</next>
             </phrase>
 
-<dont_has_info>my_kvest_start</dont_has_info> После получения инфопоршня "my_kvest_start" ветка диалога уберается из игры, пока не будет  сделан disable инфопоршня. То есть та ветка, в которой мы соглашаемся выполнить квест.
+<dont_has_info>my_kvest_start</dont_has_info> После получения инфопоршня "my_kvest_start" ветка диалога уберается из игры, если не будет сделан disable инфопоршня. То есть та ветка, в которой мы соглашаемся выполнить квест.
 ---------------------------------------------------------------------------------------------------
-            <phrase id="11112">
-                <text>my_kvest_dialog_11112</text>
+            <phrase id="101111">
+                <text>my_start_dialog_101111</text>
                 <give_info>my_kvest_start</give_info>
-                <next>211</next>
+                <next>1011111</next>
             </phrase>
 
-<give_info>my_kvest_start</give_info> Это выдача инфопоршня, который запускает квест "my_kvest", и после этого 111 фраза больше не доступна
+<give_info>my_kvest_start</give_info> Это выдача инфопоршня, который запускает квест, и после этого 101 фраза больше не доступна
 ---------------------------------------------------------------------------------------------------
-            <phrase id="12">
-                <text>my_kvest_dialog_12</text>
+            <phrase id="102">
+                <text>my_actor_dialog_102</text>
                 <dont_has_info>my_kvest_done</dont_has_info>
                 <has_info>my_kvest_start</has_info>
-                <next>121</next>
-                <next>1211</next>
+                <next>1021</next>
+                <next>1022</next>
             </phrase>
 
 <has_info>my_kvest_start</has_info> проверка того что игрок получил инфопоршень my_kvest_start, пока он не получен ветка диалога не появляется, сама ветка нужна чтобы пока мы не выполнили подзадание в диалоге была затычка.
 
 <dont_has_info>my_kvest_done</dont_has_info> после получения инфопоршня "my_kvest_done" ветка диалога уберается из игры. Та в которой мы завершили квест.
 ---------------------------------------------------------------------------------------------------
-            <phrase id="121">
-                <text>my_kvest_dialog_121</text>
+            <phrase id="1021">
+                <text>my_actor_dialog_1021</text>
                 <precondition>sak.prov</precondition>
-                <next>122</next>
+                <next>10211</next>
             </phrase>
 
 <precondition>sak.prov</precondition> проверка нужных предметов для того, чтобы фраза в диалоге о том что мы выполнили подзадание стала доступна
@@ -148,12 +146,11 @@ action - вызов\выполнение функции
 >имя_файла.имя_функции<
 файл из gamedata/scripts
 ---------------------------------------------------------------------------------------------------
-            <phrase id="122">
-                <text>my_kvest_dialog_122</text>
+            <phrase id="10211">
+                <text>my_actor_dialog_10211</text>
                 <action>sak.nagrada</action>
                 <action>sak.zabral</action>
                 <give_info>my_kvest_done</give_info>
-                <next>11</next>
             </phrase>
 
 <give_info>my_kvest_done</give_info> собствено сам инфопоршень о завершении квеста
@@ -165,28 +162,19 @@ action - вызов\выполнение функции
 файл из gamedata/scripts
 ---------------------------------------------------------------------------------------------------
             <phrase id="2">
-                <text>my_kvest_dialog_2</text>
-                <has_info>my2_kvest_done</has_info>
-                <next>21</next>
-                <next>22</next>
-                <next>10</next>
-                <next>9</next>
+                <text>my_actor_dialog_2</text>
+                <dont_has_info>my_kvest2_start</dont_has_info>
+                <has_info>my_kvest_done</has_info>
+                <next>20</next>
             </phrase>
 
-<has_info>my2_kvest_done</has_info> При получении "my2_kvest_done" вторая ветка диалога появляется и открывает путь к новым вариациям диалога.
----------------------------------------------------------------------------------------------------	
-Диалог на русском оформляем в файле \gamedata\config\text\rus\stable_dialogs_escape.xml
----------------------------------------------------------------------------------------------------
-Принцип такой - айди фразы и текст
-    <string id="my_kvest_dialog_0">
-        <text>Привет</text>
-    </string>
+<has_info>my_kvest_done</has_info> При получении "my_kvest2_start" вторая ветка диалога появляется и открывает путь к новым вариациям диалога.
 ---------------------------------------------------------------------------------------------------	
 в \gamedata\config\gameplay\info_portions.xml вставляем наши инфопоршни
 
   <info_portion id="my_kvest_start"></info_portion>
- 
   <info_portion id="my_kvest_done"></info_portion>
+  <info_portion id="my_kvest2_start"></info_portion>
 ---------------------------------------------------------------------------------------------------
 И наконец файл \gamedata\scripts\sak.script
 
@@ -205,6 +193,156 @@ function nagrada()
 sak.create_items_actor("medkit",3)
 sak.create_items_actor("bandage",5)
 end
+---------------------------------------------------------------------------------------------------	
+Диалог на русском оформляем в файле \gamedata\config\text\rus\stable_dialogs_escape.xml
+---------------------------------------------------------------------------------------------------
+    <string id="my_actor_dialog_0">
+        <text>Привет!</text>
+    </string>
+    <string id="my_actor_dialog_1">
+        <text>Что нового?</text>
+    </string>
+    <string id="my_actor_dialog_10">
+        <text>Хочу поговорить о работе</text>
+    </string>
+    <string id="my_actor_dialog_101">
+        <text>Нужно сходить кое-куда, и принести мне кое-что</text>
+    </string>
+    <string id="my_actor_dialog_1011">
+        <text>Да интересно слушаю тебя!</text>
+    </string>
+    <string id="my_actor_dialog_10111">
+        <text>Тут не подалеку, артефакт, принеси его, а?</text>
+    </string>
+    <string id="my_actor_dialog_101111">
+        <text>Да конечно чувак!</text>
+    </string>
+    <string id="my_actor_dialog_1011111">
+        <text>Жду выполнения</text>
+    </string>
+    <string id="my_actor_dialog_101112">
+        <text>Не буду я искать тебе арт.</text>
+    </string>
+    <string id="my_actor_dialog_1012">
+        <text>Не, это не по мне</text>
+    </string>
+    <string id="my_actor_dialog_102">
+        <text>Где мой арт мен?</text>
+    </string>
+    <string id="my_actor_dialog_1021">
+        <text>Нашёл его держи друг</text>
+    </string>
+    <string id="my_actor_dialog_10211">
+        <text>Держи награду чувак!</text>
+    </string>
+    <string id="my_actor_dialog_1022">
+        <text>Ещё нет.</text>
+    </string>
+    <string id="my_actor_dialog_10221">
+        <text>Дуй работать чувак!</text>
+    </string>
+    <string id="my_actor_dialog_2">
+        <text>Слушай сюда, сталкер.</text>
+    </string>
+    <string id="my_actor_dialog_20">
+        <text>На ушах.</text>
+    </string>
+    <string id="my_actor_dialog_21">
+        <text>Видел «Чёрную аномалию» за Янтарём? Там, где даже мутанты обходят стороной.</text>
+    </string>
+    <string id="my_actor_dialog_22">
+        <text>Видел. Говорят, там время рвётся.</text>
+    </string>
+    <string id="my_actor_dialog_23">
+        <text>Вот именно. Недавно группа «Долга» пропала внутри. Осталась только рация… и записка: «Не верьте теням».</text>
+    </string>
+    <string id="my_actor_dialog_24">
+        <text>И что надо?</text>
+    </string>
+    <string id="my_actor_dialog_25">
+        <text>Залезай внутрь. Найди их ПДА. Живыми — не прошу. Но данные нужны. Через два дня аномалия уйдёт в спячку — у тебя есть до рассвета.</text>
+    </string>
+    <string id="my_actor_dialog_26">
+        <text>А если не вернусь?</text>
+    </string>
+    <string id="my_actor_dialog_27">
+        <text>Тогда я скажу твоей жене, что ты погиб как герой.</text>
+    </string>
+    <string id="my_actor_dialog_28">
+        <text>…Ладно. Давай координаты.</text>
+    </string>
+    <string id="my_start_dialog_10">
+        <text>Хочу поговорить о работе</text>
+    </string>
+    <string id="my_start_dialog_1000">
+        <text>Что нового?</text>
+    </string>
+    <string id="my_start_dialog_101">
+        <text>Нужно сходить кое-куда, и принести мне кое-что</text>
+    </string>
+    <string id="my_start_dialog_1011">
+        <text>Да интересно слушаю тебя!</text>
+    </string>
+    <string id="my_start_dialog_10111">
+        <text>Тут не подалеку, артефакт, принеси его, а?</text>
+    </string>
+    <string id="my_start_dialog_101111">
+        <text>Да конечно чувак!</text>
+    </string>
+    <string id="my_start_dialog_1011111">
+        <text>Жду выполнения</text>
+    </string>
+    <string id="my_start_dialog_101112">
+        <text>Не буду я искать тебе арт.</text>
+    </string>
+    <string id="my_start_dialog_1012">
+        <text>Не, это не по мне</text>
+    </string>
+    <string id="my_start_dialog_102">
+        <text>Где мой арт мен?</text>
+    </string>
+    <string id="my_start_dialog_1021">
+        <text>Нашёл его держи друг</text>
+    </string>
+    <string id="my_start_dialog_10211">
+        <text>Держи награду чувак!</text>
+    </string>
+    <string id="my_start_dialog_1022">
+        <text>Ещё нет.</text>
+    </string>
+    <string id="my_start_dialog_10221">
+        <text>Дуй работать чувак!</text>
+    </string>
+    <string id="my_start_dialog_20">
+        <text>На ушах.</text>
+    </string>
+    <string id="my_start_dialog_2000">
+        <text>Слушай сюда, сталкер.</text>
+    </string>
+    <string id="my_start_dialog_21">
+        <text>Видел «Чёрную аномалию» за Янтарём? Там, где даже мутанты обходят стороной.</text>
+    </string>
+    <string id="my_start_dialog_22">
+        <text>Видел. Говорят, там время рвётся.</text>
+    </string>
+    <string id="my_start_dialog_23">
+        <text>Вот именно. Недавно группа «Долга» пропала внутри. Осталась только рация… и записка: «Не верьте теням».</text>
+    </string>
+    <string id="my_start_dialog_24">
+        <text>И что надо?</text>
+    </string>
+    <string id="my_start_dialog_25">
+        <text>Залезай внутрь. Найди их ПДА. Живыми — не прошу. Но данные нужны. Через два дня аномалия уйдёт в спячку — у тебя есть до рассвета.</text>
+    </string>
+    <string id="my_start_dialog_26">
+        <text>А если не вернусь?</text>
+    </string>
+    <string id="my_start_dialog_27">
+        <text>Тогда я скажу твоей жене, что ты погиб как герой.</text>
+    </string>
+    <string id="my_start_dialog_28">
+        <text>…Ладно. Давай координаты.</text>
+    </string>
 ---------------------------------------------------------------------
 Можно в начале диалога сделать несколько условий, столько сколько нужно:
 <dialog id="my_kvest_dialog" priority="2">
