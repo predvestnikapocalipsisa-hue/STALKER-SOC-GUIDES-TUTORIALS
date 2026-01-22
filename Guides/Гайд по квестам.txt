@@ -208,7 +208,13 @@ hint="escape_trader" - это текст метки из папки config\text\
 
 
 ---------------------------------------------------------------------------------------------------
-Диалог разобран в Гайд по диалогам.txt и https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/gsc-dialog-editor?authuser=0
+Диалог разобран в Гайд по диалогам.txt и 
+
+Разбор GSC Dialog Editor со скриншотами:
+https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/gsc-dialog-editor?authuser=0
+
+Разбор RoH Dialog Editor со скриншотами:
+https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/roh-dialog-editor
 ---------------------------------------------------------------------------------------------------	
 в \gamedata\config\gameplay\info_portions.xml вставляем наши инфопоршни
 
