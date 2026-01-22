@@ -1,11 +1,16 @@
 -- -*- mode: xml; coding: windows-1251-dos -*-
 ---------------------------------------------------------------------
 Для удобного написания диалога используем Диалог Эдитор от GSC или от разработчиков модификации Ray of Hope:
-https://youtu.be/xBiJemOekDw
-https://youtu.be/c2BPlFVoQO0
 
-Разбор со скриншотами:
+Разбор GSC Dialog Editor со скриншотами:
 https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/gsc-dialog-editor?authuser=0
+
+видео: https://youtu.be/xBiJemOekDw
+
+Разбор RoH Dialog Editor со скриншотами:
+https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/roh-dialog-editor
+
+видео: https://youtu.be/c2BPlFVoQO0
 ---------------------------------------------------------------------
 Добавление диалогов нпс \gamedata\config\gameplay\character_desc_*.xml
 
