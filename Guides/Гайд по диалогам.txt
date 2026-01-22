@@ -18,253 +18,7 @@ https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/gsc-dialog-ed
 	<start_dialog>my_start_dialog</start_dialog>
 ---------------------------------------------------------------------
 Диалоги будем писать в одном из существующих файлов: \gamedata\config\gameplay\dialogs_escape.xml
----------------------------------------------------------------------
-     <dialog id="my_actor_dialog">
-        <phrase_list>
-            <phrase id="1022">
-                <text>my_actor_dialog_1022</text>
-                <next>10221</next>
-            </phrase>
-            <phrase id="1012">
-                <text>my_actor_dialog_1012</text>
-            </phrase>
-            <phrase id="1021">
-                <text>my_actor_dialog_1021</text>
-                <precondition>sak.prov</precondition>
-                <next>10211</next>
-            </phrase>
-            <phrase id="10221">
-                <text>my_actor_dialog_10221</text>
-            </phrase>
-            <phrase id="101">
-                <text>my_actor_dialog_101</text>
-                <dont_has_info>my_kvest_start</dont_has_info>
-                <next>1011</next>
-                <next>1012</next>
-            </phrase>
-            <phrase id="1011">
-                <text>my_actor_dialog_1011</text>
-                <next>10111</next>
-            </phrase>
-            <phrase id="10111">
-                <text>my_actor_dialog_10111</text>
-                <next>101111</next>
-                <next>101112</next>
-            </phrase>
-            <phrase id="1011111">
-                <text>my_actor_dialog_1011111</text>
-            </phrase>
-            <phrase id="101111">
-                <text>my_actor_dialog_101111</text>
-                <give_info>my_kvest_start</give_info>
-                <next>1011111</next>
-            </phrase>
-            <phrase id="101112">
-                <text>my_actor_dialog_101112</text>
-            </phrase>
-            <phrase id="102">
-                <text>my_actor_dialog_102</text>
-                <dont_has_info>my_kvest_done</dont_has_info>
-                <has_info>my_kvest_start</has_info>
-                <next>1021</next>
-                <next>1022</next>
-            </phrase>
-            <phrase id="20">
-                <text>my_actor_dialog_20</text>
-                <next>21</next>
-            </phrase>
-            <phrase id="28">
-                <text>my_actor_dialog_28</text>
-            </phrase>
-            <phrase id="21">
-                <text>my_actor_dialog_21</text>
-                <next>22</next>
-            </phrase>
-            <phrase id="22">
-                <text>my_actor_dialog_22</text>
-                <next>23</next>
-            </phrase>
-            <phrase id="23">
-                <text>my_actor_dialog_23</text>
-                <next>24</next>
-            </phrase>
-            <phrase id="26">
-                <text>my_actor_dialog_26</text>
-                <next>27</next>
-            </phrase>
-            <phrase id="27">
-                <text>my_actor_dialog_27</text>
-                <next>28</next>
-            </phrase>
-            <phrase id="24">
-                <text>my_actor_dialog_24</text>
-                <give_info>my_kvest2_start</give_info>
-                <next>25</next>
-            </phrase>
-            <phrase id="10">
-                <text>my_actor_dialog_10</text>
-                <next>101</next>
-                <next>102</next>
-            </phrase>
-            <phrase id="10211">
-                <text>my_actor_dialog_10211</text>
-                <action>sak.nagrada</action>
-                <action>sak.zabral</action>
-                <give_info>my_kvest_done</give_info>
-            </phrase>
-            <phrase id="1">
-                <text>my_actor_dialog_1</text>
-                <dont_has_info>my_kvest_done</dont_has_info>
-                <next>10</next>
-            </phrase>
-            <phrase id="2">
-                <text>my_actor_dialog_2</text>
-                <dont_has_info>my_kvest2_start</dont_has_info>
-                <has_info>my_kvest_done</has_info>
-                <next>20</next>
-            </phrase>
-            <phrase id="0">
-                <text>my_actor_dialog_0</text>
-                <next>1</next>
-                <next>2</next>
-                <next>25</next>
-            </phrase>
-            <phrase id="25">
-                <text>my_actor_dialog_25</text>
-                <has_info>my_kvest2_start</has_info>
-                <next>26</next>
-            </phrase>
-        </phrase_list>
-    </dialog>
-    <dialog id="my_start_dialog">
-        <phrase_list>
-            <phrase id="1022">
-                <text>my_start_dialog_1022</text>
-                <next>10221</next>
-            </phrase>
-            <phrase id="1012">
-                <text>my_start_dialog_1012</text>
-            </phrase>
-            <phrase id="1021">
-                <text>my_start_dialog_1021</text>
-                <precondition>sak.prov</precondition>
-                <next>10211</next>
-            </phrase>
-            <phrase id="10221">
-                <text>my_start_dialog_10221</text>
-            </phrase>
-            <phrase id="101">
-                <text>my_start_dialog_101</text>
-                <dont_has_info>my_kvest_start</dont_has_info>
-                <next>1011</next>
-                <next>1012</next>
-            </phrase>
-            <phrase id="1011">
-                <text>my_start_dialog_1011</text>
-                <next>10111</next>
-            </phrase>
-            <phrase id="10111">
-                <text>my_start_dialog_10111</text>
-                <next>101111</next>
-                <next>101112</next>
-            </phrase>
-            <phrase id="1011111">
-                <text>my_start_dialog_1011111</text>
-            </phrase>
-            <phrase id="101111">
-                <text>my_start_dialog_101111</text>
-                <give_info>my_kvest_start</give_info>
-                <next>1011111</next>
-            </phrase>
-            <phrase id="101112">
-                <text>my_start_dialog_101112</text>
-            </phrase>
-            <phrase id="102">
-                <text>my_start_dialog_102</text>
-                <dont_has_info>my_kvest_done</dont_has_info>
-                <has_info>my_kvest_start</has_info>
-                <next>1021</next>
-                <next>1022</next>
-            </phrase>
-            <phrase id="20">
-                <text>my_start_dialog_20</text>
-                <next>21</next>
-            </phrase>
-            <phrase id="28">
-                <text>my_start_dialog_28</text>
-            </phrase>
-            <phrase id="21">
-                <text>my_start_dialog_21</text>
-                <next>22</next>
-            </phrase>
-            <phrase id="22">
-                <text>my_start_dialog_22</text>
-                <next>23</next>
-            </phrase>
-            <phrase id="23">
-                <text>my_start_dialog_23</text>
-                <next>24</next>
-            </phrase>
-            <phrase id="26">
-                <text>my_start_dialog_26</text>
-                <next>27</next>
-            </phrase>
-            <phrase id="27">
-                <text>my_start_dialog_27</text>
-                <next>28</next>
-            </phrase>
-            <phrase id="24">
-                <text>my_start_dialog_24</text>
-                <give_info>my_kvest2_start</give_info>
-                <next>25</next>
-            </phrase>
-            <phrase id="10211">
-                <text>my_start_dialog_10211</text>
-                <action>sak.nagrada</action>
-                <action>sak.zabral</action>
-                <give_info>my_kvest_done</give_info>
-            </phrase>
-            <phrase id="10">
-                <text>my_start_dialog_10</text>
-                <next>101</next>
-                <next>102</next>
-            </phrase>
-            <phrase id="2">
-                <text></text>
-                <dont_has_info>my_kvest2_start</dont_has_info>
-                <has_info>my_kvest_done</has_info>
-                <next>2000</next>
-            </phrase>
-            <phrase id="2000">
-                <text>my_start_dialog_2000</text>
-                <next>20</next>
-            </phrase>
-            <phrase id="1">
-                <text></text>
-                <dont_has_info>my_kvest_done</dont_has_info>
-                <next>1000</next>
-            </phrase>
-            <phrase id="1000">
-                <text>my_start_dialog_1000</text>
-                <next>10</next>
-            </phrase>
-            <phrase id="0">
-                <text></text>
-                <next>1</next>
-                <next>2</next>
-                <next>3</next>
-            </phrase>
-            <phrase id="25">
-                <text>my_start_dialog_25</text>
-                <next>26</next>
-            </phrase>
-            <phrase id="3">
-                <text></text>
-                <has_info>my_kvest2_start</has_info>
-                <next>25</next>
-            </phrase>
-        </phrase_list>
-    </dialog>
+диалоги в конце файла
 ---------------------------------------------------------------------
 Разобранный ниже диалог можно потестить в "Gamedata из гайда по квесту" https://drive.google.com/open?id=10NtSLlxWLDGGx6kY0TgB9Py7uxgtcbmY&usp=drive_fs
 
@@ -746,3 +500,253 @@ need_osoznanie_mode = true
 
 
 или при спавне нпс её указать.
+
+<!---------------------------------------my_actor_dialog----------------------------------------------------->	
+     <dialog id="my_actor_dialog">
+        <phrase_list>
+            <phrase id="1022">
+                <text>my_actor_dialog_1022</text>
+                <next>10221</next>
+            </phrase>
+            <phrase id="1012">
+                <text>my_actor_dialog_1012</text>
+            </phrase>
+            <phrase id="1021">
+                <text>my_actor_dialog_1021</text>
+                <precondition>sak.prov</precondition>
+                <next>10211</next>
+            </phrase>
+            <phrase id="10221">
+                <text>my_actor_dialog_10221</text>
+            </phrase>
+            <phrase id="101">
+                <text>my_actor_dialog_101</text>
+                <dont_has_info>my_kvest_start</dont_has_info>
+                <next>1011</next>
+                <next>1012</next>
+            </phrase>
+            <phrase id="1011">
+                <text>my_actor_dialog_1011</text>
+                <next>10111</next>
+            </phrase>
+            <phrase id="10111">
+                <text>my_actor_dialog_10111</text>
+                <next>101111</next>
+                <next>101112</next>
+            </phrase>
+            <phrase id="1011111">
+                <text>my_actor_dialog_1011111</text>
+            </phrase>
+            <phrase id="101111">
+                <text>my_actor_dialog_101111</text>
+                <give_info>my_kvest_start</give_info>
+                <next>1011111</next>
+            </phrase>
+            <phrase id="101112">
+                <text>my_actor_dialog_101112</text>
+            </phrase>
+            <phrase id="102">
+                <text>my_actor_dialog_102</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <has_info>my_kvest_start</has_info>
+                <next>1021</next>
+                <next>1022</next>
+            </phrase>
+            <phrase id="20">
+                <text>my_actor_dialog_20</text>
+                <next>21</next>
+            </phrase>
+            <phrase id="28">
+                <text>my_actor_dialog_28</text>
+            </phrase>
+            <phrase id="21">
+                <text>my_actor_dialog_21</text>
+                <next>22</next>
+            </phrase>
+            <phrase id="22">
+                <text>my_actor_dialog_22</text>
+                <next>23</next>
+            </phrase>
+            <phrase id="23">
+                <text>my_actor_dialog_23</text>
+                <next>24</next>
+            </phrase>
+            <phrase id="26">
+                <text>my_actor_dialog_26</text>
+                <next>27</next>
+            </phrase>
+            <phrase id="27">
+                <text>my_actor_dialog_27</text>
+                <next>28</next>
+            </phrase>
+            <phrase id="24">
+                <text>my_actor_dialog_24</text>
+                <give_info>my_kvest2_start</give_info>
+                <next>25</next>
+            </phrase>
+            <phrase id="10">
+                <text>my_actor_dialog_10</text>
+                <next>101</next>
+                <next>102</next>
+            </phrase>
+            <phrase id="10211">
+                <text>my_actor_dialog_10211</text>
+                <action>sak.nagrada</action>
+                <action>sak.zabral</action>
+                <give_info>my_kvest_done</give_info>
+            </phrase>
+            <phrase id="1">
+                <text>my_actor_dialog_1</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <next>10</next>
+            </phrase>
+            <phrase id="2">
+                <text>my_actor_dialog_2</text>
+                <dont_has_info>my_kvest2_start</dont_has_info>
+                <has_info>my_kvest_done</has_info>
+                <next>20</next>
+            </phrase>
+            <phrase id="0">
+                <text>my_actor_dialog_0</text>
+                <next>1</next>
+                <next>2</next>
+                <next>25</next>
+            </phrase>
+            <phrase id="25">
+                <text>my_actor_dialog_25</text>
+                <has_info>my_kvest2_start</has_info>
+                <next>26</next>
+            </phrase>
+        </phrase_list>
+    </dialog>
+<!---------------------------------------my_start_dialog----------------------------------------------------->	
+    <dialog id="my_start_dialog">
+        <phrase_list>
+            <phrase id="1022">
+                <text>my_start_dialog_1022</text>
+                <next>10221</next>
+            </phrase>
+            <phrase id="1012">
+                <text>my_start_dialog_1012</text>
+            </phrase>
+            <phrase id="1021">
+                <text>my_start_dialog_1021</text>
+                <precondition>sak.prov</precondition>
+                <next>10211</next>
+            </phrase>
+            <phrase id="10221">
+                <text>my_start_dialog_10221</text>
+            </phrase>
+            <phrase id="101">
+                <text>my_start_dialog_101</text>
+                <dont_has_info>my_kvest_start</dont_has_info>
+                <next>1011</next>
+                <next>1012</next>
+            </phrase>
+            <phrase id="1011">
+                <text>my_start_dialog_1011</text>
+                <next>10111</next>
+            </phrase>
+            <phrase id="10111">
+                <text>my_start_dialog_10111</text>
+                <next>101111</next>
+                <next>101112</next>
+            </phrase>
+            <phrase id="1011111">
+                <text>my_start_dialog_1011111</text>
+            </phrase>
+            <phrase id="101111">
+                <text>my_start_dialog_101111</text>
+                <give_info>my_kvest_start</give_info>
+                <next>1011111</next>
+            </phrase>
+            <phrase id="101112">
+                <text>my_start_dialog_101112</text>
+            </phrase>
+            <phrase id="102">
+                <text>my_start_dialog_102</text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <has_info>my_kvest_start</has_info>
+                <next>1021</next>
+                <next>1022</next>
+            </phrase>
+            <phrase id="20">
+                <text>my_start_dialog_20</text>
+                <next>21</next>
+            </phrase>
+            <phrase id="28">
+                <text>my_start_dialog_28</text>
+            </phrase>
+            <phrase id="21">
+                <text>my_start_dialog_21</text>
+                <next>22</next>
+            </phrase>
+            <phrase id="22">
+                <text>my_start_dialog_22</text>
+                <next>23</next>
+            </phrase>
+            <phrase id="23">
+                <text>my_start_dialog_23</text>
+                <next>24</next>
+            </phrase>
+            <phrase id="26">
+                <text>my_start_dialog_26</text>
+                <next>27</next>
+            </phrase>
+            <phrase id="27">
+                <text>my_start_dialog_27</text>
+                <next>28</next>
+            </phrase>
+            <phrase id="24">
+                <text>my_start_dialog_24</text>
+                <give_info>my_kvest2_start</give_info>
+                <next>25</next>
+            </phrase>
+            <phrase id="10211">
+                <text>my_start_dialog_10211</text>
+                <action>sak.nagrada</action>
+                <action>sak.zabral</action>
+                <give_info>my_kvest_done</give_info>
+            </phrase>
+            <phrase id="10">
+                <text>my_start_dialog_10</text>
+                <next>101</next>
+                <next>102</next>
+            </phrase>
+            <phrase id="2">
+                <text></text>
+                <dont_has_info>my_kvest2_start</dont_has_info>
+                <has_info>my_kvest_done</has_info>
+                <next>2000</next>
+            </phrase>
+            <phrase id="2000">
+                <text>my_start_dialog_2000</text>
+                <next>20</next>
+            </phrase>
+            <phrase id="1">
+                <text></text>
+                <dont_has_info>my_kvest_done</dont_has_info>
+                <next>1000</next>
+            </phrase>
+            <phrase id="1000">
+                <text>my_start_dialog_1000</text>
+                <next>10</next>
+            </phrase>
+            <phrase id="0">
+                <text></text>
+                <next>1</next>
+                <next>2</next>
+                <next>3</next>
+            </phrase>
+            <phrase id="25">
+                <text>my_start_dialog_25</text>
+                <next>26</next>
+            </phrase>
+            <phrase id="3">
+                <text></text>
+                <has_info>my_kvest2_start</has_info>
+                <next>25</next>
+            </phrase>
+        </phrase_list>
+    </dialog>
+---------------------------------------------------------------------
