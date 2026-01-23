@@ -23,12 +23,12 @@ function имя_функции ()
 	end
 end
 
-в этой функции проверяется существование актора, так как может случится вылет если актора не будет
+в этой функции проверяется существование актора, так как может случится вылет если актора не будет, зависит от того где происходит запуск функции.
 
-так же если требуется кучу раз сделать проверку на актора, то в начале файла делаем 
+так же если требуется кучу раз сделать проверку на актора, то в начале файла делаем локальную переменную
 local actor = db.actor
 
-и в проверках if actor then
+и тогда в проверках: if actor then
 экономия места.
 
 так же end необходим в циклах for
@@ -45,13 +45,13 @@ function relocate_item_section(victim, section, type)
 
 и вместо (victim, section, type) мы при вызове указали (db.actor, "wpn_pm", "in")
 
-Когда в функцию не нужно ничего передавать делаем function имя_функции ()
+Когда в функцию не нужно ничего передавать делаем function имя_функции()
 
 В диалогах и логике:
 первый аргумент это актор - главный герой, его клиентский объект
 второй аргумент это нпс, в логике которого была вызвана функция, либо тот с кем мы ведем разговор - его клиентский объект
 
-в оригинале в диалогах больше ничего не передать, а вот в ОГСР есть поддержка передачи аргументов в функции, вызываемые из диалогов, например:
+в оригинале диалоги не позволяют передать, что-то кроме актора и нпс, а вот в ОГСР есть поддержка передачи аргументов в функции, вызываемые из диалогов, например:
 <precondition>my_script.test_func(123, true, nil, ...)</precondition>
 <action>my_script.test_func(123, true, nil, ...)</action>
 
@@ -59,6 +59,8 @@ function relocate_item_section(victim, section, type)
 <action>dialogs.relocate_item_section(db.actor, "wpn_pm", "in")</action>
 
 Если указать в конце переменной кол-во аргументов ... , то туда будут переданы стандартные аргументы, типа pSpeakerGO1->lua_game_object(), pSpeakerGO2->lua_game_object(), dialog_id, phrase_id.
+(актор, нпс)
+
 
 То есть если мы хотим взаимодействовать с нпс, обязательно делаем два аргумента (actor,npc)
 function my(actor,npc)
@@ -76,16 +78,20 @@ end
 
 т.е. видим что актор не участвует, но если не указать второй аргумент, не важно как вы записали первый - это будет актор
 
-Для передачи других аргументов в логике, например, чисел - делаем так:
+Для передачи других аргументов в логике, например, чисел - оформляем функцию так:
+function new_fire(actor, npc, p)
+npc:set_item(object.fire1, npc:best_weapon(), p[1] ,p[2])  
+end
+
+
+в логике:
 on_info2 = %=new_fire(4:1000)%
 
 в аргументы добавился третий - p
 
 далее оно само понимает куда подставить 4, а куда 1000
 
-function new_fire(actor, npc, p)
-npc:set_item(object.fire1, npc:best_weapon(), p[1] ,p[2])  
-end
+
 
 Закрепим, что функции внутри функции вызывются так:
 
@@ -123,6 +129,7 @@ local sobj = alife():story_object(6)	 -- стори айди
 local sobj = alife():object("esc_wolf") -- получаем айди по имени из all.spawn
 
 пример:
+--убрать привязку к аи сетке
 alife():use_ai_locations(sobj, false)
 --удалить объект:
 alife():release(sobj)
@@ -227,8 +234,8 @@ end
 function spawn()
   local sobj = create(section, position, lvid, gvid)
   level.client_spawn_manager():add(sobj.id, 65535,
-    function (id, cobj)
-      cobj:set_goodwill(-5000, db.actor)
+    function (id, obj)
+      obj:set_goodwill(-5000, db.actor)
     end
   )
   return obj
@@ -236,11 +243,11 @@ end
 Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне.
 
 В данной функции указываются координаты и секция вашего нпс, всё как обычно, а вот взаимодействие может быть разным, тут:
-cobj:set_goodwill(-5000, db.actor)
-изменение отношения этого нпс к актору, параметр cobj передаётся за счёт
-function (id, cobj)
+obj:set_goodwill(-5000, db.actor)
+изменение отношения этого нпс к актору, параметр obj передаётся за счёт
+function (id, obj)
 поэтому структуру не менять, а само взаимодействие с cobj можно сделать так:
-utils.send_to_nearest_accessible_vertex(cobj,107814)
+utils.send_to_nearest_accessible_vertex(obj,107814)
 то есть передаём как удобно.
 --------------------------------------------------------------------------------------------------------------
 Использование функций в логике
@@ -282,7 +289,7 @@ end
 Также немало важно использовать локальные переменные:
 local test = 0
 
-таким образом во всех функциях скрипта test будет равен 0
+таким образом во всех функциях скрипта - test будет равен 0
 
 всё это для оптимизации.
 
@@ -332,12 +339,12 @@ _G.amk = nil
         <action>dialogs.transfer_medkit</action> 
     </phrase>
 	
-	в инфопоршях аналогично:
+	в инфопоршн аналогично:
 	<info_portion id="escape_stalker_meet">
 		<action>dialogs.transfer_medkit</action>
 	</info_portion>
 
-Но в инфо лучше не злоупотреблять, а то вылеты непонятны.
+Но в инфо лучше не злоупотреблять - вылеты неинформативные.
 
 dialogs это dialogs.script, а transfer_medkit это функция из этого скрипта
 --------------------------------------------------------------------------------------------------------------
@@ -367,13 +374,15 @@ dialogs это dialogs.script, а transfer_medkit это функция из э�
 Сами функции проверки выглядят так:
 
 function название_функции()
-	if "набор условий" then
-		return true
-	end
-	return false
+   if "набор условий" then
+		    return true
+	  else
+	  return false
 end
 
-"набор условий" это нечто вроде if has_alife_info("инфопоршн1") and not has_alife_info("инфопоршн2") then  что означает, если получен "инфопоршн1" и не получен "инфопоршн2", то истина
+"набор условий" это нечто вроде if has_alife_info("инфопоршн1") and not has_alife_info("инфопоршн2") then 
+то есть, если получен "инфопоршн1" и не получен "инфопоршн2", то истина
+
 или if sak.have_item_namber("af_medusa",1) and sak.have_item_namber("wpn_pm",1) then что означает, если получен 1 "af_medusa" и 1 получен "wpn_pm", то истина
 --------------------------------------------------------------------------------------------------------------
 тут идет проверка на наличие и отсутствие определенных инфо, если одно из условий выполнено проверка пройдёт, а при отсутствии нет
@@ -385,7 +394,7 @@ function trader_alredy_give_job()
 	   (has_alife_info("tutorial_wounded_start") and not has_alife_info("esc_serious_talk"))
 	then
 		return true
-	end
+	else
 	return false
 end
 --------------------------------------------------------------------------------------------------------------
@@ -693,9 +702,10 @@ function proceed()
 получилось:
 function actor_binder:update(delta)
 	object_binder.update(self, delta)
+
 	sak.main()
 
-функцию main оформляем как и function proceed() из файла \gamedata\scripts\escape_tasks.script
+функцию main оформляем также, как function proceed() из файла \gamedata\scripts\escape_tasks.script
 
 function main()
 	if sak.have_item_namber("af_medusa",1) and not has_alife_info("tutorial_artefact_start") then		
