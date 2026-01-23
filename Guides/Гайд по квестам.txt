@@ -228,7 +228,7 @@ hint="escape_trader" - это текст метки из папки config\text\
  
   <info_portion id="my_kvest_done"></info_portion>
 ---------------------------------------------------------------------------------------------------
-И наконец файл \gamedata\scripts\sak.script
+И наконец файл \gamedata\scripts\sak.script(Скачать в разделе Скриптовые модули)
 
 -- Это функция проверки наличия у нас медузы
 function prov() 
