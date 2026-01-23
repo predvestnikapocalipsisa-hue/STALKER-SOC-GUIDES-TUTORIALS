@@ -75,7 +75,14 @@ db.actor:give_info_portion("tutorial_artefact_gain")
 
 Квест показанный ниже можно скачать себе и протестировать, выдает его Сидорович: https://drive.google.com/open?id=10NtSLlxWLDGGx6kY0TgB9Py7uxgtcbmY&usp=drive_fs
 
+Диалог под этот квест разобран в Гайде по диалогам.txt и ещё в:
 
+Разбор GSC Dialog Editor со скриншотами:
+https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/gsc-dialog-editor?authuser=0
+
+Разбор RoH Dialog Editor со скриншотами:
+https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/roh-dialog-editor
+---------------------------------------------------------------------------------------------------	
 ---------------------------------------------------------------------------------------------------	
 1.Приступим к написанию квеста. Открываем \gamedata\config\text\rus\string_table_tasks_escape.xml(или иной файл с ру текстом)
 Вставляем:
@@ -213,14 +220,6 @@ hint="escape_trader" - это текст метки из папки config\text\
 
 
 ---------------------------------------------------------------------------------------------------
-Диалог под этот квест разобран в Гайде по диалогам.txt и 
-
-Разбор GSC Dialog Editor со скриншотами:
-https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/gsc-dialog-editor?authuser=0
-
-Разбор RoH Dialog Editor со скриншотами:
-https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/roh-dialog-editor
----------------------------------------------------------------------------------------------------	
 в \gamedata\config\gameplay\info_portions.xml вставляем наши инфопоршнс
 
   <info_portion id="my_kvest_start">
