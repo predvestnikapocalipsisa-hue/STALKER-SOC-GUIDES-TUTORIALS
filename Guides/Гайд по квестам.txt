@@ -21,7 +21,7 @@ db.actor:give_task(new_task, 3600*1000, true)
 -- По различным условиям, по типу прийти на определенное место и тд.
 
 
-В любом случае нужно сначала создать инфопоршн с квестом, в файле \gamedata\config\gameplay\info_portions.xml(файл может быть другой, главное с поршнями)
+В любом случае нужно сначала создать инфопоршн с квестом, в файле \gamedata\config\gameplay\info_portions.xml(файл может быть другой, главное с инфопоршнс)
 
   <info_portion id="my_kvest_start">
     <task>my_kvest</task>
