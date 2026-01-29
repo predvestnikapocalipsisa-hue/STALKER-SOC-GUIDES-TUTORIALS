@@ -859,3 +859,23 @@ function current_year()
 end
 
 --------------------------------------------------------------------------------------------------------------
+function esc_timer(actor, npc)
+local iTimer = time_global() + 1
+local sobj = alife():object(npc:id())
+  if xr_logic.pstor_retrieve(db.actor, "set_switch_online", 0) ~= 1 then
+    local pk = get_netpk( sobj, 1 )
+    ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj)
+    local data = pk:get()
+    data.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
+    pk:set( data )
+    alife():set_switch_online(sobj.id, false)
+    xr_logic.pstor_store(db.actor, "set_switch_online", 1)
+   end
+   local function check_timer()
+      return time_global() > iTimer
+   end
+   local function switch_online()
+            alife():set_switch_online(sobj.id, true)
+   end
+   level.add_call(check_timer, switch_online)           
+end
