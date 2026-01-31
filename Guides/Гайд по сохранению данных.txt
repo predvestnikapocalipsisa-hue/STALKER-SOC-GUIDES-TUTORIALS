@@ -29,13 +29,13 @@ local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
 ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
 
 -- прибавить к указанному счётчику актёра 1
--- выхывать sak.counter_add1("name")
+-- вызов Имя_файла.counter_add1("name")
 function counter_add1(name)
         xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) + 1)
 end
 --------------------------------------------------------------------------------------------------------------
 -- отнять от указанного счётчика актёра 1 
--- вызывать sak.counter_del1("name")
+-- вызывать Имя_файла.counter_del1("name")
 function counter_del1(name)
         xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) - 1)
 end
@@ -55,7 +55,19 @@ boolean → как булево значение
 xr_logic.pstor_load_all(self.object, reader)
 Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
 
-Для удобного использования в \gamedata\scripts\_g.script вставьте в конец:
+
+
+
+
+Функции для работы с ПСТОР
+
+Для более лёгкого использования вставьте функции показанные ниже, в конец файла \gamedata\scripts\_g.script
+
+Либо в свой скрипт, но тогда использование будет выглядеть так:
+Имя_файла.get_value(name, 0)
+Имя_файла.del_value(name)
+Имя_файла.set_value(name, cnt)
+
 
 -- получить переменную 
 function get_value(var_name, default_value)
@@ -72,14 +84,16 @@ function del_value(var_name)
   if not db.actor then
     abort("can't delete variable '%s', bacause actor is nil!", var_name)
   end
-  
   local st = db.storage[db.actor:id()]
   if st.pstor and st.pstor[var_name] then
     st.pstor[var_name] = nil
   end
 end
 
---' Счётчик который можно использовать в квестах и любых проверках
+
+
+
+--' Счётчик который можно использовать в квестах и любых проверках, после получения указанного числа - счётчик удаляется.
 function counter_handler(name, cnt)
 	if name and cnt then
 		local c = get_value(name, 0)
@@ -97,7 +111,7 @@ function name()
    return counter_handler("fff", 10)
 end
 
--- Счётчик, который только сверяет значение
+--работает аналогично, но без удаления
 function counter_handler(name, cnt)
 	if name and cnt then
 		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
@@ -107,7 +121,9 @@ function counter_handler(name, cnt)
 	end
 end
 
---' Обработчик счётчика, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+
+
+--' Обработчик счётчика, ставится в те места, где функция даст тру, тогда к счётчику будет прибалено 1
 function counter_handler(counter_name, counter_limit)
   local cnt = get_value(counter_name, 0) + 1
   if cnt >= counter_limit then
@@ -120,7 +136,8 @@ function counter_handler(counter_name, counter_limit)
 end
 
 -- Пример:
--- коллбек на использование предметов
+-- коллбек на использование предметов(если выпита бутылка - к счётчику прибавляется 1, как только будет выпито 30 бутылок - будет выдан инфопоршн и счётчик удалится.
+
 function actor_binder:use_object(obj)  
   local s_obj = obj:section() 
     if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
@@ -152,11 +169,35 @@ on_info = %=inc_counter(fff)%
 возвращает true, если значение указанного счётчика БОЛЬШЕ указанного числа
 
 Используются только в логике:
+
+в этом примере показана логика рестриктора, который проверяет значение счётчика, при выполнении вызывает функцию спавн_нпс
 [logic]
 active = sr_idle
 
 [sr_idle]
 on_info = {=counter_greater(my_counter:5)} %=spawn_npc%
+
+
+Более конкретный пример:
+работает схема моб хома в ней установлен "он_инфо", который проверяет значение счётчика 
+
+также в схеме есть проверка на хит, тем самым срабатывает он инфо и переключает схему в моб_хом2
+
+единственный нюанс, в том что проверка работает на указанное число +1, то есть в данном случае нужно ударить/выстрелить в моба 2 раза
+
+[logic]
+active = mob_home
+on_hit = hit
+
+[mob_home]
+"параметры схемы"
+on_info = {=counter_greater(my_counter:1)} mob_home2
+
+[mob_home2]
+"параметры схемы"
+
+[hit]
+on_info = %=inc_counter(my_counter)%
 
 
 
