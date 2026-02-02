@@ -41,9 +41,9 @@ C:\Windows\System32\cmd.exe /c "D:\Stalker\Game.bat"
 
 Подходит только для тестирования геометрии
 
-Но обязательно в папке с локацией должны быть файлы level.spawn и другие
+Но обязательно в папке с локацией должны быть файлы level.spawn и другие и главное должен быть актор!
 
-bin\xr_3da -nointro -external -start server(test_01/single) client(localhost)
+@start bins\engine\xrEngine.exe -nointro -external -start server(test_01/single) client(localhost)
 
 test_01 - имя папки локации из папки levels
 ------------------------------------------------------------------------------------------------------------------------------------------------
