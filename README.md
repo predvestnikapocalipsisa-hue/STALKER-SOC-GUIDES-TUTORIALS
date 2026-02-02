@@ -7,7 +7,7 @@
 
 [Ютуб канал "Сталкер ТЧ Модострой"](https://www.youtube.com/channel/UCGS02-NLVxwYHwqUx7IFr3g) - более 200 видео по модингу
 
-[Сайт "Уроки модинга" с перенесенными статьями из stalkerin.gameru.net](https://sites.google.com/view/stsocmoding/%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F?authuser=0) + много новых статей со скриншотами!
+[Сайт "Уроки модинга"](https://sites.google.com/view/stsocmoding/%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F?authuser=0) с перенесенными статьями из stalkerin.gameru.net + много новых статей со скриншотами!
 
 Раньше сборник был на гугл диске, был портирован на Github для удобства.
 
