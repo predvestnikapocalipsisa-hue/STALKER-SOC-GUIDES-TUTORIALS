@@ -1,7 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из СБОРНИКА, его копируем себе в gamedata\scripts\
 
-Использование предметов
+-- Использование предметов
 function do_something()
     local item = db.actor:object("antirad")
     if item then
@@ -9,7 +9,7 @@ function do_something()
     end
 end
 --------------------------------------------------------------------------------------------------------------
-Восстановление здоровья,выносливости, в диалоге подставляем first_speaker или second_speaker, смотря кого надо восстановить
+-- Восстановление здоровья,выносливости, в диалоге подставляем first_speaker или second_speaker, смотря кого надо восстановить
 function medic_magic_potion(first_speaker, second_speaker)
   db.actor.health = 1
   db.actor.power = 1
