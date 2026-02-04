@@ -383,10 +383,11 @@ dialogs это dialogs.script, а transfer_medkit это функция из э�
 --------------------------------------------------------------------------------------------------------------
 
 function название_функции()
-   if "набор условий" then
-		    return true
-	  else
-	  return false
+	if "набор условий" then
+		return true
+	else
+		return false
+	end
 end
 
 "набор условий" это нечто вроде if has_alife_info("инфопоршн1") and not has_alife_info("инфопоршн2") then 
@@ -404,7 +405,8 @@ function trader_alredy_give_job()
 	then
 		return true
 	else
-	return false
+		return false
+	end
 end
 --------------------------------------------------------------------------------------------------------------
 Можно сделать более простую проверку на предмет af_medusa и также использовать в прекондишене
