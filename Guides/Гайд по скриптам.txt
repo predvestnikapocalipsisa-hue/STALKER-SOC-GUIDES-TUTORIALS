@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
-ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН sak.script из \GitHub\STALKER-SOC-GUIDES-TUTORIALS\Guides\Scripts modules\sak.script, поэтому кидаем его в папку gamedata\scripts\
+Для функций, в которых указан sak.script требуется файл именно из сборника \GitHub\STALKER-SOC-GUIDES-TUTORIALS\Guides\Scripts modules\sak.script, поэтому кидаем его в папку gamedata\scripts\
 --------------------------------------------------------------------------------------------------------------
 Создание и оформление функций
 
@@ -372,10 +372,10 @@ dialogs это dialogs.script, а transfer_medkit это функция из э�
         <phrase_list>
 			
 --------------------------------------------------------------------------------------------------------------            
-В квестах функции проверки выглядят так <function_complete>sak.prov</function_complete>
+В квестах функции проверки выглядят так <function_complete>Имя_файла.prov</function_complete>
 		<objective>
 			<text>name_pod_kvest_1</text>
-			<function_complete>sak.prov</function_complete>
+			<function_complete>Имя_файла.prov</function_complete>
 		</objective>
 
 --------------------------------------------------------------------------------------------------------------            
@@ -425,9 +425,9 @@ end
 в \gamedata\scripts\bind_stalker.script
 в function actor_binder:on_item_drop (obj)
 добавляем строку
-sak.drop_item(obj)
+Имя_файла.drop_item(obj)
 
-в вашем файле sak.script
+в вашем файле Имя_файла.script
 
 function drop_item(obj)
 local obj_sect = obj:section()
@@ -445,9 +445,9 @@ end
 в \gamedata\scripts\bind_stalker.script
 в function actor_binder:on_item_take (obj)
 добавляем строку
-sak.take_item(obj)
+Имя_файла.take_item(obj)
 
-в вашем файле sak.script
+в вашем файле Имя_файла.script
 
 function take_item(obj)
 local obj_sect = obj:section()
@@ -475,10 +475,10 @@ function actor_binder:reinit()
 
 между функциями вставляем 
 function actor_binder:use_object(obj)
-	sak.use_item(obj)
+	Имя_файла.use_item(obj)
 end
 
-в вашем файле sak.script
+в вашем файле Имя_файла.script
 
 function use_item(obj)
 local obj_sect = obj:section()
@@ -709,12 +709,12 @@ function proceed()
 и после строки 	object_binder.update(self, delta)
 вставляем имя_вашего_файла.имя_функции()
 
-например это будет sak.script и функция main
+например это будет Имя_файла.script и функция main
 получилось:
 function actor_binder:update(delta)
 	object_binder.update(self, delta)
 
-	sak.main()
+	Имя_файла.main()
 
 функцию main оформляем также, как function proceed() из файла \gamedata\scripts\escape_tasks.script
 
