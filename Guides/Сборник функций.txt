@@ -54,16 +54,16 @@ level.add_call(
 --------------------------------------------------------------------------------------------------------------
 -- Спавн с использованием клиентских методов
 function spawn()
-  local sobj = alife():create(section, position, lvid, gvid)
+  local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
   level.client_spawn_manager():add(sobj.id, 65535,
     function (id, obj)
-      cobj:set_goodwill(-5000, db.actor)
+      obj:set_goodwill(-5000, db.actor)
     end
   )
   return obj
 end
 --------------------------------------------------------------------------------------------------------------
--- Отметить объект по стори айди 14, crlc_small - тип метки
+-- Поставить метку на объект по стори айди, 14 - стори айди, crlc_small - тип метки
 function otmechaem_laz()
 	local sobj = alife():story_object(014)
 	level.map_add_object_spot_ser(sobj.id, "crlc_small", "name")
@@ -102,7 +102,7 @@ function nagrada()
 	sak.create_items_actor("medkit",3)
 end
 --------------------------------------------------------------------------------------------------------------
--- Вещь забирают
+-- Вещь забирают\удаление предмета
 function zabral()
 	sak.out_item_namber("af_medusa",1)
 end
@@ -112,7 +112,7 @@ function create()
 	sak.create_items_actor_nomsg("medkit",3)
 end
 --------------------------------------------------------------------------------------------------------------
---Вещь забирают БЕЗ СМС
+--Вещь забирают\удаление предмета БЕЗ СМС
 function out()
 	sak.out_item_namber_nomsg("medkit",3)
 end
@@ -171,7 +171,7 @@ function give_3k_out(actor,npc)
 	dialogs.relocate_money(npc, 3000, "out")
 end
 --------------------------------------------------------------------------------------------------------------
--- выдача инфопоршня
+-- выдача инфопоршн
 function give_info()
 	db.actor:give_info_portion("esc_gromov_quest_0")		
 end
@@ -193,7 +193,7 @@ function spawn()
 	alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн под координатами гг
+-- спавн на координатах гг
 function spawn2()
 	alife():create("bandage", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id())
 end
@@ -777,7 +777,7 @@ function HideTradeWnd()
     end 
 end
 
---Если вместо инфопоршней на открытие\закрытие окна торговли указать инфопоршни на открытие\закрытие пда -"ui_pda" и "ui_pda_hide - или окна инвентаря - ui_inventory\ui_inventory_hide - будет тоже самое.
+--Если вместо инфопоршн на открытие\закрытие окна торговли указать инфопоршн на открытие\закрытие пда -"ui_pda" и "ui_pda_hide - или окна инвентаря - ui_inventory\ui_inventory_hide - будет тоже самое.
 
 -- Можно по короче:
 if info_id =="ui_trade" then
