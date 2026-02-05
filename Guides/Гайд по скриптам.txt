@@ -729,22 +729,19 @@ end
 
 Проверка дня и ночи 
 
-Можно сделать появление диалога у персонажа\события только в определённое время, например ночью или днем, чтобы поставить ограничение на диалог, делаем так и это позволит диалогу показываться только днем
+Можно сделать появление диалога у персонажа\события только в определённое время, например ночью или днем, чтобы поставить ограничение на диалог, делаем так и это позволит диалогу показываться только днем, то есть с 6 утра до 21
 
     <dialog id="escape_lager_volk_info">
   <precondition>xr_conditions.is_day</precondition>
         <phrase_list>
 
-если нужно только ночью, то откроем 
-C:\X-Ray_test\gamedata\scripts\xr_conditions.script
+если нужно только ночью, то создадим новую функцию
 
-и вставить в самое начало
-
-function is_night (actor, npc)
-    return level.get_time_hours() >= 21 and level.get_time_hours() < 6
+function is_night()
+    return level.get_time_hours() >= 21 or level.get_time_hours() <= 6
 end  
 
 и тогда в диалоге 
     <dialog id="escape_lager_volk_info">
-  <precondition>xr_conditions.is_night</precondition>
+  <precondition>Имя_файла.is_night</precondition>
         <phrase_list>
