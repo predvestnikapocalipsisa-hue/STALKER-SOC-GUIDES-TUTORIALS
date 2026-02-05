@@ -1,6 +1,16 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН "sak.script" из СБОРНИКА, его копируем себе в gamedata\scripts\
+
+
+Проверка на участок времени с 23:00 до 3:00
+function check_night()
+  if level.get_time_hours() >= 23 or level.get_time_hours() <= 3 then
+    --ваше действие
+    return true
+  end
+  return false
+end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка убийства лагеря, можно использовать в своих скриптах
 function escape_gulag_inactive()
