@@ -601,20 +601,22 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Пост эффекты
 --------------------------------------------------------------------------------------------------------------
+добавить облет с номером 1974
 level.add_cam_effector("camera_effects\\cut_scene1.anm", 1974, false, "")
-level.add_pp_effector ("vibros.ppe", 234, false)
-level.remove_pp_effector (1974)
+удалить облет с номером 1974
 level.remove_cam_effector (1974)
+
+запуск ппе эффекта с номером 234
+level.add_pp_effector ("vibros.ppe", 234, false)
+удалить ппе эффект с номером 234
+level.remove_pp_effector (234)
+
+запуск погодного эффекта
 level.set_weather_fx ("surge_day")
 
+функции из xr_effects.script
 on_info = %=run_cam_effector(bar_fly)%
 on_info = %=run_postprocess(agr_u_fade)%
-
-[logic]
-active = sr_idle
-
-[sr_idle]
-on_actor_inside = nil %=run_postprocess(alcohol) =run_cam_effector(atp_zharka)%
 --------------------------------------------------------------------------------------------------------------
 -- вывод иконок в диалоге:
 function main3231(actor,npc)
