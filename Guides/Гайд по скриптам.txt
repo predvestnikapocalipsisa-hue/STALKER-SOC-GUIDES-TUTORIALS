@@ -61,7 +61,8 @@ function relocate_item_section(victim, section, type)
 То есть в оригинале НЕЛЬЗЯ оформить action  так:
 <action>dialogs.relocate_item_section(db.actor, "wpn_pm", "in")</action>
 
-Если указать после аргументов ... , то в функцию будут переданы стандартные аргументы, типа pSpeakerGO1->lua_game_object(), pSpeakerGO2->lua_game_object(), dialog_id, phrase_id.
+Если указать после аргументов ... , то в функцию будут переданы стандартные аргументы, типа:
+pSpeakerGO1->lua_game_object(), pSpeakerGO2->lua_game_object(), dialog_id, phrase_id
 (актор, нпс, диалог, фраза)
 если этого не сделать, то стандартные аргументы не будут переданы.
 
