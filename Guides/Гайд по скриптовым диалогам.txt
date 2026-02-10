@@ -23,7 +23,7 @@ https://www.amk-team.ru/forum/topic/7450-spravochnik-po-funkcijam-i-klassam/page
 
 
 function init_simple_exchange_dialog(dlg)
-  dlg:SetForceReload(true)
+  dlg:SetForceReload(true) -- было добавлено в ОГСР, для повторной загрузки диалога после сейва
 
     local phr0 = dlg:AddPhrase("Певая фраза", "0", "", -10000)
 
