@@ -1,0 +1,172 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+---------------------------------------
+-- функции для работы с нет-пакетами
+---------------------------------------
+
+----------
+-- чтение формы из нет-пакета
+----------
+function r_shape(packet)
+	local s
+	local st = {}
+	st.count = packet:r_u8()
+	st.shapes = {}
+	for i=1, st.count do
+		s = {}
+		s.type = packet:r_u8()
+		if s.type == 0 then
+			s.center = packet:r_vec3()
+			s.radius = packet:r_float()
+		else
+			s.axis_x = packet:r_vec3()
+			s.axis_y = packet:r_vec3()
+			s.axis_z = packet:r_vec3()
+			s.offset = packet:r_vec3()
+		end
+		st.shapes[i] = s
+	end
+	return st
+end
+
+----------
+-- запись формы в нет-пакет
+----------
+function w_shape(packet, st)
+	local s
+	packet:w_u8(st.count)
+	for i=1, st.count do
+		s = st.shapes[i]
+		packet:w_u8(s.type)
+		if s.type == 0 then
+			packet:w_vec3(s.center)
+			packet:w_float(s.radius)
+		else
+			packet:w_vec3(s.axis_x)
+			packet:w_vec3(s.axis_y)
+			packet:w_vec3(s.axis_z)
+			packet:w_vec3(s.offset)
+		end
+	end
+end
+
+----------
+-- перепаковка нет-пакета созданного скриптом рестрикта
+----------
+function rewrite_restrictor(se_obj, custom, radius)
+	local packet = net_packet()
+	se_obj:STATE_Write(packet)
+	local game_vertex_id	= packet:r_u16()
+	local distance		= packet:r_float()
+	local direct_control	= packet:r_s32()
+	local level_vertex_id	= packet:r_s32()
+	local object_flags		= packet:r_s32()
+	local custom_data		= packet:r_stringZ()
+	local story_id		= packet:r_s32()
+	local spawn_story_id	= packet:r_s32()
+	local shape		= r_shape(packet)
+	local restrictor_type	= packet:r_u8()
+
+	custom_data = custom
+	shape = {}
+	shape.count = 1
+	shape.shapes = {}
+	shape.shapes[1] = {}
+	shape.shapes[1].type = 0
+	shape.shapes[1].center = vector():set(0,0,0)
+	shape.shapes[1].radius = radius
+
+	packet:w_u16(game_vertex_id)
+	packet:w_float(distance)
+	packet:w_s32(direct_control)
+	packet:w_s32(level_vertex_id)
+	packet:w_s32(object_flags)
+	packet:w_stringZ(custom_data)
+	packet:w_s32(story_id)
+	packet:w_s32(spawn_story_id)
+	w_shape(packet, shape)
+	packet:w_u8(restrictor_type)
+	se_obj:STATE_Read(packet, packet:w_tell() - packet:r_tell())
+end
+
+--[[
+открываем \gamedata\scripts\
+
+закидываем туда файл spawn_restrictor.script
+
+для теста на кордоне открываем bind_stalker.script
+ищем	self.object:give_info_portion("level_changer_icons")
+ниже добавляем строку	spawn_restrictor.test_sr() 
+она заспвнит рестриктор на выходе из деревни слева перед деревом
+
+Чтобы не громоздить каждый раз функцию под рестриктор, когда нужно, чтобы тот запустил только функцию, есть вариант вызова: spawn_restrictor.create_restrictor_in(vector():set(-152.0,-18.0,-144.3),98126,45,7,"имя_функции")
+
+Пример: spawn_restrictor.create_restrictor_in(vector():set(-152.0,-18.0,-144.3),98126,45,7,"teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)")
+
+то есть спавнить рестриктор, одной строкой, который выполняет функции из файла xr_effects.script, а после активации удаляется.
+
+	"vector():set(-152.0,-18.0,-144.3),98126,45" - координаты
+	"7" радиус
+	"имя_функции" может быть таким: "teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)"
+	
+	если используем так	"spawn_restrictor.create_restrictor_in" то рестриктор проверяет зашли-ли мы в него
+	если "spawn_restrictor.create_restrictor_out" то рестриктор проверчяет вышли мы из него или нет
+	
+	Для работы необходимо в \gamedata\scripts\xr_effects.script	добавить функцию, которая удаляет объект после его активации.
+	
+	function remove_object(actor, obj)
+	local sobj = obj and alife():object(obj:id())
+		if sobj then
+			alife():release(sobj)
+		end
+	end
+	
+	"имя_функции" может быть и таким: "имя_скрипта.имя_функции", например, sak.nagrada, иногда не удобно кидать свои функции в xr_effects.script
+	для этого требуются правки в xr_logic.script, подробнее в гайде по рестрикторам
+	
+]]
+
+function create_restrictor_in(pos,lv,gv,radius,func)
+  local se_obj = alife():create("space_restrictor",pos,lv,gv)
+  local custom = "[logic]\nactive = sr_idle\n[sr_idle]\non_actor_inside = nil %="..func.." =remove_object%"
+  rewrite_restrictor(se_obj, custom, radius)
+  return se_obj
+end
+
+function create_restrictor_out(pos,lv,gv,radius,func)
+  local se_obj = alife():create("space_restrictor",pos,lv,gv)
+  local custom = "[logic]\nactive = sr_idle\n[sr_idle]\non_actor_outside = nil %="..func.." =remove_object%"
+  rewrite_restrictor(se_obj, custom, radius)
+  return se_obj
+end
+
+function test_sr()
+local se_obj = alife():create("space_restrictor",vector():set(-152.0,-18.0,-144.3),98126,45)
+local custom = "[logic]\n"..
+			   "active = sr_idle\n"..
+			   "[sr_idle]\n"..
+			   "on_actor_inside = %=teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)% nil"
+rewrite_restrictor(se_obj, custom, 5.0)
+end
+
+
+function test_sr1()
+local se_obj = alife():create("space_restrictor",vector():set(126.61811828613,15.248512268066,90.880737304688),225170,2143)
+local custom = "[logic]\n"..
+			   "active = sr_idle\n"..
+			   "[sr_idle]\n"..
+		       "on_actor_inside = {-strelok_taynik_pda1_found} nil %=strelok_taynik_pda1_found%"
+rewrite_restrictor(se_obj, custom, 5.0)
+end
+
+function test_sr2()
+local se_obj = alife():create("space_restrictor",vector():set(-152.0,-18.0,-144.3),98126,45)
+local custom = "[logic]\n"..
+			   "active = sr_idle\n"..
+			   "[sr_idle]\n"..
+			   "on_actor_inside = %=lc_not_way% sr_idle1\n"..
+			   "[sr_idle1]\n"..
+			   "on_info = %=teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)% sr_idle"
+rewrite_restrictor(se_obj, custom, 5.0)
+--level.map_add_object_spot(se_obj.id, "crlc_big", "Разыскать бандита")
+-- level.map_add_object_spot_ser(se_obj.id, "crlc_big", "Разыскать бандита")
+end
