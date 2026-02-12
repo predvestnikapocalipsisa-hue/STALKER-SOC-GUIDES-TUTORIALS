@@ -1,0 +1,124 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+Немного пошаманил, может кому полезно будет, или напротив кто-то покажет способ по короче это сделать, речь идёт о функции перемотки времени:
+
+вызываем где удобно sak.main(24), у меня лежит всё в sak.script можете класть в свой файл
+function main(scale) -- основная функция
+  basic_time_factor = level.get_time_factor () -- вычисление стандартной скорости течения времени
+  db.actor:stop_talk() -- если игрок с кем-нибудь говорит, диалог закрывается. Здесь в ней нет смысла, но вдруг кому пригодится
+  db.actor:hide_weapon() -- ГГ прячет оружие в рюкзак
+  level.disable_input() -- отключение управления  
+  sak.starter (scale) -- запуск скрипта, перематывающего время 
+end
+ 
+function starter(scale) -- скрипт перемотки на нужное время
+  local factor = scale * 2650 -- вычисление времени "пробуждения"
+  game.start_tutorial("time_scaling") -- вызов функции перемотки
+  level.set_time_factor(factor) -- собственно сама перемотка 
+end
+ 
+function dreamer() -- отвечает за сны
+  level.set_time_factor(basic_time_factor) --остановка перемотки. basic_time_factor - стандартная скорость течения времени
+  game.start_tutorial("without_dream")
+end
+ 
+function stopper()
+  db.actor:restore_weapon() -- ГГ достаёт оружие
+  level.enable_input() -- включается управление
+    if db.actor.health <= 0.60 then -- если хп упало меньше 60, то запускается функция съедания еды
+    sak.eat_food()
+    end
+end
+ 
+function eat_food() -- функция съедания еды
+if db.actor:eat(db.actor:object("conserva")) ~= nil or
+   db.actor:eat(db.actor:object("bread")) ~= nil or
+   db.actor:eat(db.actor:object("kolbasa")) ~= nil then
+   end
+end
+
+C:\X-Ray_test\gamedata_ogsr\config\ui\game_tutorials.xml
+
+
+  <time_scaling>
+    <play_each_item>1</play_each_item>
+    <global_wnd x="0" y="0" width="1024" height="768">
+      <auto_static x="0" y="0" width="1024" height="768" stretch="1">
+        <window_name>back</window_name>
+        <texture>intro\intro_back</texture>
+      </auto_static>
+    </global_wnd>
+ 
+    <item type="video">
+      <!-- <sound>characters_voice\human_01\monolith\states\sleep\sleep_6.ogg</sound> -->
+      <pause_state>off</pause_state>
+      <can_be_stopped>off</can_be_stopped>
+      <function_on_stop>sak.dreamer</function_on_stop>
+      <video_wnd x="0" y="0" width="1024" height="768" stretch="1">
+        <texture x="0" y="1" width="1024" height="768">intro\intro_back</texture>
+      </video_wnd>
+    </item>
+  </time_scaling>
+  
+  <without_dream>
+    <play_each_item>1</play_each_item>
+    <global_wnd x="0" y="0" width="1024" height="768">
+      <auto_static x="0" y="0" width="1024" height="768" stretch="1">
+        <window_name>back</window_name>
+        <texture>intro\intro_back</texture>
+      </auto_static>
+    </global_wnd>
+ 
+    <item type="video">
+      <!-- <sound>characters_voice\human_01\dolg\states\sleep\sleep_1.ogg</sound> -->
+      <pause_state>on</pause_state>
+      <function_on_stop>sak.stopper</function_on_stop>
+      <video_wnd x="0" y="0" width="1024" height="768" stretch="1">
+        <texture x="0" y="1" width="1024" height="768">intro\intro_back</texture>
+      </video_wnd>
+    </item>
+  </without_dream>
+
+
+
+Переделал функцию, пока что выглядит так, оно устанавливает тайм файктор, запускает таймер и через 1 секунду возвращает игровое время как было, таким образом если main установить 10 время будет переноситься на ~8 часов
+
+sak.main(10)
+function main(scale)
+  basic_time_factor = level.get_time_factor ()
+  sak.starter (scale)
+  sak.main_timer()
+end
+ 
+function starter(scale)
+  local factor = scale * 2650
+  level.set_time_factor(factor)
+end
+ 
+function main_timer()
+   local iTimer = time_global() + 1*1000
+   local function check_timer()
+    return time_global() > iTimer
+   end
+   level.add_call(check_timer, stopper)
+end
+
+function stopper()
+  level.set_time_factor(basic_time_factor)
+end
+
+
+функцию стопер можно довести до ума, чтобы кормила гг если перематываем слишком много времени
+
+function stopper()
+  level.set_time_factor(basic_time_factor)
+  if db.actor.health <= 0.60 then -- если хп упало меньше 60, то запускается функция съедания еды
+    sak.eat_food()
+    end
+end
+
+function eat_food() -- функция съедания еды
+if db.actor:eat(db.actor:object("conserva")) ~= nil or
+   db.actor:eat(db.actor:object("bread")) ~= nil or
+   db.actor:eat(db.actor:object("kolbasa")) ~= nil then
+   end
+end
