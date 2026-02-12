@@ -1,0 +1,35 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+;story_id			- не забыть прописать в game_story_ids.ltx
+;xyzlg				- позиция перехода, через запятую x,y,z, level_vertex_id, game_vertex_id
+;dest_xyzlg			- позиция ГГ на локации назначения
+;dest_direction		- углы вращения камеры ГГ
+;dest_level_name	- имя локации назначения
+;map_spot_icon		- иконка перехода
+;map_spot_name		- имя перехода
+;silent				- 1 или true - не спрашивать о переходе
+;radius				- радиус_рестриктора, имеет смысл писать при использовании "level_changer_sphere.script"
+;path				- точка на которую перенеёт актора при отказе
+
+[my_perehod]
+story_id			= 5555
+xyzlg				= -152.0,-18.0,-144.3,98126,45
+dest_xyzlg			= 137.85661315918, -3.58008003234863, 19.0648498535156,76465,1168
+dest_direction		= 0, 0, 0
+dest_level_name		= l05_bar
+map_spot_icon		= level_changer
+map_spot_name		= to_bar
+silent				= false
+radius 				= 15.0
+path 				= esc_lager_wolf_walk
+
+[my_perehod1]
+story_id			= 4444
+xyzlg				= -152.0,-18.0,-144.3, 98126, 45
+dest_xyzlg			= 507.124877929688, 13.1279220581055, 201.893035888672, 160619, 2604
+dest_direction		= 0, 0, 0
+dest_level_name		= l12_stancia_2
+map_spot_name		= to_aes
+map_spot_icon		= level_changer
+silent				= false
+radius 				= 5.0
+path 				= esc_lager_wolf_walk

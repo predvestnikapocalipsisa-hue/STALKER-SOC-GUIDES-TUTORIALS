@@ -1,0 +1,235 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+На выбор есть три скрипта:
+"level_changer.script"		- скрипт со сталкерин.гемру.нет, работает, но имеет нюансы, такие как невозможность установить нужную метку сразу.
+"level_changer_box.script"	- тот же "level_changer.script", но переделанный скрипт, позволяет задавать параметры через ltx файл
+"level_changer_sphere.script"	- работает, как "level_changer_box.script", но создает сферу, а не куб, и ещё он сделан через нейросеть.
+
+Благодаря им можно спавнить переходы, которые имеют постоянные изначально заданные размеры в метрах, можете их поменять в файлах "level_changer.script", "level_changer_box.script"
+	packet:w_float(4)	   -- axis_x_x
+	packet:w_float(4)	   -- axis_y_y
+	packet:w_float(4)	   -- axis_z_z
+	
+в файле "level_changer_sphere.script" таких параметров нет, так как он сделан под сферу, у которой можно указать радиус при спавне.
+	
+Без проблем можно использовать все три сразу.
+
+Первым делом нужно добавить стори айди для перехода в \gamedata\config\game_story_ids.ltx
+
+  035			= "my_perehod"; число пишите свободное, котрого ещё нет в файле
+
+Для спавна наших переходов через диалоги и инфопоршни будут использоваться такие штуки:
+<action>level_changer.my_perehod</action>
+<action>level_changer_box.my_perehod</action>
+<action>level_changer_sphere.my_perehod</action>
+
+так вот "my_perehod" в этом случае название функции, и для ваших новых переходов это имя может быть произвольным
+
+----------------------------------------------------------------------------------------------------------------------
+Первоисточник:
+https://web.archive.org/web/20180621165019/http://stalkerin.gameru.net/wiki/index.php?title=SoC._Спавн_точек_перехода_между_уровнями
+
+по нему уже есть ролик: https://youtu.be/rlGtyszBKUQ
+
+Начинаем разбирать файлы
+----------------------------------------------------------------------------------------------------------------------
+ФАЙЛ "level_changer.script" спавнит переход функцией, все параметры перехода нужно указывать в этом же файле, создавая свои функции внизу файла, имеющие такой вид:
+
+function my_perehod()
+	create_level_changer(35, vector():set(-244.242721557617, -19.4288864135742, -123.909355163574), 12831, 8,
+	98121, 1472,
+	vector():set( 110.185,-8.72,-205.86 ),
+	vector():set(    0.0 ,  0.0   , -1.0 ),
+	"l08_yantar",
+	0)
+end
+
+1.В которой:
+
+"35" - Стори айди, из game_story_ids.ltx
+
+Координаты где будет стоять переход: "vector():set(-244.242721557617, -19.4288864135742, -123.909355163574), 12831, 8,"
+
+"12831, 8," - level_vertext_id,  game_vertext_id
+
+Далее координаты места куда нас перенесёт переход, на янтарь в этом случае
+"98121, 1472,"  - level_vertext_id,  game_vertext_id
+
+"vector():set( 110.185,-8.72,-205.86 )," - координаты где мы окажемся
+
+"vector():set(    0.0 ,  0.0   , -1.0 )," - направление взгляда
+
+"l08_yantar" - для корректной работы стоит указывать уровень назначения
+
+"0," - спросит о переходе, если 1, то не спросит
+
+2.Для спавна такого перехода можно вставить в диалог или инфопоршень:
+
+<action>level_changer.my_perehod</action>
+
+или иным способом вызвать функцию level_changer.my_perehod()
+ 
+3.Добавить метку на переход в \gamedata\scripts\level_tasks.script
+Главное в правильное место, вставляйте по аналогии с другими конструкциями
+
+		obj = sim:story_object(035)
+		if obj then
+			level.map_add_object_spot(obj.id, "level_changer", "to_yantar") -- "to_yantar" меняем по ситуации
+		end		
+
+4.Добавить локализацию в \gamedata\config\text\rus\string_table_level_tips.xml 
+так будет отображаться текст перехода, когда он заспавнится
+
+	<string id="new_lc">
+		<text>Неизвестный переход</text>
+	</string>
+	
+5.Для этих переходов можно указывать точку на которую перенеёт актора при отказе
+
+для этого добавляем в функцию имя точки:
+
+function my_perehod2()
+	create_level_changer(35, vector():set(-244.242721557617, -19.4288864135742, -123.909355163574), 12831, 8,
+	98121, 1472,
+	vector():set( 110.185,-8.72,-205.86 ),
+	vector():set(    0.0 ,  0.0   , -1.0 ),
+	"l08_yantar",
+	0,
+	"esc_lager_wolf_walk")
+end
+
+"esc_lager_wolf_walk" - точка на которую перенеёт актора при отказе
+	
+----------------------------------------------------------------------------------------------------------------------
+ФАЙЛ "level_changer_box.script" делает тоже самое, что и "level_changer.script", но позволяет, задавать настройки перехода через dynamic_level_changers.ltx
+
+файл "dynamic_level_changers.ltx" помещаем в \gamedata\config\misc\
+
+1.В самом файле можем писать следущее:
+[my_perehod]
+story_id			= 5555
+xyzlg				= -152.0,-18.0,-144.3,98126,45
+dest_xyzlg			= 137.85661315918, -3.58008003234863, 19.0648498535156,76465,1168
+dest_direction		= 0, 0, 0
+dest_level_name		= l05_bar
+map_spot_icon		= level_changer
+map_spot_name		= to_bar
+silent				= false
+radius				= 5.0
+path 				= esc_lager_wolf_walk
+
+;[my_perehod]		- имя нашего перехода
+;story_id			- не забыть прописать в game_story_ids.ltx
+;xyzlg				- позиция перехода, через запятую x,y,z, level_vertex_id, game_vertex_id
+;dest_xyzlg			- позиция ГГ на локации назначения
+;dest_direction		- углы вращения камеры ГГ
+;dest_level_name	- имя локации назначения
+;map_spot_icon		- иконка перехода
+;map_spot_name		- имя перехода
+;silent				- 1 или true - не спрашивать о переходе
+;radius				- радиус_рестриктора, имеет смысл писать только при использовании "level_changer_sphere.script"
+;path				- точка на которую перенесёт актора при отказе, если не указать, то вылета не будет
+
+2.Теперь нет необходимости в создании "new_lc", также не нужно в \gamedata\scripts\level_tasks.script что-либо указывать, так как метка теперь серверная и никуда не исчезнет.
+
+3.Для спавна такого перехода нужно делать вызов функции 
+
+level_changer_box.create("my_perehod")
+
+"my_perehod" это [my_perehod] из "dynamic_level_changers.ltx"
+
+через диалог или инфопоршень такую функцию нельзя вызвать, поэтому можете в удобном для вас скрипте, да хоть в "level_changer_box.script" только в самом низу файла, сделать функцию:
+
+function my_perehod()
+	level_changer_box.create("my_perehod")
+end
+
+теперь можно вставить в диалог или инфопоршень:
+
+<action>level_changer_box.my_perehod</action> или <action>имя_вашего_скрипта.my_perehod</action>
+
+4. С ходу это работать не будет, поэтому в \gamedata\scripts\_g.script
+в конец файла вставляем это:
+
+-- Перебирает все сроки секции 'section' в ini файле
+function iterate_lines(ini, section, f)
+	if ini:section_exist(section) then
+		for i=0,ini:line_count(section)-1 do
+			f(ini:r_line(section, i, "", ""))
+		end
+	end
+end
+
+-- Парсит строку вида "ааа, ббб, ввв..." в таблицу {"ааа", "ббб", "ввв", ...}
+function parse_names(s)
+	local t = {}
+	
+	for name in string.gfind(s, "([%w_%-.\\]+)%p*") do
+		table.insert(t, name)
+	end
+
+	return t
+end
+
+-- разбирает строку вида "n1, n2, n3..." в таблицу {n1, n2, n3, ...} где n1, n2, n3... - числа
+function parse_nums(s)
+	local t = {}
+	for value in string.gfind(s, "([^,]+)") do
+		local num=tonumber(value)
+		if not num then
+			abort("! lua_ext.parse_nums: error input value "..value..". ignoring!")
+		else
+			table.insert(t, num)
+		end
+	end
+	return t
+end
+
+-- Парсит строку "x, y, z, lv, gv, r"  в таблицу  {pos = {x=x, y=y, z=z}, lv=lv, gv=gv, radius=r}
+-- Параметры "lg, gv", "r" опциональны
+function parse_position(str, tbl)
+	local a = parse_nums(str)
+	if not tbl then 
+		tbl = {}
+	end
+	
+	tbl.pos = {x=a[1], y=a[2], z=a[3]}
+	if a[4] then
+		tbl.lv = a[4]
+		tbl.gv = a[5]
+		if a[6] then  tbl.radius = a[6]  end
+	end
+	return tbl
+end
+
+-- Возвращает вектор (a,b,c) из таблицы {x=a, y=b, z=c}
+function unpack_vector(tbl)
+	return vector():set(tbl.x,tbl.y,tbl.z)
+end
+
+
+
+----------------------------------------------------------------------------------------------------------------------
+ФАЙЛ "level_changer_sphere.script", работает как и "level_changer_box.script", но уже созадет не коробку 4х4, а сферу, у которой можно указать радиус:
+
+то есть теперь нужно в файле "dynamic_level_changers.ltx"
+
+у вашего перехода указать радиус
+radius				= 5.5; это в метрах
+
+вызов и прочие вещи не изменились:
+
+Для спавна такого перехода нужно делать вызов функции 
+
+level_changer_sphere.create("my_perehod")
+
+"my_perehod" это [my_perehod] из dynamic_level_changers.ltx
+
+через диалог или инфопоршень так не сделать поэтому можете в удобном для вас скрипте, да хоть в "level_changer_sphere.script" только в самом низу файла, сделать функцию:
+
+function my_perehod()
+	level_changer_sphere.create("my_perehod")
+end
+
+теперь можно вставить в диалог или инфопоршень:
+
+<action>level_changer_sphere.my_perehod</action> или <action>имя_вашего_скрипта.my_perehod</action>
