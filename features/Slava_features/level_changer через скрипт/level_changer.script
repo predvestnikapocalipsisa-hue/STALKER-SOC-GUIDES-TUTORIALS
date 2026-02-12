@@ -119,22 +119,3 @@ function create_level_changer(
  
 --	news_manager.send_tip(db.actor, "LC creation finished", nil, nil, 30000)
 end
-
-function my_perehod()
-	create_level_changer(35, vector():set(-244.242721557617, -19.4288864135742, -123.909355163574), 12831, 8,
-	76465, 1168,
-	vector():set( 137.85661315918, -3.58008003234863, 19.0648498535156 ),
-	vector():set(    0.0 ,  0.0   , -1.0 ),
-	"l08_yantar",
-	0)
-end
-
-function my_perehod2()
-	create_level_changer(35, vector():set(-244.242721557617, -19.4288864135742, -123.909355163574), 12831, 8,
-	76465, 1168,
-	vector():set( 137.85661315918, -3.58008003234863, 19.0648498535156 ),
-	vector():set(    0.0 ,  0.0   , -1.0 ),
-	"l08_yantar",
-	0,
-	"esc_lager_wolf_walk")
-end
