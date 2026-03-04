@@ -194,6 +194,13 @@ function spawn2()
 	alife():create("bandage", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id())
 end
 --------------------------------------------------------------------------------------------------------------
+Спавн на координатах гг + 10 метров по оси Х
+function spawn3()
+	local position = db.actor:position()
+	position.x = position.x + 10
+	alife():create("bandage", position, db.actor:level_vertex_id(), db.actor:game_vertex_id())
+end
+--------------------------------------------------------------------------------------------------------------
 -- Заспавнить нпс, который не сможет уйти в оффлайн
 function main1 ()
 	sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
@@ -565,7 +572,7 @@ treasure_manager.get_treasure_manager():give_treasure("new_esc_secret")
 -- Выдать все тайники одной строкой
 treasure_manager.get_treasure_manager():check()
 --------------------------------------------------------------------------------------------------------------
--- Завершить\провалить\пропустить квест.
+-- Завершить\провалить\пропустить квест. 0 - номер обжектива, можно подзадание вырубать
 	   level_tasks.set_task_state (task.completed, "mil_courier_job", 0)
 	   level_tasks.set_task_state (task.fail, "mil_courier_job", 0)
 	   level_tasks.set_task_state (task.skipped, "mil_courier_job", 0) -- OGSR
