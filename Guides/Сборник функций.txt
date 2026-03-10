@@ -1,4 +1,17 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+--------------------------------------------------------------------------------------------------------------
+--Очистка инвентаря от всех предметов
+function clear_inv()
+	if db.actor then
+		db.actor:iterate_inventory(
+			function(dummy, item)
+				alife():release(alife():object(item:id()), true)
+			end,
+			nil
+			)
+	end
+end
+--------------------------------------------------------------------------------------------------------------
 -- Использование предметов
 function do_something()
     local item = db.actor:object("antirad")
@@ -873,48 +886,3 @@ function current_year()
 end
 
 --------------------------------------------------------------------------------------------------------------
-function esc_timer(actor, npc)
-local iTimer = time_global() + 1
-local sobj = alife():object(npc:id())
-  if xr_logic.pstor_retrieve(db.actor, "set_switch_online", 0) ~= 1 then
-    local pk = get_netpk( sobj, 1 )
-    ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj)
-    local data = pk:get()
-    data.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
-    pk:set( data )
-    alife():set_switch_online(sobj.id, false)
-    xr_logic.pstor_store(db.actor, "set_switch_online", 1)
-   end
-   local function check_timer()
-      return time_global() > iTimer
-   end
-   local function switch_online()
-            alife():set_switch_online(sobj.id, true)
-   end
-   level.add_call(check_timer, switch_online)           
-end
-
-
-рабочий вариант с указыванием любого визуала прямо в логике:
-on_actor_dist_le_nvis = 10 | %=new_visual(actors\neytral\stalker_neytral_rukzak_3)% 
-
-function new_visual(actor, npc, p)
-local iTimer = time_global() + 1
-local sobj = alife():object(npc:id())
-  if xr_logic.pstor_retrieve(db.actor, "set_switch_online", 0) ~= 1 then
-  local pk = get_netpk( sobj, 1 )
-  ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj)
-  local data = pk:get()
-  data.visual_name = p[1] --визуал
-  pk:set( data )
-  alife():set_switch_online(sobj.id, false)
-  xr_logic.pstor_store(db.actor, "set_switch_online", 1)
-   end
-   local function check_timer()
-   return time_global() > iTimer
-   end
-   local function switch_online()
-            alife():set_switch_online(sobj.id, true)
-   end
-   level.add_call(check_timer, switch_online)       
-end

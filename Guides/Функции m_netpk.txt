@@ -44,6 +44,8 @@ function spawn()
     end
 end
 
+-- Мгновенная смена визула нпс
+
 function esc_timer(actor, npc)
 local iTimer = time_global() + 1
 local sobj = alife():object(npc:id())
