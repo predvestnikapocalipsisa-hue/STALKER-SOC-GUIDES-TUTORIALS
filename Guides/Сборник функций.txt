@@ -420,6 +420,14 @@ end
 	local obj = level_object_by_sid(6)
 	alife():set_switch_online(obj:id(), false) 	
 --------------------------------------------------------------------------------------------------------------
+-- Удаление объектов через диалог/логику
+function remove_object(actor, obj)
+local sobj = obj and alife():object(obj:id())
+  if sobj then
+    alife():release(sobj)
+  end
+end
+--------------------------------------------------------------------------------------------------------------
 -- Удаление кого-то по стори айди
 function dell_kill_voron()
 	local sobj = alife():story_object(3) 
