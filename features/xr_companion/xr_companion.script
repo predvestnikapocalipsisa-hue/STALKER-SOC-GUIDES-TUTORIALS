@@ -1,0 +1,282 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+class "evaluator_companion" (property_evaluator)
+function evaluator_companion:__init(name,storage) super (nil, name)
+  self.st = storage
+end
+
+function evaluator_companion:evaluate()
+	return db.actor
+	and is_in_actor_team(self.object:id())
+end
+
+class "action_companion" (action_base)
+function action_companion:__init(name,storage) super (nil, name)
+	self.st = storage
+end
+function action_companion:initialize()
+	action_base.initialize(self)
+	local npc = self.object
+	db.storage[self.object:id()].overrides = nil
+	xr_logic.reset_generic_schemes_on_scheme_switch(self.object, "nil", "nil")
+	npc:remove_all_restrictions()
+	npc:set_desired_position()
+	npc:set_desired_direction()
+	npc:set_detail_path_type(move.curve)
+	npc:set_path_type(game_object.level_path)
+	self.offset = vector():set(math.random()*6-3,0,math.random()*6-3)
+	self.offset:normalize()
+end
+
+function action_companion:execute()
+	action_base.execute(self)
+	local npc = self.object
+	local dist = db.actor:position():distance_to(npc:position())
+	local state,look,anim = state_mgr.get_state(npc)
+	if dist <= 4 then
+		state,look,anim = "guard",nil,true
+	elseif dist < 7 then
+		state,look,anim = "guard",nil,true
+	elseif dist >= 32 then
+		state,look,anim = "hide",nil,true
+	elseif dist < 14 then
+		state,look,anim = "rush",nil,true
+	elseif not (state and state_lib.states[state].movement == move.stand) then
+		state,look,anim = "sprint",nil,true
+	end	
+	if self.st.look == true and state_lib.states[state].movement == move.stand then
+		look = true
+	end
+	if look == true then
+		look = {look_object = db.actor}
+	end
+	if anim == true then
+		anim = {animation = true}
+	end
+	if state then
+		state_mgr.set_state(npc,state,nil,nil,look,anim)
+	end
+	if state_lib.states[state].movement ~= move.stand then
+		local vertex_id = level.vertex_in_direction(db.actor:level_vertex_id(),self.offset,self.st.radius)
+		utils.send_to_nearest_accessible_vertex(npc,vertex_id)
+	end
+end
+
+function action_companion:finalize()
+	self.object:clear_animations()
+end
+
+prop_companion = 9655
+act_companion = prop_companion
+
+function add_to_binder(object,char_ini,scheme,section,st)
+	local manager = object:motivation_action_manager()
+	manager:add_evaluator(prop_companion,evaluator_companion("evaluator_companion",st))
+	local action = action_companion("action_companion",st)
+	action:add_precondition(world_property(stalker_ids.property_alive,true))
+	action:add_precondition(world_property(stalker_ids.property_enemy,false))
+	action:add_precondition(world_property(stalker_ids.property_danger,false))
+	if xr_finder then
+		action:add_precondition(world_property(xr_finder.prop_finder,false))
+	end
+    xr_motivator.addCommonPrecondition( action )
+	action:add_precondition(world_property(prop_companion,true))
+	action:add_effect(world_property(prop_companion,false))
+	manager:add_action(act_companion,action)
+	
+	action = manager:action(xr_actions_id.alife)
+	action:add_precondition(world_property(prop_companion, false))
+end
+
+function set_scheme(npc,ini,scheme,section)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,scheme,section)
+end
+
+local actor_team_ids=nil
+
+function add_to_actor_pstor(npc_id)
+  local actor=db.actor
+  --mylog("add to pstor")
+  if actor then
+    local nid=npc_id
+    if actor_team_ids then
+      actor_team_ids[nid]=true
+    end
+    local cnt=xr_logic.pstor_retrieve(actor,"team_cnt",0)
+    local firstzero=0
+    for i=1,cnt,1 do
+      if xr_logic.pstor_retrieve(actor,"team_id_"..i,0)==nid then
+      -- уже в команде
+        return
+      elseif xr_logic.pstor_retrieve(actor,"team_id_"..i,0)==0 and firstzero==0 then
+        firstzero=i
+      end
+    end
+    if firstzero==0 then
+      cnt=cnt+1
+      xr_logic.pstor_store(actor,"team_cnt",cnt)
+    else
+      cnt=firstzero
+    end
+    -- --mylog("adding spot for member "..cnt)
+    -- local npc=level.object_by_id(nid)
+    -- level.map_add_object_spot_ser(nid, "anh_merc", (npc or "Наёмник") and npc:character_name())
+    xr_logic.pstor_store(actor,"team_id_" .. cnt,nid)
+  else
+    -- --mylog("db.actor is nil in add_to_actor_pstor!")
+  end
+end
+
+function remove_from_actor_pstor(npc_id)
+  local actor=db.actor
+  -- --mylog("remove from pstor")
+  if actor then
+    local cnt=xr_logic.pstor_retrieve(actor,"team_cnt",0)
+    local nid=npc_id
+    -- level.map_remove_object_spot(nid, "anh_merc")
+    if actor_team_ids then
+      actor_team_ids[nid]=nil
+    end
+    for i=1,cnt,1 do
+      if xr_logic.pstor_retrieve(actor,"team_id_"..i,0)==nid then
+        xr_logic.pstor_store(actor,"team_id_"..i,false)
+      end
+    end
+-- Пересчитаем количество
+    local new_cnt=0
+    for i=1,cnt,1 do
+      if xr_logic.pstor_retrieve(actor,"team_id_"..i,false) then
+        new_cnt=i
+      end
+    end
+    xr_logic.pstor_store(actor,"team_cnt",new_cnt)
+	-- log1(tostring("team_cnt" ..new_cnt))
+  else
+    -- --mylog("db.actor is nil in remove_from_actor_pstor!")
+  end  
+end
+
+function is_in_actor_team(obj_id)
+  local actor=db.actor
+  if (not actor_team_ids) and (not db.actor) then
+    return false
+  elseif actor_team_ids then
+    return actor_team_ids[obj_id]
+  else
+    actor_team_ids={}
+    local cnt=xr_logic.pstor_retrieve(actor,"team_cnt",0)
+    for i=1,cnt,1 do
+      id=xr_logic.pstor_retrieve(actor,"team_id_"..i,0)
+      if id~=0 then
+        actor_team_ids[id]=true
+        -- --mylog(id .. " is in actor team")
+      end
+    end
+    return actor_team_ids[obj_id]
+  end
+end
+
+function obj_id_in_team(obj_id)
+  return is_in_actor_team(obj_id)
+end
+
+local offline_dest_table={
+    l01_escape={
+      none="esc2_bandit_les_kamp_1",
+      l02_garbage="esc_ambush_walk2",
+	  l02_garbage="esc2_most_kamp_1"
+    },
+    l02_garbage={
+      none="gar_dram_bandit1_walk"
+    },
+    l03_agroprom = {
+      none="agr_factory_hold_fake_walk2"
+    }, 
+    l03u_agr_underground = {
+      none="agr_u_bandits_walk4"
+    },
+    l04_darkvalley = {
+      none="val_escort_nap1_walk"
+    }, 
+    l04u_labx18 = {
+      none="val_soldiers_raid_off_offgroup_1"
+    }, 
+    l05_bar = {
+      none="bar_visitors_kamp_1_task"
+    }, 
+    l06_Rostok = {
+      none="ros_zombies_walk"
+    },
+    l07_military = {
+      none="mil_dolg_ambush_walk1"
+    }, 
+    l08_yantar = {
+      none="yan_scientist_offline_walk"
+    }, 
+    l08u_brainlab = {
+      none="yan_scientist_offline_walk" -- не нашёл
+    }, 
+    l10_radar = {
+      none="rad_entrance_kamp_task"
+    },
+    l10u_bunker = {
+      none="rad_entrance_kamp_task" -- не нашёл
+    }, 
+    l11_pripyat = {
+      none="pri_followers_wait_stalker1_walk"
+    }, 
+    l12_stancia = {
+      none="aes_heli_attack_desant_walk1_2" -- взял из spawn.ini надо проверять
+    }, 
+    l12u_sarcofag = {
+      none="aes_heli_attack_desant_walk1_2" -- не нашёл
+    }, 
+    l12u_control_monolith = {
+      none="aes_heli_attack_desant_walk1_2" -- не нашёл
+    }, 
+    l12_stancia_2 = {
+      none="aes_heli_attack_desant_walk1_2" -- не нашёл
+    }
+  }
+
+local offline_dest_point
+
+function get_offline_dest()
+  return offline_dest_point
+end
+
+function update_offline_dest(cur_level,prev_level)
+  if offline_dest_table[cur_level] then
+    if offline_dest_table[cur_level][prev_level] then
+      offline_dest_point=offline_dest_table[cur_level][prev_level]
+    else
+      offline_dest_point=offline_dest_table[cur_level]["none"]
+    end
+  end
+  if not offline_dest_point then
+    -- --mylog("odp is nil for " .. tostring(cur_level) .. " " .. tostring(prev_level))
+  end
+  offline_dest_point=offline_dest_point or "esc2_bandit_les_kamp_1"
+end
+
+function update_level_names()
+--  --mylog("updlevnames")
+  local actor=db.actor
+  if not actor then
+    offline_dest_point="esc2_bandit_les_kamp_1"
+    -- --mylog("not db.actor")
+    return
+  end
+  local cur_level_name=xr_logic.pstor_retrieve(actor,"current_level","none")
+  xr_logic.pstor_store(actor,"prev_level",cur_level_name)
+  xr_logic.pstor_store(actor,"current_level",level.name())
+--    --mylog("cur level "..level.name() .. " prev level " .. cur_level_name)
+  -- Проверим, нужно ли ждать на другом уровне
+  local w_level=xr_logic.pstor_retrieve(actor,"wait_level",nil)
+  if w_level then
+    -- ждём на другом уровне
+    update_offline_dest(w_level,level.name())
+  else
+    update_offline_dest(level.name(),cur_level_name)
+  end
+--    --mylog("odp is " .. offline_dest_point)
+end
