@@ -62,10 +62,14 @@ end
 	  local obj = level.object_by_id(sobj.id)
 --------------------------------------------------------------------------------------------------------------
 -- В ОГСР Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
-function spawn()
-    local sobj = alife():object("esc_wolf")
-    sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+function spawn(actor, obj)
+   local sobj = alife():object("esc_wolf")
+   sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
 end
+
+--если диалог/логика то sobj можно определить так:
+   local sobj = alife():object(obj:id())
+
 --------------------------------------------------------------------------------------------------------------
 -- Один из способов выводить получившееся значение в смс
 function send_message(msg) 
