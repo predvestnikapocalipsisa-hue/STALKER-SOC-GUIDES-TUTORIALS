@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 --------------------------------------------------------------------------------------------------------------
---Очистка инвентаря гг от всех предметов(если применять для нпс, тогда нужно делать исключение для болта, иначе вылет)
+-- Очистка инвентаря гг от всех предметов(если применять для нпс, тогда нужно делать исключение для болта, иначе вылет)
 function clear_inv()
 	if db.actor then
 		db.actor:iterate_inventory(
@@ -14,62 +14,52 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Использование/съедание предметов
 
---в диалоге/логике для гг
-function do_something(actor, npc)
+-- в диалоге/логике для гг
+function do_something(actor, obj)
+-- для нпс: obj вместо actor
     local item = actor:object("antirad")
     if item then
         actor:eat(item)
     end
 end
 
---для нпс
-    local item = npc:object("antirad")
-    if item then
-        npc:eat(item)
-    end
-
---Если вызов вне диалога/логики
-
+-- Если вызов вне диалога/логики:
 -- Обозначение актора - db.actor
 
 -- Можно обозначить нпс по стори айди
-   local obj = level_object_by_sid(006)
+	local obj = level_object_by_sid(006)
 
 -- Есть и такой вариант по имени в all.spawn
-	  local sobj = alife():object("esc_wolf")
-	  local obj = level.object_by_id(sobj.id)
+	local sobj = alife():object("esc_wolf")
+	local obj = level.object_by_id(sobj.id)
 --------------------------------------------------------------------------------------------------------------
--- Восстановление здоровья,выносливости, радиации, кровотечения гг в диалоге
-function medic_magic_potion(actor, npc)
-   actor.health = 1
-   actor.power = 1
-   actor.radiation = -1
-   actor:heal_wounds(1.0)
+-- Восстановление здоровья, выносливости, радиации, кровотечения гг в диалоге
+function medic_magic_potion(actor, obj)
+-- для нпс: obj вместо actor
+	actor.health = 1
+	actor.power = 1
+	actor.radiation = -1
+	actor:heal_wounds(1.0)
 end
 
---для нпс
-   npc.health = 1
-
---Если вызов вне диалога/логики
-
+-- Если вызов вне диалога/логики:
 -- Обозначение актора - db.actor
 
 -- Можно обозначить нпс по стори айди
-   local obj = level_object_by_sid(006)
+	local obj = level_object_by_sid(006)
 
 -- Есть и такой вариант по имени в all.spawn
-	  local sobj = alife():object("esc_wolf")
-	  local obj = level.object_by_id(sobj.id)
+	local sobj = alife():object("esc_wolf")
+	local obj = level.object_by_id(sobj.id)
 --------------------------------------------------------------------------------------------------------------
--- В ОГСР Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
+-- ОГСР. Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
 function spawn(actor, obj)
    local sobj = alife():object("esc_wolf")
    sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
 end
 
---если диалог/логика то sobj можно определить так:
+-- если вызов через диалог/логику то sobj можно определить так:
    local sobj = alife():object(obj:id())
-
 --------------------------------------------------------------------------------------------------------------
 -- Один из способов выводить получившееся значение в смс
 function send_message(msg) 
@@ -90,40 +80,44 @@ level.unblock_action(key_bindings.kTORCH)
 --------------------------------------------------------------------------------------------------------------
 -- level.add_call(...) теперь возвращает управляющий объект, у которого есть метод :set_pause( ms ). После использования этого метода, функция, заданная в add_call(...), будет вызвана через ms миллисекунд. Вот простейший пример:
 level.add_call(
-  function()
-    log3( "condition" )
-    return true
-  end,
-  function() log3( "action" ) end
-):set_pause( 3000 )
+	function()
+		log3( "condition" )
+		return true
+	end,
+	function() log3( "action" ) end
+	):set_pause( 3000 )
 -- Через 3 секунды будет выведено:
 -- condition
 -- action
 --------------------------------------------------------------------------------------------------------------
 -- Спавн с использованием клиентских методов
 function spawn()
-  local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-  level.client_spawn_manager():add(sobj.id, 65535,
-    function (id, obj)
-      obj:set_goodwill(-5000, db.actor)
-    end
-  )
-  return obj
+	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+	level.client_spawn_manager():add(sobj.id, 65535,
+		function (id, obj)
+			obj:set_goodwill(-5000, db.actor)
+		end
+		)
+	return obj
 end
---------------------------------------------------------------------------------------------------------------
--- Поставить метку на объект по стори айди, 14 - стори айди, crlc_small - тип метки
-function otmechaem_laz()
-	local sobj = alife():story_object(014)
-	level.map_add_object_spot_ser(sobj.id, "crlc_small", "name")
-  --level.map_add_object_spot(sobj.id, "crlc_small", "name") -- без "_ser" метка пропадет после сейв лоада
-end
--- Такая же отметка, но определение по клиентскому объекту
-	local obj = level.object_by_id(id)
-	level.map_add_object_spot_ser(obj:id(), "crlc_small", "name")
+--------------------------------------------------------------------------------------------------------------	
+-- Поставить метку на объект в диалоге\логике, green_location - тип метки
+function metka(actor, obj)
+	level.map_add_object_spot_ser(obj:id(), "green_location", "name")
+--level.map_add_object_spot -- без "_ser" метка пропадет после сейв лоада
+end	
+
+-- по стори айди, 14 - стори айди
+	local sobj = alife():story_object(14)
+	level.map_add_object_spot_ser(sobj.id, "green_location", "name")
+	
+-- определение по клиентскому объекту по стори айди, либо через level.object_by_id(id)
+	local obj = level_object_by_sid(14)
+	level.map_add_object_spot_ser(obj:id(), "green_location", "name")	
 --------------------------------------------------------------------------------------------------------------
 -- спавн предмета в рюкзак герою без сообщения
 function create_items_actor_without_sms(section)
-	return alife():create(section, vector(), 0, 0, db.actor:id())
+	alife():create(section, vector(), 0, 0, db.actor:id())
 end
 -- Пример вызова
 Имя_файла.create_items_actor_without_sms("wpn_pm")
