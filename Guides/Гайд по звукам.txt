@@ -119,12 +119,12 @@ Anomaly idle	Неизвестно
 выбрать фразу, которая должна быть озвучена:
 
             <phrase id="611111">
-                <text>escape_trader_jobs_611111</text>
-                <next>6111111</next>
+               <text>escape_trader_jobs_611111</text>
+               <next>6111111</next>
             </phrase>
 			
 Добавить сам звук по пути:			
-\gamedata\sounds\characters_voice\dialogs\escape_trader_jobs_6.ogg
+\gamedata\sounds\characters_voice\dialogs\escape_trader_jobs_611111.ogg
 
 
 Чтобы персонаж говорил, перемещаясь по маршруту:
