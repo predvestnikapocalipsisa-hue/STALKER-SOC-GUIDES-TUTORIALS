@@ -144,22 +144,15 @@ alife():release(sobj)
 local sobj = alife():object("esc_wolf") -- Серверный объект
 local obj = level.object_by_id(sobj.id) -- Клиентский объект
 
-можно ещё по стори айди
-
-local sobj = alife():story_object(6) -- Серверный объект
-local obj = level.object_by_id(sobj.id) -- Клиентский объект
-
 
 Теперь наоборот получаем серверный через клиентский
 
-тут предполагается, что npc будет передан вне логики или диалога
-local obj = level.object_by_id(npc)
-local sobj = alife():object( obj:id() )
-
 если это диалог или логика, то можно
 function имя_функции (actor,obj)
-local sobj = obj and alife():object(obj:id())
-главное сделать аргументы (actor,obj)
+   local sobj = obj and alife():object(obj:id())
+
+Если это не диалог/логика и клиентский объект не передаётся, тогда нужно определить таким образом, например через перебор всех объектов 
+   local obj = level.object_by_id(id)
 
 
 Вот яркий пример использования серверного метода через клиентский объект и как вызов из логики без дополнительных данных.
