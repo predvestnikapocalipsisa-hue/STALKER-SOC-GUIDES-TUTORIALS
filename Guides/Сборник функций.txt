@@ -356,6 +356,14 @@ end
 -- Сделать нпс другом
 	npc:set_relation(game_object.friend, db.actor)
 --------------------------------------------------------------------------------------------------------------
+--Установить отношения между нпс
+function set_r()
+   local npc1 = level_object_by_sid (704)
+   local npc2 = level_object_by_sid (705)
+   npc1:set_relation(game_object.enemy, npc2)
+   npc2:set_relation(game_object.enemy, npc1)
+end
+--------------------------------------------------------------------------------------------------------------
 -- Функция убивает главного героя
 function aes_kill_actor ()
     if db.actor ~= nil and db.actor.health > 0 then
@@ -526,12 +534,18 @@ function main323()
   level.map_add_object_spot(obj.id, "green_location", obj:name())
 end
 --------------------------------------------------------------------------------------------------------------
--- Такими вот функциями можно установить ранг, деньги НПС. Работает только на ОГСР
-function main ()
-	local obj = level_object_by_sid(006)
-	obj:set_money(65000)
-	obj:set_character_rank(1000)
+-- Такими вот функциями можно установить ранг, деньги НПС в диалоге. Работает только на ОГСР
+function main(actor, obj)
+	  obj:set_money(65000)
+	  obj:set_character_rank(1000)
 end
+
+-- Либо обозначить нпс по стори айди
+   local obj = level_object_by_sid(006)
+
+-- Есть и такой вариант по имени в all.spawn
+	  local sobj = alife():object("esc_wolf")
+	  local obj = level.object_by_id(sobj.id)
 --------------------------------------------------------------------------------------------------------------
 -- Устанавливаем группировку ГГ
 function actor_set_dolg()
@@ -545,7 +559,7 @@ end
 --по стори айди
 	local npc = level_object_by_sid(006)
 	
--- Есть и такой вариант по имени
+-- Есть и такой вариант по имени в all.spawn
 	local sobj = alife():object("esc_wolf")
 	local npc = level.object_by_id(sobj.id)
 --------------------------------------------------------------------------------------------------------------
