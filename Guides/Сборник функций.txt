@@ -13,14 +13,8 @@ function clear_inv()
 end
 --------------------------------------------------------------------------------------------------------------
 -- Использование/съедание предметов
-function do_something()
-    local item = db.actor:object("antirad")
-    if item then
-        db.actor:eat(item)
-    end
-end
 
---в диалоге/логике
+--в диалоге/логике для гг
 function do_something(actor, npc)
     local item = actor:object("antirad")
     if item then
@@ -34,28 +28,38 @@ end
         npc:eat(item)
     end
 
--- Либо обозначить нпс по стори айди
+--Если вызов вне диалога/логики
+
+-- Обозначение актора - db.actor
+
+-- Можно обозначить нпс по стори айди
    local obj = level_object_by_sid(006)
 
 -- Есть и такой вариант по имени в all.spawn
 	  local sobj = alife():object("esc_wolf")
 	  local obj = level.object_by_id(sobj.id)
-
 --------------------------------------------------------------------------------------------------------------
--- Восстановление здоровья,выносливости, радиации, кровотечения гг в ди
+-- Восстановление здоровья,выносливости, радиации, кровотечения гг в диалоге
 function medic_magic_potion(actor, npc)
-   db.actor.health = 1
-   db.actor.power = 1
-   db.actor.radiation = -1
-   db.actor:heal_wounds(1.0)
+   actor.health = 1
+   actor.power = 1
+   actor.radiation = -1
+   actor:heal_wounds(1.0)
 end
 
 --для нпс
    npc.health = 1
-   npc.power = 1
-   npc.radiation = -1
-   npc:heal_wounds(1.0)
 
+--Если вызов вне диалога/логики
+
+-- Обозначение актора - db.actor
+
+-- Можно обозначить нпс по стори айди
+   local obj = level_object_by_sid(006)
+
+-- Есть и такой вариант по имени в all.spawn
+	  local sobj = alife():object("esc_wolf")
+	  local obj = level.object_by_id(sobj.id)
 --------------------------------------------------------------------------------------------------------------
 -- В ОГСР Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
 function spawn()
