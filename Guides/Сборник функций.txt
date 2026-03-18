@@ -408,22 +408,28 @@ function enemy (actor, obj)
 end
 -- С кем говорим друг
 	obj:set_relation(game_object.friend, actor)
---------------------------------------------------------------------------------------------------------------
--- ГГ становится врагом нпс со стори айди 704
-function enemy_set ()
-    local npc = level_object_by_sid (704)
-    npc:set_relation (game_object.enemy, db.actor)    
-end
--- Сделать нпс другом
-	npc:set_relation(game_object.friend, db.actor)
---------------------------------------------------------------------------------------------------------------
+	
+-- Если вызов вне диалога/логики:
+-- Обозначение актора - db.actor
+
+-- Можно обозначить нпс по стори айди
+	local obj = level_object_by_sid(6)
+
+-- Есть и такой вариант по имени в all.spawn
+	local sobj = alife():object("esc_wolf")
+	local obj = level.object_by_id(sobj.id)	
+
 --Установить отношения между нпс
-function set_r()
    local npc1 = level_object_by_sid (704)
    local npc2 = level_object_by_sid (705)
    npc1:set_relation(game_object.enemy, npc2)
    npc2:set_relation(game_object.enemy, npc1)
+--------------------------------------------------------------------------------------------------------------
+-- Установить отношения с кем говорим числом
+function enemy (actor, obj)
+	obj:set_goodwill(-5000, actor)
 end
+-- Если вызов вне диалога/логики смотреть выше.
 --------------------------------------------------------------------------------------------------------------
 -- Функция убивает главного героя
 function aes_kill_actor ()
