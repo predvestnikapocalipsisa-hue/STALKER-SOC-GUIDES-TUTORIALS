@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 --------------------------------------------------------------------------------------------------------------
---Очистка инвентаря от всех предметов
+--Очистка инвентаря гг от всех предметов(если применять для нпс, тогда нужно делать исключение для болта, иначе вылет)
 function clear_inv()
 	if db.actor then
 		db.actor:iterate_inventory(
@@ -12,21 +12,50 @@ function clear_inv()
 	end
 end
 --------------------------------------------------------------------------------------------------------------
--- Использование предметов
+-- Использование/съедание предметов
 function do_something()
     local item = db.actor:object("antirad")
     if item then
         db.actor:eat(item)
     end
 end
---------------------------------------------------------------------------------------------------------------
--- Восстановление здоровья,выносливости, в диалоге подставляем first_speaker или second_speaker, смотря кого надо восстановить
-function medic_magic_potion(first_speaker, second_speaker)
-  db.actor.health = 1
-  db.actor.power = 1
-  db.actor.radiation = -1
-  db.actor:heal_wounds(1.0)
+
+--в диалоге/логике
+function do_something(actor, npc)
+    local item = actor:object("antirad")
+    if item then
+        actor:eat(item)
+    end
 end
+
+--для нпс
+    local item = npc:object("antirad")
+    if item then
+        npc:eat(item)
+    end
+
+-- Либо обозначить нпс по стори айди
+   local obj = level_object_by_sid(006)
+
+-- Есть и такой вариант по имени в all.spawn
+	  local sobj = alife():object("esc_wolf")
+	  local obj = level.object_by_id(sobj.id)
+
+--------------------------------------------------------------------------------------------------------------
+-- Восстановление здоровья,выносливости, радиации, кровотечения гг в ди
+function medic_magic_potion(actor, npc)
+   db.actor.health = 1
+   db.actor.power = 1
+   db.actor.radiation = -1
+   db.actor:heal_wounds(1.0)
+end
+
+--для нпс
+   npc.health = 1
+   npc.power = 1
+   npc.radiation = -1
+   npc:heal_wounds(1.0)
+
 --------------------------------------------------------------------------------------------------------------
 -- В ОГСР Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
 function spawn()
