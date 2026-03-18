@@ -1,0 +1,187 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local corpse_checked = {} -- true - has loot, false - hasn't loot, nil - not checked
+
+local excluded_npc_story_ids = {
+    [6] = true,   -- NPC с story_id = 6
+    [15] = true,
+    [123] = true,
+}
+
+class "evaluator_finder" (property_evaluator)
+function evaluator_finder:__init(name,storage) super (nil, name)
+  self.st = storage
+end
+
+function evaluator_finder:evaluate()
+    if not db.actor then
+        return false
+    end
+	
+	if self.st.no_loot == true then
+		return false
+	end
+	
+    if excluded_npc_story_ids[self.object:story_id()] then
+        return false -- Не активируем схему для этого NPC
+    end
+	
+    self.st.visible_items = {} 
+    for v in self.object:memory_visible_objects() do
+        local obj = v:object()
+        if obj and (
+            ((obj:is_artefact() or obj:is_ammo() or obj:is_weapon() or obj:is_outfit() or obj:is_food_item() or obj:is_medkit()) and obj:parent() == nil) or
+            ((obj:is_stalker() or obj:is_monster()) and not obj:alive() and checkCorpse(obj) )
+        ) then
+            local distance = self.object:position():distance_to(obj:position())
+            if distance < 20.0 then
+				table.insert(self.st.visible_items, obj:id())
+                return true
+            end
+        end
+    end
+	self.st.visible_items = {} -- На всякий случай убедимся, что список пуст
+	return false
+end
+
+class "action_finder" (action_base)
+function action_finder:__init(name,storage) super (nil, name)
+	self.st = storage
+end
+
+function action_finder:initialize()
+	action_base.initialize(self)
+	local npc = self.object
+	db.storage[self.object:id()].overrides = nil
+	xr_logic.reset_generic_schemes_on_scheme_switch(self.object, "nil", "nil")
+	npc:remove_all_restrictions()
+	npc:set_desired_position()
+	npc:set_desired_direction()
+	npc:set_detail_path_type(move.curve)
+	npc:set_path_type(game_object.level_path)
+	self.offset = vector():set(math.random()*6-3,0,math.random()*6-3)
+	self.offset:normalize()
+	
+	self.item_to_take = nil
+    self.dist_to_item = nil
+    self.timer = 0
+end
+
+function action_finder:execute()
+action_base.execute(self)
+local npc = self.object
+  if self.timer < time_global() then
+    self.timer = self.timer + 1000
+    if #self.st.visible_items > 0 and not self.item_to_take then
+      self.item_to_take = self.st.visible_items[math.random(#self.st.visible_items)]
+      local gO = level.object_by_id(self.item_to_take)
+      if gO and (( gO:is_artefact() or gO:is_ammo() or gO:is_weapon() or gO:is_outfit() or gO:is_food_item() or gO:is_medkit()) and gO:parent() == nil)  or ((gO:is_stalker() or gO:is_monster()) and not gO:alive()) then
+        self.dist_to_item = npc:position():distance_to(level.object_by_id(self.item_to_take):position())
+      else
+        self.item_to_take = nil
+      end
+    end
+    if self.dist_to_item and self.dist_to_item > 100 then
+      self.dist_to_item = nil
+      self.item_to_take = nil
+      log1(">100")
+    elseif self.dist_to_item and self.dist_to_item >= 2 then
+      npc:set_item(object.idle,nil)
+      npc:set_movement_type(move.walk)
+      npc:set_mental_state(anim.danger)
+      npc:set_body_state(move.crouch)
+      npc:movement_enabled(true)
+      
+      self.dist_to_item = npc:position():distance_to(level.object_by_id(self.item_to_take):position())
+      utils.send_to_nearest_accessible_vertex(npc,level.object_by_id(self.item_to_take):level_vertex_id())
+      log1(tostring(level.object_by_id(self.item_to_take):section()))
+    elseif self.dist_to_item and self.dist_to_item < 2 then
+	local gO = level.object_by_id(self.item_to_take)
+	if gO:is_stalker() or gO:is_monster() and not gO:alive() then
+	  local function keep_item(npc, item)
+		local section = item:section()
+		if section == "bolt" then
+			return false
+		end
+		gO:transfer_item(item, npc)
+		log1(tostring(item:section()))
+	  end
+		gO:iterate_inventory(keep_item, npc)
+		npc:add_animation("cr_torso_0_check_corps_0",true, false)
+		local dead_neutral = {
+	[1] = [[characters_voice\human_01\dolg\reactions\dead_neutral\dead_neutral_1]],
+	[2] = [[characters_voice\human_01\dolg\reactions\dead_neutral\dead_neutral_2]],
+	[3] = [[characters_voice\human_01\dolg\reactions\dead_neutral\dead_neutral_3]]
+}
+		local snd = sound_object(dead_neutral[math.random(1, 3)])
+		snd:play_no_feedback(npc, sound_object.s3d, 0, npc:position(), 1.0)
+		npc:enable_memory_object(gO,false)
+	elseif gO and ( gO:is_artefact() or gO:is_ammo() or gO:is_weapon() or gO:is_outfit() or gO:is_food_item() or gO:is_medkit()) and gO:parent() == nil then
+		npc:transfer_item(gO, npc)
+		npc:add_animation("cr_raciya_0_hide_1",true, false)
+		log1("Trying take item")
+		npc:enable_memory_object(gO,false)
+	end    
+	  corpse_checked[gO:id()] = false -- нет больше лута тут
+      self.item_to_take = nil
+      self.dist_to_item = nil
+    end
+  end
+end
+
+function action_finder:finalize()
+	self.object:clear_animations()
+	
+	    -- Очищаем данные
+    self.dist_to_item = nil
+	self.item_to_take = nil
+    self.timer = 0
+end
+
+prop_finder = 9653
+act_finder = prop_finder
+
+function add_to_binder(object,char_ini,scheme,section,st)
+	local manager = object:motivation_action_manager()
+	manager:add_evaluator(prop_finder,evaluator_finder("evaluator_finder",st))
+	local action_finder = action_finder("action_finder",st)
+	action_finder:add_precondition(world_property(stalker_ids.property_alive,true))
+	action_finder:add_precondition(world_property(stalker_ids.property_enemy,false))
+	action_finder:add_precondition(world_property(stalker_ids.property_danger,false))
+    xr_motivator.addCommonPrecondition( action_finder )
+	action_finder:add_precondition(world_property(prop_finder,true))
+	action_finder:add_effect(world_property(prop_finder,false))
+	manager:add_action(act_finder,action_finder)
+	action_finder = manager:action(xr_actions_id.alife)
+	action_finder:add_precondition(world_property(prop_finder, false))
+end
+
+function set_scheme(npc,ini)
+	local st = xr_logic.assign_storage_and_bind(npc,ini,"finder")
+end
+
+function reset_finder(npc, scheme, st, section)
+	if section and st.ini:line_exist(section,"no_loot") then
+		st.finder.no_loot = st.ini:r_bool(section,"no_loot")
+	end
+end
+
+function checkCorpse(obj)
+	if (obj:is_stalker() or obj:is_monster()) and not obj:alive() then
+		if corpse_checked[obj:id()] ~= nil then
+			return corpse_checked[obj:id()]
+		end
+		local cnt = 0
+		obj:iterate_inventory(
+			function(dummy, item)
+				local section = item:section()
+				if section ~= "bolt" then			
+					cnt = cnt + 1
+				end
+			end,
+			nil
+		)
+		corpse_checked[obj:id()] = cnt > 0
+		return cnt > 0
+	end
+	return false
+end
