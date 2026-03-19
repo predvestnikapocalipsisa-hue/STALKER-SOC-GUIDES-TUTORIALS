@@ -4,7 +4,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 ----------------------------------------------
 -- Karavan simple
--- Схема каравана простая - гг ведет чудиков
+-- РЎС…РµРјР° РєР°СЂР°РІР°РЅР° РїСЂРѕСЃС‚Р°СЏ - РіРі РІРµРґРµС‚ С‡СѓРґРёРєРѕРІ
 -- 2008 - 2009 Rulix aka Bak
 ----------------------------------------------
 
@@ -33,22 +33,22 @@ function evaluator_karavan:evaluate()
     local is_active = xr_logic.is_active(self.object, self.st)
     local should_work = actor_exists and is_active
 
-    -- Проверяем, был ли активен на прошлом шаге
-    -- Предполагается, что этот флаг инициализируется в set_scheme как false
+    -- РџСЂРѕРІРµСЂСЏРµРј, Р±С‹Р» Р»Рё Р°РєС‚РёРІРµРЅ РЅР° РїСЂРѕС€Р»РѕРј С€Р°РіРµ
+    -- РџСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ, С‡С‚Рѕ СЌС‚РѕС‚ С„Р»Р°Рі РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РІ set_scheme РєР°Рє false
     local was_active = self.st.karavan_was_active
 
-    -- Если раньше был активен, а теперь НЕТ - отключаем схему
+    -- Р•СЃР»Рё СЂР°РЅСЊС€Рµ Р±С‹Р» Р°РєС‚РёРІРµРЅ, Р° С‚РµРїРµСЂСЊ РќР•Рў - РѕС‚РєР»СЋС‡Р°РµРј СЃС…РµРјСѓ
     if was_active and not should_work then
         local npc_id = self.object:id()
-        --log1("Отключение схемы karavan для NPC ID: " .. tostring(npc_id))
+        --log1("РћС‚РєР»СЋС‡РµРЅРёРµ СЃС…РµРјС‹ karavan РґР»СЏ NPC ID: " .. tostring(npc_id))
 
-        -- 1. Удаляем из команды игрока (твои данные)
+        -- 1. РЈРґР°Р»СЏРµРј РёР· РєРѕРјР°РЅРґС‹ РёРіСЂРѕРєР° (С‚РІРѕРё РґР°РЅРЅС‹Рµ)
         remove_from_actor_pstor(npc_id)
 
-        --log1("Схема karavan для NPC ID: " .. tostring(npc_id) .. " отключена")
+        --log1("РЎС…РµРјР° karavan РґР»СЏ NPC ID: " .. tostring(npc_id) .. " РѕС‚РєР»СЋС‡РµРЅР°")
     end
 
-    -- Сохраняем текущее состояние для следующего шага
+    -- РЎРѕС…СЂР°РЅСЏРµРј С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ С€Р°РіР°
     self.st.karavan_was_active = should_work
 
     return should_work
@@ -208,8 +208,8 @@ function set_scheme( npc, ini, scheme, section, gulag_name )
   st.radius     = math.max( db.actor:radius() * 2 + npc:radius(), st.radius )
   st.close_dist = math.max( st.close_dist, st.radius )
   
-  -- Инициализация флага для отслеживания состояния
-  st.karavan_was_active = false -- Изначально схема не была активна (или true, если при создании уже активна)
+  -- РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„Р»Р°РіР° РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ
+  st.karavan_was_active = false -- РР·РЅР°С‡Р°Р»СЊРЅРѕ СЃС…РµРјР° РЅРµ Р±С‹Р»Р° Р°РєС‚РёРІРЅР° (РёР»Рё true, РµСЃР»Рё РїСЂРё СЃРѕР·РґР°РЅРёРё СѓР¶Рµ Р°РєС‚РёРІРЅР°)
   
   local npc_id = npc:id()
   add_to_actor_pstor(npc_id)
@@ -237,7 +237,7 @@ function add_to_actor_pstor(npc_id)
     local firstzero=0
     for i=1,cnt,1 do
       if xr_logic.pstor_retrieve(actor,"team_id_"..i,0)==nid then
-      -- уже в команде
+      -- СѓР¶Рµ РІ РєРѕРјР°РЅРґРµ
         return
       elseif xr_logic.pstor_retrieve(actor,"team_id_"..i,0)==0 and firstzero==0 then
         firstzero=i
@@ -251,7 +251,7 @@ function add_to_actor_pstor(npc_id)
     end
     -- --mylog("adding spot for member "..cnt)
     local npc=level.object_by_id(nid)
-    -- level.map_add_object_spot_ser(nid, "anh_merc", (npc or "Наёмник") and npc:character_name())
+    -- level.map_add_object_spot_ser(nid, "anh_merc", (npc or "РќР°С‘РјРЅРёРє") and npc:character_name())
     xr_logic.pstor_store(actor,"team_id_" .. cnt,nid)
   else
     -- --mylog("db.actor is nil in add_to_actor_pstor!")
@@ -275,7 +275,7 @@ function remove_from_actor_pstor(npc_id)
         xr_logic.pstor_store(actor,"team_id_"..i,false)
       end
     end
--- Пересчитаем количество
+-- РџРµСЂРµСЃС‡РёС‚Р°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ
     local new_cnt=0
     for i=1,cnt,1 do
       if xr_logic.pstor_retrieve(actor,"team_id_"..i,false) then
@@ -318,7 +318,7 @@ function get_movstate()
   if db.actor then
     return xr_logic.pstor_retrieve(db.actor,"movstate",0)
   end
-  return 0 -- ХЗ
+  return 0 -- РҐР—
 end
 
 function death_offline(npc_id)
@@ -359,28 +359,28 @@ local offline_dest_table={
       none="yan_scientist_offline_walk"
     }, 
     l08u_brainlab = {
-      none="yan_scientist_offline_walk" -- не нашёл
+      none="yan_scientist_offline_walk" -- РЅРµ РЅР°С€С‘Р»
     }, 
     l10_radar = {
       none="rad_entrance_kamp_task"
     },
     l10u_bunker = {
-      none="rad_entrance_kamp_task" -- не нашёл
+      none="rad_entrance_kamp_task" -- РЅРµ РЅР°С€С‘Р»
     }, 
     l11_pripyat = {
       none="pri_followers_wait_stalker1_walk"
     }, 
     l12_stancia = {
-      none="aes_heli_attack_desant_walk1_2" -- взял из spawn.ini надо проверять
+      none="aes_heli_attack_desant_walk1_2" -- РІР·СЏР» РёР· spawn.ini РЅР°РґРѕ РїСЂРѕРІРµСЂСЏС‚СЊ
     }, 
     l12u_sarcofag = {
-      none="aes_heli_attack_desant_walk1_2" -- не нашёл
+      none="aes_heli_attack_desant_walk1_2" -- РЅРµ РЅР°С€С‘Р»
     }, 
     l12u_control_monolith = {
-      none="aes_heli_attack_desant_walk1_2" -- не нашёл
+      none="aes_heli_attack_desant_walk1_2" -- РЅРµ РЅР°С€С‘Р»
     }, 
     l12_stancia_2 = {
-      none="aes_heli_attack_desant_walk1_2" -- не нашёл
+      none="aes_heli_attack_desant_walk1_2" -- РЅРµ РЅР°С€С‘Р»
     }
   }
 
@@ -416,10 +416,10 @@ function update_level_names()
   xr_logic.pstor_store(actor,"prev_level",cur_level_name)
   xr_logic.pstor_store(actor,"current_level",level.name())
 --    --mylog("cur level "..level.name() .. " prev level " .. cur_level_name)
-  -- Проверим, нужно ли ждать на другом уровне
+  -- РџСЂРѕРІРµСЂРёРј, РЅСѓР¶РЅРѕ Р»Рё Р¶РґР°С‚СЊ РЅР° РґСЂСѓРіРѕРј СѓСЂРѕРІРЅРµ
   local w_level=xr_logic.pstor_retrieve(actor,"wait_level",nil)
   if w_level then
-    -- ждём на другом уровне
+    -- Р¶РґС‘Рј РЅР° РґСЂСѓРіРѕРј СѓСЂРѕРІРЅРµ
     update_offline_dest(w_level,level.name())
   else
     update_offline_dest(level.name(),cur_level_name)
