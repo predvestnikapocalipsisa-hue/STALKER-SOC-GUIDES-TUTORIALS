@@ -1032,3 +1032,32 @@ function current_year()
 end
 
 --------------------------------------------------------------------------------------------------------------
+-- смена визуала нпс через диалог/логику на ОГСР
+function esc_timer(actor, obj)
+local iTimer = time_global() + 1
+local sobj = alife():object(obj:id())
+   if xr_logic.pstor_retrieve(db.actor, "set_switch_offline"..obj:id(), 0) ~= 1 then
+      sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
+      alife():set_switch_online(sobj.id, false)
+      xr_logic.pstor_store(db.actor, "set_switch_offline"..obj:id(), 1)
+   end
+   local function check_timer()
+      return time_global() > iTimer
+   end
+   local function switch_online()
+      if xr_logic.pstor_retrieve(db.actor, "set_switch_online"..sobj.id, 0) ~= 1 then
+         alife():set_switch_online(sobj.id, true)
+         xr_logic.pstor_store(db.actor, "set_switch_online"..sobj.id, 1)
+      end
+   end
+   level.add_call(check_timer, switch_online)           
+end
+
+-- рабочий вариант с указыванием любого визуала прямо в логике:
+function esc_timer(actor, obj, p)
+
+sobj.visual_name = p[1]
+
+в логике:
+on_actor_dist_le_nvis = 10 | %=new_visual(actors\neytral\stalker_neytral_rukzak_3)% 
+
