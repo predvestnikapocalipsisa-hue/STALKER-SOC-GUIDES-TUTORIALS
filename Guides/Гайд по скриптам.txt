@@ -173,9 +173,9 @@ on_actor_outside = nil %=remove_object%
 добавить 
 
 function kill_object(actor, obj)
-  if obj then
-    obj:kill(obj)
-  end
+	if obj then
+		obj:kill(obj)
+	end
 end
 
 а в логике нпс/диалоге сделать вызов и объект должен погибнуть, вызов:
@@ -203,13 +203,13 @@ level.map_add_object_spot(obj:id(), "green_location", "текст")
 
 Когда мы спавним нпс, его клиентская сторона образуется не сразу и использование методов класса game_object, т.е. клиентских приведет к вылету, поэтому есть такой вот способ, как без сейвлоадов сразу использовать клиентские методы на нашем нпс:
 function spawn()
-  local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-  level.client_spawn_manager():add(sobj.id, 65535,
+	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+	level.client_spawn_manager():add(sobj.id, 65535,
     function (id, obj)
       obj:set_goodwill(-5000, db.actor)
     end
-  )
-  return obj
+	)
+	return obj
 end
 Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне.
 
