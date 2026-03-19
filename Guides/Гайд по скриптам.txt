@@ -97,6 +97,13 @@ on_info2 = %=new_fire(4:1000)%
 
 далее оно само понимает куда подставить 4, а куда 1000
 
+вот ещё пример
+function new_visual(actor, npc, p)
+///
+    data.visual_name = p[1] --визуал
+	
+вызов
+on_actor_dist_le_nvis = 5 | %=new_visual(actors\neytral\stalker_neytral_rukzak_3)%
 
 
 Закрепим, что функции внутри функции вызывются так:

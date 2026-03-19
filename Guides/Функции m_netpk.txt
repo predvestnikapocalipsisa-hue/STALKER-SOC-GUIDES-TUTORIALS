@@ -36,35 +36,38 @@ end
 function spawn()
     local sobj = alife():object("esc_wolf")
     if sobj then
-                local pk = get_netpk( sobj, 1 )
-                ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
-                local data = pk:get()
-                    data.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
-                pk:set( data )
+		local pk = get_netpk( sobj, 1 )
+		ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj:name() )
+		local data = pk:get()
+		data.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
+		pk:set( data )
     end
 end
 
--- Мгновенная смена визула нпс
+-- Мгновенная смена визула нпс через диалог\логику
 
 function esc_timer(actor, npc)
 local iTimer = time_global() + 1
 local sobj = alife():object(npc:id())
-  if xr_logic.pstor_retrieve(db.actor, "set_switch_online", 0) ~= 1 then
-    local pk = get_netpk( sobj, 1 )
-    ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj)
-    local data = pk:get()
-    data.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
-    pk:set( data )
-    alife():set_switch_online(sobj.id, false)
-    xr_logic.pstor_store(db.actor, "set_switch_online", 1)
+	if xr_logic.pstor_retrieve(db.actor, "set_switch_offline"..sobj.id, 0) ~= 1 then
+		local pk = get_netpk( sobj, 1 )
+		ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj)
+		local data = pk:get()
+		data.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
+		pk:set( data )
+		alife():set_switch_online(sobj.id, false)
+		xr_logic.pstor_store(db.actor, "set_switch_offline"..sobj.id, 1)
    end
    local function check_timer()
-      return time_global() > iTimer
-   end
+		 	 return time_global() > iTimer
+		 end
    local function switch_online()
-            alife():set_switch_online(sobj.id, true)
-   end
-   level.add_call(check_timer, switch_online)           
+		if xr_logic.pstor_retrieve(db.actor, "set_switch_online"..sobj.id, 0) ~= 1 then
+			alife():set_switch_online(sobj.id, true)
+			xr_logic.pstor_store(db.actor, "set_switch_online"..sobj.id, 1)
+		end
+	end
+    level.add_call(check_timer, switch_online)       
 end
 
 
@@ -74,23 +77,27 @@ on_actor_dist_le_nvis = 10 | %=new_visual(actors\neytral\stalker_neytral_rukzak_
 function new_visual(actor, npc, p)
 local iTimer = time_global() + 1
 local sobj = alife():object(npc:id())
-  if xr_logic.pstor_retrieve(db.actor, "set_switch_online", 0) ~= 1 then
-  local pk = get_netpk( sobj, 1 )
-  ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj)
-  local data = pk:get()
-  data.visual_name = p[1] --визуал
-  pk:set( data )
-  alife():set_switch_online(sobj.id, false)
-  xr_logic.pstor_store(db.actor, "set_switch_online", 1)
+	if xr_logic.pstor_retrieve(db.actor, "set_switch_offline"..sobj.id, 0) ~= 1 then
+		local pk = get_netpk( sobj, 1 )
+		ASSERT( ( pk and pk:isOk() ), "can't read netpacket of %s", sobj)
+		local data = pk:get()
+		data.visual_name = p[1] --визуал
+		pk:set( data )
+		alife():set_switch_online(sobj.id, false)
+		xr_logic.pstor_store(db.actor, "set_switch_offline"..sobj.id, 1)
    end
    local function check_timer()
-   return time_global() > iTimer
-   end
+		 	 return time_global() > iTimer
+		 end
    local function switch_online()
-            alife():set_switch_online(sobj.id, true)
-   end
-   level.add_call(check_timer, switch_online)       
+		if xr_logic.pstor_retrieve(db.actor, "set_switch_online"..sobj.id, 0) ~= 1 then
+			alife():set_switch_online(sobj.id, true)
+			xr_logic.pstor_store(db.actor, "set_switch_online"..sobj.id, 1)
+		end
+	end
+    level.add_call(check_timer, switch_online)       
 end
+
 
 -- Спавн аномалий, общая функция
 function spawn_anomaly( section, pos, lv, gv, shape )
