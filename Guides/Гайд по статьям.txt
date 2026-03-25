@@ -27,3 +27,7 @@
 Для журнала нужно указать article_type = "journal"
 
         <article id="aes_soldier_info" name = "aes_military_task_head" group="aes_military_task" article_type = "journal">
+
+
+Чтобы самостоятельно выдать статью:
+для этого делаем выдачу инфопорш любым удобным способом.
