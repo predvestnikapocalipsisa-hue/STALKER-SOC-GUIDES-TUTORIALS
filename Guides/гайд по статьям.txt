@@ -1,0 +1,29 @@
+-- -*- mode: xml; coding: windows-1251-dos -*-
+Чтобы добавить свои статьи в энциклопедию, которые будут появляться при обыске нпс нужно в xr_info.script в нужные таблицы записать имя инфопоршн, например "encyclopedy_zone_my"
+
+потом открыть файл info_known_objects.xml
+
+  <info_portion id="encyclopedy_zone_my">
+        <article>zone_my</article>
+ </info_portion>
+
+Далее открываем один из файлов  encyclopedia_*.xml
+
+и создаём статью
+
+    <article id="zone_my" name="my" group="Social">
+                <texture x="768" y="128" width="128" height="128">ui\ui_icons_npc</texture>
+        <text>enc_social_my</text>
+    </article>
+
+"zone_my" - это айди статьи, используется для указания артикула
+
+"my" - отображаемое имя статьи
+
+"Social" - категория
+
+
+
+Для журнала нужно указать article_type = "journal"
+
+        <article id="aes_soldier_info" name = "aes_military_task_head" group="aes_military_task" article_type = "journal">
