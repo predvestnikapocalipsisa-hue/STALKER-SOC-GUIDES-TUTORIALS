@@ -109,11 +109,20 @@ end
 
 -- по стори айди, 14 - стори айди
 	local sobj = alife():story_object(14)
+
+-- по имени из all.spawn
+ local sobj = alife():object("esc_wolf")
+
 	level.map_add_object_spot_ser(sobj.id, "green_location", "name")
 	
 -- определение по клиентскому объекту по стори айди, либо через level.object_by_id(id)
 	local obj = level_object_by_sid(14)
 	level.map_add_object_spot_ser(obj:id(), "green_location", "name")	
+
+-- удалить метку
+level.map_remove_object_spot(obj:id(), "green_location")
+
+--при удалении нужно передавать тот же айди нпс, то есть :id(), либо .id и название метки
 --------------------------------------------------------------------------------------------------------------
 -- спавн предмета в рюкзак герою без сообщения
 function create_items_actor_without_sms(section)
