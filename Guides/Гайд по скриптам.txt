@@ -719,7 +719,7 @@ for i=20, 5, -1 do print(i) end
 
 tbl = {1, 3, 5, 7, 9}
 for element in ipairs(tbl) do
-    print(element)
+    log1(element)
 end
 
 
@@ -735,7 +735,7 @@ until condition
 
 for i=1,3 do
     for j=10,20 do
-        print(j)
+        log1(j)
     end
 end
 
@@ -743,7 +743,7 @@ end
 
 for i=0,10 do
     if i == 6 then
-        print(i)
+        log1(i)
         break
     end
 end
@@ -760,7 +760,7 @@ local table = {"имя", "имя"}
         for k,v in pairs(table) do
         local sobj = alife():object(v)
         local obj = level.object_by_id(sobj.id)
-                obj:клиентская функция()
+                --действие над obj
         end        
 end
 
@@ -769,7 +769,7 @@ function main ()
 local table = {"имя", "имя"}
         for k,v in pairs(table) do
         local sobj = alife():object(v)
-           sobj:серверная функция()
+           --действие над sobj
         end        
 end
 
@@ -778,7 +778,7 @@ function main ()
 local story_table = {3,6,14,7}
         for k,v in pairs(story_table) do
         local sobj = alife():story_object(v)
-                sobj:серверная функция()
+                --действие над sobj
         end        
 end
 
@@ -787,7 +787,7 @@ function main ()
 local story_table = {3,6,14,7}
         for k,v in pairs(story_table) do
         local obj = level_object_by_sid (v)
-                obj:клиентская функция()
+                --действие над obj
         end        
 end
 
