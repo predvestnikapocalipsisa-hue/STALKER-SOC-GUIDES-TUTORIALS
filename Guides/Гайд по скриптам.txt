@@ -708,9 +708,9 @@ end
 
 Обладает следующим синтаксисом: for var=exp1,exp2,exp3 do ... end, где exp1 - начальное значение, exp2 - конечное значение, exp3 - шаг. exp3 является необязательным(по умолчанию равно 1)
 
-for i=1, 10 do print(i) end
+for i=1, 10 do log1(i) end
 
-for i=20, 5, -1 do print(i) end
+for i=20, 5, -1 do log1(i) end
 
 
 Общий for
@@ -718,7 +718,7 @@ for i=20, 5, -1 do print(i) end
 Позволяет пройтись по элементам, полученным от итерирующей функции(например, ipairs).
 
 tbl = {1, 3, 5, 7, 9}
-for element in ipairs(tbl) do
+for _,element in ipairs(tbl) do
     log1(element)
 end
 
