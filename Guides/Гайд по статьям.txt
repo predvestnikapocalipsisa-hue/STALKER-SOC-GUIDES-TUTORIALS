@@ -9,6 +9,10 @@
 
 Далее открываем один из файлов  encyclopedia_*.xml
 
+а точнее те файлы, которые прописаны в system.ltx в:
+[encyclopedia]
+files = encyclopedia_infos, storyline_info_to_diary, encyclopedia_weapons, encyclopedia_mutants, encyclopedia_zone, encyclopedia_social, encyclopedia_equipment, encyclopedia_tutorial
+
 и создаём статью
 
     <article id="zone_my" name="my" group="Social">
