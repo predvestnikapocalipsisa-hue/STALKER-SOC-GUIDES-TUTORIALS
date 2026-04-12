@@ -2,14 +2,16 @@
 --------------------------------------------------------------------------------------------------------------
 -- Очистка инвентаря гг от всех предметов(если применять для нпс, тогда нужно делать исключение для болта, иначе вылет)
 function clear_inv()
-	if db.actor then
-		db.actor:iterate_inventory(
-			function(dummy, item)
-				alife():release(alife():object(item:id()), true)
-			end,
-			nil
-			)
-	end
+        if db.actor then
+                db.actor:iterate_inventory(
+                        function(dummy, item)
+         local sobj = alife():object(item:id())
+if sobj then                       alife():release(sobj, true)
+end
+                        end,
+                        nil
+                        )
+        end
 end
 --------------------------------------------------------------------------------------------------------------
 -- Использование/съедание предметов
