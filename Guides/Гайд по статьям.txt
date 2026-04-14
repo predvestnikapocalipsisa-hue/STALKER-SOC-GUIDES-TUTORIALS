@@ -1,19 +1,20 @@
 -- -*- mode: xml; coding: windows-1251-dos -*-
-Чтобы добавить свои статьи в энциклопедию, которые будут появляться при обыске нпс нужно в xr_info.script в нужные таблицы записать имя инфопоршн, например "encyclopedy_zone_my"
+Чтобы добавить свои статьи в энциклопедию, которые будут появляться при обыске нпс нужно в xr_info.script в нужные таблицы записать имя инфопоршн'а, например "encyclopedy_zone_my"
 
 потом открыть файл info_known_objects.xml
+и создать этот поршн
 
   <info_portion id="encyclopedy_zone_my">
         <article>zone_my</article>
- </info_portion>
+  </info_portion>
 
 Далее открываем один из файлов  encyclopedia_*.xml
 
-а точнее те файлы, которые прописаны в system.ltx в:
+а точнее те файлы, которые прописаны в system.ltx в секции:
 [encyclopedia]
 files = encyclopedia_infos, storyline_info_to_diary, encyclopedia_weapons, encyclopedia_mutants, encyclopedia_zone, encyclopedia_social, encyclopedia_equipment, encyclopedia_tutorial
 
-и создаём статью
+и создаём статью в одном из них
 
     <article id="zone_my" name="my" group="Social">
                 <texture x="768" y="128" width="128" height="128">ui\ui_icons_npc</texture>
@@ -26,6 +27,7 @@ files = encyclopedia_infos, storyline_info_to_diary, encyclopedia_weapons, encyc
 
 "Social" - категория
 
+"ui\ui_icons_npc" это текстура из \gamedata\textures\ui\ui_icons_npc.dds
 
 
 Для журнала нужно указать article_type = "journal"
@@ -35,3 +37,11 @@ files = encyclopedia_infos, storyline_info_to_diary, encyclopedia_weapons, encyc
 
 Чтобы самостоятельно выдать статью:
 для этого делаем выдачу инфопорш любым удобным способом.
+
+
+
+В квестах через артикли делается описание квеста и в первом обжективе указывается артикул
+<article>article_my_kvest</article>
+
+только он должен быть реализован так:
+<article id="article_my_kvest" name="task" article_type="task"  group="task">
