@@ -9,7 +9,7 @@
 
 [Сайт "Уроки модинга"](https://sites.google.com/view/stsocmoding/%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F?authuser=0) с перенесенными статьями из stalkerin.gameru.net + много новых статей со скриншотами!
 
-[Чат Мододельское](https://t.me/chat_soc_moding) в телеграм
+[Чат Мододельское](https://t.me/+nIwAehu-AX8xMjRi) в телеграм
 
 Раньше сборник был на гугл диске, сейчас портирован на Github для удобства.
 
