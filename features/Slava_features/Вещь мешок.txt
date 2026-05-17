@@ -1,0 +1,106 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+В bind_stalker.script 
+
+В функцию actor_binder:on_item_drop (obj) 
+
+if obj:section()=="inv_ruck" then 
+self.rr_id=obj:id() 
+end 
+
+И в функцию actor_binder:update(delta) 
+
+if self.rr_id~=nil then 
+local se_obj=alife():object(self.rr_id) 
+if se_obj==nil or se_obj:section_name()~="inv_ruck" then 
+local ruck=alife():create("active_ruck", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id()) 
+end 
+self.rr_id=nil 
+end 
+
+А так же в actor_binder:take_item_from_box(box, item)
+перед последним енд
+
+--if box:section() == "active_ruck" and box:is_inv_box_empty() then
+if string.find(box:section(), "active_ruck") and box:is_inv_box_empty() then
+level.start_stop_menu(level.main_input_receiver(), true)   
+alife():release(alife():object(box:id()), true) 
+alife():create("inv_ruck", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), db.actor:id())
+end
+
+И в config\misc\devices.ltx В КОНЕЦ
+
+[inv_ruck]:identity_immunities
+GroupControlSection = spawn_group 
+discovery_dependency = 
+$spawn = "devices\item_ruck" 
+$prefetch = 32 
+class = II_ANTIR 
+cform = skeleton 
+visual = equipments\item_rukzak 
+description = enc_tre_ruck;описание
+
+inv_weight = 0.5 
+inv_name = tre_ruck       ;имя
+inv_name_short = tre_ruck
+; иконку сам
+inv_grid_width     = 2
+inv_grid_height    = 2
+inv_grid_x         = 4
+inv_grid_y         = 18
+cost = 500                ;цена
+
+eat_health = 0 
+eat_satiety = 0 
+eat_power = 0 
+eat_radiation = 0 
+eat_alcohol = 0 
+wounds_heal_perc = 0 
+eat_portions_num = 1
+animation_slot = 4
+hud = wpn_vodka_hud
+
+[active_ruck]:inventory_box
+$spawn = "devices\inventory_ruck" 
+visual = equipments\item_rukzak 
+custom_data = scripts\treasure_inventory_box.ltx ;это стандартный файл
+radius = 1
+
+
+Итого:
+Как предмет выступает inv_ruck, его можно ставить в продажу и тд.
+
+Как неподвижный объект выступает active_ruck, его без проблем можно спавнить скриптом на координатах:
+function my_name()
+alife():create("active_ruck",vector():set(-152.0,-18.0,-144.3),98126,45)
+end
+
+
+А так же если хотите через скрипт спавнить такой рюкзак со своим набором предметов и по координатам, то в config\misc\devices.ltx ниже добавляем:
+[active_ruck_my]:active_ruck
+$spawn = "devices\active_ruck_my";обязательно для СДК
+custom_data = scripts\active_ruck_my.ltx
+
+Далее создаем \gamedata\config\scripts\active_ruck_my.ltx
+и вставляем этот код
+[logic]
+active = ph_idle@enable
+
+[ph_idle@enable]
+nonscript_usable = true
+tips = st_search_treasure
+
+[spawn]
+wpn_pm
+wpn_ak74
+
+
+А саму функцию спавна по координатам делаем так 
+function my_name()
+alife():create("active_ruck_my",vector():set(-152.0,-18.0,-144.3),98126,45)
+end
+
+Как её использовать ищем в моём гайде по скриптам.
+
+Таких рюкзаков с заранее заспавнеными вещами может быть много, НИЧЕГО НЕ НУЖНО добавлять в bind_stalker.script
+
+С spawn_active_ruck в видео я запутался, переделал код так, чтобы считывалось любое имя ящика ГЛАВНОЕ что его имя начиналось с active_ruck
