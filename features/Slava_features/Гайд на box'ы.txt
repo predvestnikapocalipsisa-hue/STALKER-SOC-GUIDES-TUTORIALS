@@ -1,0 +1,93 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+В этих файлах указываются вещи которые могут падать в зависимости от сложности\локации
+
+gamedata\config\misc\ph_box_items_count.ltx
+gamedata\config\misc\ph_box_items_by_levels.ltx
+gamedata\config\misc\ph_box_items_by_communities.ltx
+gamedata\config\misc\ph_box_generic.ltx
+
+Для создания бокса, который ломается и из него выпадут только наши вещи, при необходимости вообще убираем строку айтем
+
+[drop_box]
+community = def_box
+items = medkit
+
+Похожая логика, но выпадут вещи из big_box_arsenal и экзоскелет
+
+[drop_box]
+community = big_box_arsenal
+items = exo_outfit
+
+Дефолтный бокс с базовыми предметами.
+[drop_box]
+community = small_box_generic
+
+По респавну предметов в ящике
+В \gamedata\config\game_story_ids.ltx
+
+  5481			= "Marsh_box"
+  
+далее создаем респавн из "ai" и делаем нэйм my_prefix_respawn
+
+[respawn]
+respawn_section = wpn_pm,2,vodka,2,medkit,1,energy_drink,2,ammo_9x18_fmj,3
+idle_spawn = -1
+parent = 5481
+item_spawn = true
+max_count = 7 
+
+тип нот э рестриктор
+
+и в логику вашего смарта добавляем 
+respawn = my_prefix_respawn
+
+в логику трансивера было написано следующее
+[collide]
+ignore_static
+
+
+в логику просто инвентори боксов для спавна предметов в них заранее:
+[spawn]
+wpn_ak74
+wpn_pm
+
+Также по рюкзакам, если нужно чтобы предметы были сразу:
+[logic]
+active = ph_idle@enable
+
+[ph_idle@enable]
+nonscript_usable = true
+tips = st_search_treasure
+
+[spawn]
+wpn_ak74
+wpn_pm
+
+
+А ещё можно спавнить "стандартный тайник" вот так:
+function test()
+local sobj = alife_create("inventory_box", "l01_escape", vector():set(-208,-20,-145))
+alife():assign_story_id(sobj.id, story_ids.esc_my)
+end
+
+в game_story_ids.ltx
+делаем запись
+  034      = "esc_my"
+
+в treasure_manager.ltx оформляем как обычно в лист:
+[list]
+esc_secret_my
+
+и сама секция
+[esc_secret_my]
+target = 34
+name = esc_secret_my_name
+description = esc_secret_my_descr
+items = ammo_5.45x39_ap,30,medkit_army,2
+condlist = {=npc_rank(experienced) =actor_on_level(l01_escape)} 10
+community = military
+
+для теста можно выдать:
+function test()
+treasure_manager.get_treasure_manager():give_treasure("esc_secret_my")
+end
