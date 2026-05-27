@@ -1,0 +1,217 @@
+-- -*- mode: xml; coding: windows-1251-dos -*-
+D:\X-Ray SDK\level_editor\gamedata\config\game_story_ids.ltx
+
+  041			= "Vill_npc"
+  
+D:\X-Ray SDK\level_editor\gamedata\config\gameplay\dialogs.xml
+
+    <dialog id="tm_my_dialog" priority="-1">
+		<init_func>task_manager.init_my_task_dialog</init_func>
+    </dialog>
+    <dialog id="tm_my_reward" priority="0">
+		<init_func>task_manager.init_my_reward_dialog</init_func>
+		<precondition>task_manager.has_active_vendor_task</precondition>
+    </dialog>  
+	
+D:\X-Ray SDK\level_editor\gamedata\config\gameplay\character_desc_escape.xml
+
+добавим нпс диалоги
+
+		<actor_dialog>tm_my_dialog</actor_dialog>
+		<actor_dialog>tm_my_reward</actor_dialog>	
+	
+D:\X-Ray SDK\level_editor\gamedata\scripts\task_manager.script
+
+local parent_by_story = {
+	[041] = "my",
+	
+local story_by_parent = {
+	my							= 041,	
+	
+function init_my_task_dialog(dlg)
+	get_random_task():init_task_dialog(dlg, "my")
+end
+
+function init_my_reward_dialog(dlg)
+	get_random_task():init_reward_dialog(dlg, "my")
+end
+
+D:\X-Ray SDK\level_editor\gamedata\config\gameplay\game_tasks_by_vendor.xml
+
+	<!-- my -->
+	<game_task id="eliminate_lager_my">
+		<title>title</title>
+		<objective>
+			<text>objective</text>
+			<icon>ui_iconsTotal_eliminate_lager</icon>
+			<function_complete>task_manager.task_complete</function_complete>
+			<function_fail>task_manager.task_fail</function_fail>
+		</objective>
+	</game_task>
+
+	<game_task id="defend_lager_my">
+		<title>title</title>
+		<objective>
+			<text>objective</text>
+			<icon>ui_iconsTotal_defend_lager</icon>
+			<function_complete>task_manager.task_complete</function_complete>
+			<function_fail>task_manager.task_fail</function_fail>
+		</objective>
+	</game_task>
+
+	<game_task id="artefact_my">
+		<title>title</title>
+		<objective>
+			<text>objective</text>
+			<icon>ui_iconsTotal_artefact</icon>
+			<function_complete>task_manager.task_complete</function_complete>
+			<function_fail>task_manager.task_fail</function_fail>
+		</objective>
+	</game_task>
+
+	<game_task id="kill_stalker_my">
+		<title>title</title>
+		<objective>
+			<text>objective</text>
+			<icon>ui_iconsTotal_kill_stalker</icon>
+			<function_complete>task_manager.task_complete</function_complete>
+			<function_fail>task_manager.task_fail</function_fail>
+		</objective>
+	</game_task>
+
+	<game_task id="monster_part_my">
+		<title>title</title>
+		<objective>
+			<text>objective</text>
+			<icon>ui_iconsTotal_monster_part</icon>
+			<function_complete>task_manager.task_complete</function_complete>
+			<function_fail>task_manager.task_fail</function_fail>
+		</objective>
+	</game_task>
+
+	<game_task id="find_item_my">
+		<title>title</title>
+		<objective>
+			<text>objective</text>
+			<icon>ui_iconsTotal_find_item</icon>
+			<function_complete>task_manager.task_complete</function_complete>
+			<function_fail>task_manager.task_fail</function_fail>
+		</objective>
+	</game_task>
+
+D:\X-Ray SDK\level_editor\gamedata\config\misc\task_manager.ltx
+
+;----------My--------------------------------------------------
+my_find_artefact_1
+my_find_item_1
+my_eliminate_camp_1
+my_kill_stalker_1
+my_defend_camp_1
+my_monster_part_1	
+
+[my_find_artefact_1]
+type = artefact
+community = actor
+text = tm_find_artefact_1_text
+description = tm_find_artefact_1_descr
+parent = my
+target = af_medusa
+reward_money = 1500
+reward_reputation = +5
+reward_rank = 1
+reward_item = vodka
+time = 86400
+;idle_time = 84000
+prior = 1
+
+[my_find_item_1]
+type = find_item
+community = actor
+text = ecolog_find_item_1_text
+description = ecolog_find_item_2_descr
+parent = my
+target = wpn_fort_m1
+reward_reputation = +30
+reward_relation = ecolog, +30
+reward_rank = 8
+reward_item = protection_outfit
+time = 86400
+prior = 1
+
+[my_kill_stalker_1]
+type = kill_stalker
+community = actor
+;init_condition = {=actor_on_level(l02_garbage)}
+text = tm_kill_stalker_1_text
+description = tm_kill_stalker_1_descr
+parent = my
+target = gar_bandit_leader
+reward_money = 3000
+reward_reputation = +15
+reward_relation = dolg, 10
+reward_item = wpn_ak74u, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo_5.45x39_ap
+reward_rank = 6
+time = 86400
+
+[my_eliminate_camp_1]
+type = eliminate_lager
+community = actor
+;init_condition = {=actor_on_level(l02_garbage) +agroprom_military_case_have}
+text = tm_eliminate_camp_1_text
+description = tm_eliminate_camp_1_descr
+parent = my
+target = esc_lager
+reward_money = 1500
+reward_reputation = +30
+reward_relation = dolg, 15
+reward_rank = 5
+reward_item = grenade_rgd5, grenade_rgd5
+time = 86400
+
+[my_defend_camp_1]
+type = defend_lager
+community = actor
+;init_condition = {=actor_on_level(l04_darkvalley) =gulag_state(val_smart_bandit_2:1)}
+text = tm_defend_camp_1_text
+description = tm_defend_camp_1_descr
+parent = my
+target = gar_bandit_stroyka;val_smart_bandit_3
+reward_money = 5000
+reward_reputation = +35
+reward_relation = dolg, 50
+reward_rank = 10
+reward_item = af_fireball
+time = 86400
+
+[my_monster_part_1]
+type = monster_part
+community = actor
+;condlist = {+agroprom_military_case_have}
+text = tm_monster_part_1_text
+description = tm_monster_part_1_descr
+parent = my
+target = mutant_krovosos_jaw
+reward_money = 3000
+reward_reputation = +20
+reward_rank = 5
+time = 86400
+reward_item = ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart
+prior = 2
+
+D:\X-Ray SDK\level_editor\gamedata\config\text\rus\stable_task_manager.xml
+
+	<string id="tm_my_has_no_job">
+		<text>На данный момент ничего нет.</text>
+	</string>
+	<string id="tm_my_job_ask">
+		<text>Насчёт какого задания ты хочешь поговорить?</text>
+	</string>
+	<string id="tm_my_job_what">
+		<text>И что там с заданием?</text>
+	</string>
+	<string id="tm_my_list_job">
+		<text>Есть кое-что:</text>
+	</string>
+	<string id="tm_my_job_complete">
+		<text>Задание выполнено... а вот и гонорар!</text>
+	</string>
