@@ -1,4 +1,4 @@
--- -*- mode: xml; coding: windows-1251-dos -*-
+-- -*- mode: lua; coding: windows-1251-dos -*-
 D:\X-Ray SDK\level_editor\gamedata\config\game_story_ids.ltx
 
   041			= "Vill_npc"
