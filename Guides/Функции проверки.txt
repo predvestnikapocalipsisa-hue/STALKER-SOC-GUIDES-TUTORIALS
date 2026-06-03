@@ -2,6 +2,9 @@
 
 ДЛЯ РАБОТЫ БОЛЬШИНСТВА ФУНКЦИЙ НУЖЕН "sak.script" из СБОРНИКА, его копируем себе в gamedata\scripts\
 
+проверка отношений группировки
+    if relation_registry.community_goodwill ("freedom", actor:id ()) < -500 then
+
 
 Проверка на участок времени с 23:00 до 3:00
 
