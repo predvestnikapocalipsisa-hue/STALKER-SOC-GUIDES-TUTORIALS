@@ -1,0 +1,63 @@
+local filtered_items = {}
+local filter_active = false
+
+local HIDDEN_FLAG = 16384
+
+local function hide_items_not_matching(filter_func)
+    filtered_items = {}
+
+    local actor = db.actor
+    if not actor then
+        return
+    end
+
+    actor:iterate_inventory(function(obj, item)
+        if not item then
+            return
+        end
+
+        if not filter_func(item) then
+            local flags = item:get_inventory_item_flags()
+            table.insert(filtered_items, item:id())
+
+            flags:set(HIDDEN_FLAG, true)
+            item:set_inventory_item_flags(flags)
+
+            log1("Hide: "..item:section())
+        end
+    end, actor)
+end
+
+local function restore_hidden_items()
+    log1("Restoring "..tostring(#filtered_items).." items")
+
+    for _, id in ipairs(filtered_items) do
+        local item = level.object_by_id(id)
+
+        if item then
+            local flags = item:get_inventory_item_flags()
+
+            flags:set(HIDDEN_FLAG, false)
+            item:set_inventory_item_flags(flags)
+
+            log1("Restore: "..item:section())
+        end
+    end
+
+    filtered_items = {}
+    filter_active = false
+end
+
+function open_filtered_inventory(filter_func)
+    hide_items_not_matching(filter_func)
+
+    filter_active = true
+
+    level.start_stop_menu(level.get_inventory_wnd(), true)
+end
+
+function on_hide_inventory()
+    if filter_active then
+        restore_hidden_items()
+    end
+end
