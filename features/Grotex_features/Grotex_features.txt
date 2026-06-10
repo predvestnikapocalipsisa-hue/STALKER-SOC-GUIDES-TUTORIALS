@@ -55,3 +55,58 @@ on_press = ph_button@active %=light_on%
 anim = lab_primary_switcher_idle - анимка
 tooltip = tips_labx16switcher_press - текст, высвечивающийся при наведении
 on_press - при нажатии срабатывает ph_button@deactivate  %=light_off%
+
+-----------------------------------------------------------------------------------------------------
+------------------------------------------Обработчик прыжка------------------------------------------
+-----------------------------------------------------------------------------------------------------
+
+local jump_artefact = "af_medusa"
+
+-- Функция-обработчик прыжка
+function on_jump_handler()
+	if db.actor then
+		local target_item = nil
+			db.actor:iterate_belt(function(owner, item)  
+				if item and item:section() == jump_artefact then
+					target_item = item
+				end
+			end)
+		if target_item then
+			local fx_particle = particles_object([[anomaly2\gravity_blast_01]])
+				fx_particle:play_at_pos(db.actor:position())
+			local snd = sound_object([[anomaly\anomaly_gravy_blast01]])
+				snd: play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 1.0)
+			local sobj = alife():object(target_item:id())
+			if sobj then
+				alife():release(sobj, true)
+			end
+		end
+	end
+end
+
+То есть если артефакт(в моем случае медуза) весит на поясе артов и если при этом прыгнуть, то арт удаляется + возникает эффект грави аномалии и звук аномалии.
+Что-бы это работало, нужно в bind_stalker.script сделать это:
+
+в function actor_binder:net_destroy() в конец добавить
+
+	self.object:set_callback(callback.on_actor_jump, self.on_actor_jump_handler, nil)
+
+далее в function actor_binder:reinit() в конец добавить
+
+	self.object:set_callback(callback.on_actor_jump, self.on_actor_jump_handler, self)
+
+и между этими функциями добавить биндер:
+
+function actor_binder:on_actor_jump_handler(npc, obj)
+	file.on_jump_handler()
+end
+
+file - сам файл
+on_jump_handler() - ну сама функция
+
+На обычном огср то, что я сделал использовать бессмысленно, поскольку я правил движок и специально делал параметр на прыгучесть для этой(ну и не только) фичи.
+Вообще эту функцию, конечно, можно переделать под свои нужды и даже не нужно будет делать новый биндер. Я показал один из примеров.
+
+
+
+
