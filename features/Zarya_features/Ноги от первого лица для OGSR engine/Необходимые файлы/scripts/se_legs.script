@@ -1,5 +1,7 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 --[[
- Shoker Weapon Mod 2.1 port, modified by Wang_Laoshi (Ethereal) to work with Anomaly mod. Thanks a lot to the original creators of this mod - Shoker, –ËÍÓ¯Â“ and SWM Team in general.
+ Shoker Weapon Mod 2.1 port, modified by Wang_Laoshi (Ethereal) to work with Anomaly mod. Thanks a lot to the original creators of this mod - Shoker, √ê√®√™√Æ√∏√•√í and SWM Team in general.
 --]]
 
 LegsTbl = {}
