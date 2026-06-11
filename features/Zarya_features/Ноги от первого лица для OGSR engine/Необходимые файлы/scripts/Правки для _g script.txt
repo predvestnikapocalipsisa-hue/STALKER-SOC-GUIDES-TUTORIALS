@@ -1,3 +1,5 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 Добавить в _g.script:
 
 local real_timers = {}
