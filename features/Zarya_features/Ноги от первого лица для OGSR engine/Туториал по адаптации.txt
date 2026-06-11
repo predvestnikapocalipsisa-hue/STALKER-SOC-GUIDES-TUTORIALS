@@ -1,0 +1,51 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+================================================================================================================================
+
+	Отображение ног от первого лица для OGSR Engine, взял из Vanila ultimate addon, скрипты из SWM
+	
+	Надеюсь, добавил все нужные файлы
+	
+
+================================================================================================================================	
+
+	Сперва закидываем все недостающие файлы из папки "Необходимые файлы", после чего дополняем существующие файлы правками
+	из "правки для (название файла)". Папку textures закиньте без замены ибо мне лень искать что там для ног а что нет. 
+	
+	Дальше нужно привязать скрипт swm_legs к bind_stalker. Специально для вас отвязал его от огсе сигналов. 
+	
+	function actor_binder:on_item_drop (obj)
+		swm_legs.actor_item_to_ruck(obj)
+	end
+	
+	function actor_binder:on_item_slot(obj)
+		swm_legs.actor_item_to_slot(obj)
+	end
+
+	function actor_binder:on_item_ruck(obj)
+		swm_legs.actor_item_to_ruck(obj)
+	end
+	
+	function actor_binder:update(delta)
+		swm_legs.actor_update()
+	end
+	
+	Для каллбеков on_slot и on_ruck, нужно добавить в
+	actor_binder:net_destroy():
+	
+	self.object:set_callback(callback.on_slot, nil)
+	self.object:set_callback(callback.on_ruck, nil)	
+	
+	actor_binder:reinit()
+	
+	self.object:set_callback(callback.on_slot, self.on_item_slot, self)
+	self.object:set_callback(callback.on_ruck, self.on_item_ruck, self)
+
+
+================================================================================================================================
+
+	Для того что-бы указать визуал ног костюму, надо прописать в секцию костюма визуал, который находится в items_actor_legs.ltx
+	типо так:
+	
+	actor_visual_legs               = novice_outfit_legs
+	

@@ -1,0 +1,3 @@
+Добавляем куда-нибудь в конец system.ltx:
+
+#include "misc\items_actor_legs.ltx"

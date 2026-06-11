@@ -1,0 +1,4 @@
+В class_registrator добавляем:
+
+
+	cs_register	(object_factory, "CAI_Bloodsucker",	"se_legs.se_legs",    "SWM_LEGS",	"legs_s")

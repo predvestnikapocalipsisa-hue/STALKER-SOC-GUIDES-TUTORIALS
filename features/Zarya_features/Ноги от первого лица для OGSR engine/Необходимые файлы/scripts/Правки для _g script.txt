@@ -1,0 +1,57 @@
+Добавить в _g.script:
+
+local real_timers = {}
+---------------------------------------------------------------------------------------------------
+function start_real_timer(name, time, action, ...)
+	local args = {...}
+	real_timers[name] = time_global() + time
+	level.add_call(
+		function()
+			if real_timers[name] then
+				return time_global() > real_timers[name]
+			end
+			return true
+		end,
+		function()
+			if real_timers[name] then
+				loadstring("return function(args) "..action.."(unpack(args)) end")()(args)
+			end
+			stop_real_timer(name)
+		end
+	)
+end
+---------------------------------------------------------------------------------------------------
+function stop_real_timer(name)
+	if real_timers[name] then
+		real_timers[name] = nil
+	end
+end
+
+function get_string( section, param, def_val, ini_file )
+  ASSERT(
+    section,
+    "get_string: section '%s' not defined, param = %s",
+    tostring( section ), tostring( param )
+  )
+  local ini = ini_file or sys_ini
+  ASSERT(
+    ini:section_exist( section ),
+    "get_string: section '%s' doesn't exist, param = %s",
+    tostring( section ), tostring( param )
+  )
+  if ini:line_exist( section, param ) then
+    return ini:r_string( section, param )
+  else
+    return def_val
+  end
+end
+
+function get_string_wq(section, param, def_val, ini_file)
+	local ini = ini_file or sys_ini
+	ASSERT(ini:section_exist(section), "get_string: section '"..section.."' doesn't exist")
+	if ini:line_exist(section, param) then
+		return ini:r_string_wq(section, param)
+	else
+		return def_val
+	end
+end
