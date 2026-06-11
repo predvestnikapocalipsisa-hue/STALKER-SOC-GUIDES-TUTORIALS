@@ -62,7 +62,6 @@ on_press - при нажатии срабатывает ph_button@deactivate  %=
 
 local jump_artefact = "af_medusa"
 
--- Функция-обработчик прыжка
 function on_jump_handler()
 	if db.actor then
 		local target_item = nil
@@ -106,6 +105,86 @@ on_jump_handler() - ну сама функция
 
 На обычном огср то, что я сделал использовать бессмысленно, поскольку я правил движок и специально делал параметр на прыгучесть для этой(ну и не только) фичи.
 Вообще эту функцию, конечно, можно переделать под свои нужды и даже не нужно будет делать новый биндер. Я показал один из примеров.
+
+----------------------------------------------------------------------------------------------------------
+-----------------------------ДЛЯ OGSR И ТЧ-Счетчик предметов в диалоговом окне---------------------------=
+----------------------------------------------------------------------------------------------------------
+
+В ваниле, когда в диалоговом окне например тебе дают 5 пачек 9х18, и тебе 5 паз присылается новость о получении предмета(пачки 9х18).
+Я сделал иначе: теперь когда ты получаешь несколько предметов, тебе приходит одна новость с названием предмета и его количеством.
+
+в dialogs.script нужно добавить(или заменить за место функции "relocate_item_section", как угодно):
+
+function relocate_n_items_section(victim, section, type, count)
+    if db.actor and victim then
+          if type == "in" then
+        for i=1,count do
+                         alife():create(section,     
+                             db.actor:position(),
+                                   db.actor:level_vertex_id(),     
+                                   db.actor:game_vertex_id(),
+                                   db.actor:id())
+        end
+    elseif type == "out" then
+      db.actor:iterate_inventory(function (dummy,item)
+        if item:section()==section and count>0 then 
+          db.actor:transfer_item(item, victim)
+          count=count-1
+        end
+       end, nil)
+          end
+          news_manager.relocate_item(db.actor, type, section, count)
+     end
+end
+
+victim - это first_speaker или second_speaker
+section - сама секция предмета
+type - есть 2 типа: "in"(актор забирает предмет) и "out"(актор отдает предмет)
+count - число выдаваемых/забираемых предметов
+
+
+потом в news_manager.script поменять старый relocate_item на этот:
+
+function relocate_item(actor, type, item, count)
+	if db.actor == nil then return false end
+	if not count then count = 1 end
+	--' Играем дефолтный звук
+	if type == "in" then
+		local task_texture, task_rect = get_texture_info("ui_iconsTotal_found_thing")
+		local news_text = "%c[255,160,160,160]"..game.translate_string("general_in_item").."\\n".."%c[default]"..iif(count>1,count.."x ","")..game.translate_string(get_inv_name(item))		
+		if db.actor:is_talking() then
+			db.actor:give_talk_message(news_text, task_texture, task_rect,"iconed_answer_item")
+		else
+			db.actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
+		end		
+	elseif type == "out" then
+		local task_texture, task_rect = get_texture_info("ui_iconsTotal_lost_thing")
+		local news_text = "%c[255,160,160,160]"..game.translate_string("general_out_item").."\\n".."%c[default]"..iif(count>1,count.."x ","")..game.translate_string(get_inv_name(item))		
+		if db.actor:is_talking() then
+			db.actor:give_talk_message(news_text, task_texture, task_rect,"iconed_answer_item")
+		else
+			db.actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
+		end		
+	end
+end
+
+и в _g.script добавить это:
+
+-- быстрый if
+function iif(t,t1,t2)
+	return t and t1 or t2
+end
+
+без этой функции будет вылет с таким описанием:  "attempt to call global 'iif' (a nil value)"
+
+вызывается в функциях вот так:
+
+function test(first_speaker, second_speaker)
+	dialogs.relocate_n_items_section(first_speaker, "ammo_9x18_fmj", "in", 5)
+end
+
+
+
 
 
 
