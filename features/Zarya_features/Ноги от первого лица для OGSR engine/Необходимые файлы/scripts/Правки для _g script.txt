@@ -27,6 +27,7 @@ function stop_real_timer(name)
 	end
 end
 
+sys_ini = system_ini()
 function get_string( section, param, def_val, ini_file )
   ASSERT(
     section,
