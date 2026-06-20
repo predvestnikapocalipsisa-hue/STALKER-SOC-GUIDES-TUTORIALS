@@ -1,4 +1,16 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+закрыть инвентарь
+  local inventory_wnd = level.get_inventory_wnd()
+  if inventory_wnd then
+    level.start_stop_menu(inventory_wnd, true)
+ end
+
+закрыть текущий ui
+  local inventory_wnd = level.main_input_receiver()
+  if inventory_wnd then
+    level.start_stop_menu(inventory_wnd, true)
+ end
+
 level.change_level( game_vertex_id, level_vertex_id, pos, dir ) -- Выполняет переход на другую локацию. Тоже самое, как создать на месте актора level_changer, только без лишних телодвижений.
 
 
