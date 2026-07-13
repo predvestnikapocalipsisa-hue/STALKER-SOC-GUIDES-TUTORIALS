@@ -7,6 +7,16 @@
 
 https://www.amk-team.ru/forum/topic/13216-sborochnyj-ceh/?do=findComment&comment=971137
 
+lua_helper - https://yadi.sk/d/1_J1HVZsu7Jgy, обновлено 08.02.2025
+
+m_netpk - https://yadi.sk/d/GtYsSbjnxqdtp, обновлено 08.02.2025
+
+se_stor - https://yadi.sk/d/a38PlQdju7Jhr, обновлено 10.08.2016
+
+m_timers - https://yadi.sk/d/FWJkTnAMu7Jhg, обновлено 08.02.2025
+
+Общий комплект + скрипт для тестирования - https://yadi.sk/d/p69RQkBMu7JgR, обновлено 08.02.2025
+
 
 Состав:
 lua_helper - различные часто употребляемые и/или полезные функции которые могут использоваться модмейкерами.
