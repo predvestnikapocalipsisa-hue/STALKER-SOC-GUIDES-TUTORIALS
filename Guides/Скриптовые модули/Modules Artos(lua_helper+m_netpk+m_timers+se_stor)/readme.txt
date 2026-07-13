@@ -3,7 +3,10 @@
 Автор: Artos (+ по рекурсии те авторы, работы которых Artos использовал, см. readme к соотв. модулям)
 Доработка модулей и синхронизация их между собой: Kirgudu
 Исправление найденных ошибок: Charsi, Kirgudu, naxac, dsh
- https://www.amk-team.ru/forum/topic/13216-sborochnyj-ceh/?do=findComment&comment=971137
+
+
+https://www.amk-team.ru/forum/topic/13216-sborochnyj-ceh/?do=findComment&comment=971137
+
 
 Состав:
 lua_helper - различные часто употребляемые и/или полезные функции которые могут использоваться модмейкерами.
