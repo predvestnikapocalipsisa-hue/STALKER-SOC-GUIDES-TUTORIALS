@@ -577,17 +577,21 @@ function main ()
 local story_table = {3,6,14,7}
 	for k,v in pairs(story_table) do
 	local sobj = alife():story_object(v)
-		alife():release(sobj, true)
+       if sobj then
+		  alife():release(sobj, true)
+	   end
 	end	
 end
 --------------------------------------------------------------------------------------------------------------
 --Этой функцией можно удалить сколько угодно объектов по имени, если нпс делали в сдк/асдс, достаточно указать номера вместо {name3,name1,name14,name7} 
 function main ()
-local story_table = {"name3","name1","name14","name7"}
+local name_table = {"name3","name1","name14","name7"}
 	for k,v in pairs(name_table) do
 	local sobj = alife():object(v)
-		alife():release(sobj, true)
-	end	
+       if sobj then
+		  alife():release(sobj, true)
+	   end
+    end	
 end
 --------------------------------------------------------------------------------------------------------------
 --Удаление кого-то по айди name, подходит для нпс заспавненных через скрипт
