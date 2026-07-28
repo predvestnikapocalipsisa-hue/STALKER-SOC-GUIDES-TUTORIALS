@@ -17,18 +17,28 @@ level.change_level( game_vertex_id, level_vertex_id, pos, dir ) -- Выполн�
 level.change_level( 12, 213330,vector():set(-129.5,-9.56,-147.3), vector():set(-0.6, 0, 0.75))
 --------------------------------------------------------------------------------------------------------------
 -- Очистка инвентаря гг от всех предметов(если применять для нпс, тогда нужно делать исключение для болта, иначе вылет)
+local keep_item = {
+    ["bolt"] = true,
+    ["device_"] = true,
+    -- ["wpn_knife"] = true,
+}
+
 function clear_inv()
-        if db.actor then
-                db.actor:iterate_inventory(
-                        function(dummy, item)
-         local sobj = alife():object(item:id())
-         if sobj then
-         	alife():release(sobj, true)
-		 end
-                        end,
-                        nil
-                        )
-        end
+    if db.actor then
+		db.actor:iterate_inventory(
+            function(dummy, item)
+				local sobj = alife():object(item:id())
+				if sobj then
+						local section = item:section()
+					    if keep_item[section] == true then
+							return true
+						end
+					alife():release(sobj, true)
+				end
+            end,
+            nil
+            )
+    end
 end
 --------------------------------------------------------------------------------------------------------------
 -- Использование/съедание предметов
