@@ -28,7 +28,7 @@ local t = xvars.test( true )
 Ещё есть функции из сообщества для универсального использования для этого можно добавить их в _g.script
 --------------------------------------------------------------------------------------------------------------
 if get_stored_vars then
-local s_vars = get_stored_vars()
+s_vars = get_stored_vars()
 end
 
 function load_var(var_name, def_val)
@@ -55,7 +55,7 @@ end
 
 Сохранить переменную
     save_var("name_var", cnt)
-"name_var" это переменная, а cnt это её значение
+"name_var" это переменная, ей имя придумываем, а cnt это её значение
 
 Получить переменную
     load_var("name_var", 0))
@@ -127,19 +127,36 @@ end
 🔹 Главный нюанс. Ограничение в 8 КБ на чанк сохранения
 Это жёсткое ограничение движка - вы не можете записать в один чанк более 8192 байт (8 КБ). Если попытаться превысить лимит при записи через packet:w_...() — игра аварийно завершится с ошибкой вида:
 assertion failed: size < 8192
+--------------------------------------------------------------------------------------------------------------
+Как это работает под капотом?
+Данные хранятся в db.storage[npc_id].pstor — это таблица Lua.
+При сохранении игры (actor_binder:save) вызывается xr_logic.pstor_save_all(), который записывает все пары ключ-значение в бинарный поток.
+
+А при загрузке сохранения (actor_binder:load) данные автоматически восстанавливаются:
+xr_logic.pstor_load_all(self.object, reader)
+Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
+
+Поддерживаются только три типа:
+number - сохраняется как float
+string - как нуль-терминированная строка
+boolean - как булево значение
+
+
+Функции для работы с ПСТОР
 
 Сохранение значения
 xr_logic.pstor_store(obj, "variable_name", value)
 
 obj — объект, обычно db.actor (игрок).
 
-"variable_name" — имя переменной в виде строки.
+"variable_name" — имя переменной в виде строки ей имя придумываем сами.
 
 value — значение, может быть числом, строкой или булевым типом.
 
 
 Пример: 
 xr_logic.pstor_store(db.actor, "noclip_delay_time", 50)
+
 
 Загрузка значения
 local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)
@@ -148,45 +165,15 @@ local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)
 Пример: 
 local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
 
-ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
 
 -- прибавить к указанному счётчику актёра 1
--- вызов Имя_файла.counter_add1("name")
-function counter_add1(name)
-        xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) + 1)
-end
---------------------------------------------------------------------------------------------------------------
+xr_effects.inc_counter(db.actor,n,{"name"})	
+
 -- отнять от указанного счётчика актёра 1 
--- вызывать Имя_файла.counter_del1("name")
-function counter_del1(name)
-        xr_logic.pstor_store(db.actor, name, xr_logic.pstor_retrieve(db.actor, name, 0) - 1)
-end
---------------------------------------------------------------------------------------------------------------
-Как это работает под капотом?
-Данные хранятся в db.storage[npc_id].pstor — это таблица Lua.
-При сохранении игры (actor_binder:save) вызывается xr_logic.pstor_save_all(), который записывает все пары ключ-значение в бинарный поток.
-При загрузке — xr_logic.pstor_load_all() восстанавливает их.
+xr_effects.dec_counter(db.actor,n,{"name"})	
 
-Поддерживаются только три типа:
-number → сохраняется как float
-string → как нуль-терминированная строка
-boolean → как булево значение
-Попытка сохранить другой тип (например, таблицу) вызовет ошибку.
-
-А при загрузке сохранения (actor_binder:load) данные автоматически восстанавливаются:
-xr_logic.pstor_load_all(self.object, reader)
-Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
-
-
-Функции для работы с ПСТОР
 
 Для более лёгкого использования вставьте функции показанные ниже, в конец файла \gamedata\scripts\_g.script
-
-Либо в свой скрипт, НО тогда использование будет выглядеть так:
-Имя_файла.get_value(name, 0)
-Имя_файла.del_value(name)
-Имя_файла.set_value(name, cnt)
-
 
 -- получить переменную 
 function get_value(var_name, default_value)
@@ -208,6 +195,17 @@ function del_value(var_name)
     st.pstor[var_name] = nil
   end
 end
+
+Использование:
+get_value(name, 0)
+del_value(name)
+set_value(name, cnt)
+
+Либо в свой скрипт, НО тогда использование будет выглядеть так:
+Имя_файла.get_value(name, 0)
+Имя_файла.del_value(name)
+Имя_файла.set_value(name, cnt)
+
 
 --' Счётчик который можно использовать в квестах и любых проверках, после получения указанного числа - счётчик удаляется.
 function counter_handler(name, cnt)
@@ -258,7 +256,6 @@ end
 =dec_counter(имя_счетчика)
 создает счетчик и отнимает 1
 
-Используются только в логике:
 [logic]
 active = nil
 on_death = death
@@ -377,7 +374,7 @@ se_stor — это must-have для серьёзных модов S.T.A.L.K.E.R.
 
 Сохранить переменную
     SetVar("name_var", cnt)
-"name_var" это переменная, а cnt это её значение
+"name_var" это переменная, ей имя придумываем, а cnt это её значение
 
 Получить переменную
     GetVar("name_var", 0))
