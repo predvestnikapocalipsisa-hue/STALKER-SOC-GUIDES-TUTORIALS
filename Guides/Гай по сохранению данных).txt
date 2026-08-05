@@ -50,6 +50,14 @@ end
 function delete_var(var_name, val)
   s_vars[var_name] = nil
 end
+
+function inc_counter(p)
+	save_var(p,load_var(p,0)+1)
+end
+
+function dec_counter(p)
+	save_var(p,load_var(p,0)-1)
+end
 --------------------------------------------------------------------------------------------------------------
 🔹ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ🔹
 
@@ -62,29 +70,11 @@ end
 
 Счётчики:
 
---' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
-function xvars_counter_handler(counter_name, counter_limit) 
-  local cnt = load_var(counter_name, 0) + 1 
-  if cnt >= counter_limit then 
-    save_var(counter_name, nil) 
-    return true 
-  else 
-    save_var(counter_name, cnt) 
-    return false 
-  end 
-end
+Прибавить к указанному счётчику 1
+	inc_counter("name_var")
 
--- Пример:
--- коллбек на использование предметов(если выпита бутылка - к счётчику прибавляется 1, как только будет выпито 30 бутылок - будет выдан инфопоршн и счётчик удалится.
-
-function actor_binder:use_object(obj)  
-  local s_obj = obj:section() 
-    if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
-        if xvars_counter_handler("vodka_counter", 30) then
-            db.actor:give_info_portion("vodka_counter_info")
-        end 
-    end
-end
+Отнять 1 от указанного счётчика
+	dec_counter("name_var")
 
 
 --' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
@@ -113,6 +103,31 @@ function xvars_counter_greater2(name, cnt)
 	else
 		return false
 	end
+end
+
+
+--' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+function xvars_counter_handler(counter_name, counter_limit) 
+  local cnt = load_var(counter_name, 0) + 1 
+  if cnt >= counter_limit then 
+    save_var(counter_name, nil) 
+    return true 
+  else 
+    save_var(counter_name, cnt) 
+    return false 
+  end 
+end
+
+-- Пример:
+-- коллбек на использование предметов(если выпита бутылка - к счётчику прибавляется 1, как только будет выпито 30 бутылок - будет выдан инфопоршн и счётчик удалится.
+
+function actor_binder:use_object(obj)  
+  local s_obj = obj:section() 
+    if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
+        if xvars_counter_handler("vodka_counter", 30) then
+            db.actor:give_info_portion("vodka_counter_info")
+        end 
+    end
 end
 
 
@@ -381,7 +396,21 @@ se_stor — это must-have для серьёзных модов S.T.A.L.K.E.R.
 
 Счётчики как в пстор:
 
---' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+function inc_counter(p)
+	SetVar(p,GetVar(p,0)+1)
+end
+
+function dec_counter(p)
+	SetVar(p,GetVar(p,0)-1)
+end
+
+Прибавить к указанному счётчику 1
+	inc_counter("name_var")
+
+Отнять 1 от указанного счётчика
+	dec_counter("name_var")
+
+--' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибавлено 1
 function se_stor_counter_handler(counter_name, counter_limit) 
   local cnt = GetVar(counter_name, 0) + 1 
   if cnt >= counter_limit then 
