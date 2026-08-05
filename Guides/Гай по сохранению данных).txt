@@ -1,5 +1,123 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-В движке X-Ray Lua-скрипты позволяют сохранять и загружать произвольные пользовательские переменные. Это особенно полезно при создании квестов, где требуется хранить состояния NPC, настроек или других игровых флагов между сессиями.
+Скрипты позволяют сохранять и загружать произвольные пользовательские данные. Это особенно полезно при создании квестов, где требуется хранить состояния NPC, настроек или других игровых флагов между сессиями.
+
+Начнем с современного, в ОГСР появилось нормально хранилище get_stored_vars()
+Вот что написано на их вики:
+Хранилище скриптовых переменных (SCRIPT_VARS_STORAGE)
+Как использовать? Вот так вот:
+
+local xvars = get_stored_vars()
+xvars.test = 123
+xvars.test2 = {}
+xvars.test2.test1 = 456
+Всё просто, использовать, как стандартную таблицу. Есть пара особенностей. Хранить лучше только простые типы: строки, числа, таблицы и т.п, в том числе вложенные. Объекты, вектора, время и т.п., то, что является userdata, лучше не использовать.
+
+Вторая особенность - списки. Для прямого доступа к элементам списка ничего делать не нужно, но если захочется с этим списком работать, как с настоящим списком, т.к. итерировать, к примеру, или подсунуть его в unpack(...), то его нужно превратить в lua таблицу. Например:
+
+xvars.test = { 1, 2, 3 }
+local t = xvars.test()
+for i, v in ipairs( t ) do
+end
+Операция выполнения, т.е. (), возвращает lua table, с которой уже можно делать, что угодно. По умолчанию, преобразование не рекурсивное, т.е. не затронет вложенные таблицы. Что бы сделать его рекурсивным, нужно сделать вот так:
+
+local t = xvars.test( true )
+т.е. передать аргумент.
+
+
+
+Ещё есть функции из сообщества для универсального использования для этого можно добавить их в _g.script
+--------------------------------------------------------------------------------------------------------------
+if get_stored_vars then
+local s_vars = get_stored_vars()
+end
+
+function load_var(var_name, def_val)
+  local val = s_vars[var_name]
+  if not val then
+    save_var(var_name, def_val)
+    return def_val
+  end
+    if type(val) == "userdata" then
+        val = val(true)
+    end  
+  return val
+end
+
+function save_var(var_name, val)
+  s_vars[var_name] = val
+end
+
+function delete_var(var_name, val)
+  s_vars[var_name] = nil
+end
+--------------------------------------------------------------------------------------------------------------
+🔹ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ🔹
+
+Сохранить переменную
+    save_var("name_var", cnt)
+"name_var" это переменная, а cnt это её значение
+
+Получить переменную
+    load_var("name_var", 0))
+
+Счётчики:
+
+--' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+function xvars_counter_handler(counter_name, counter_limit) 
+  local cnt = load_var(counter_name, 0) + 1 
+  if cnt >= counter_limit then 
+    save_var(counter_name, nil) 
+    return true 
+  else 
+    save_var(counter_name, cnt) 
+    return false 
+  end 
+end
+
+-- Пример:
+-- коллбек на использование предметов(если выпита бутылка - к счётчику прибавляется 1, как только будет выпито 30 бутылок - будет выдан инфопоршн и счётчик удалится.
+
+function actor_binder:use_object(obj)  
+  local s_obj = obj:section() 
+    if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
+        if xvars_counter_handler("vodka_counter", 30) then
+            db.actor:give_info_portion("vodka_counter_info")
+        end 
+    end
+end
+
+
+--' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
+function xvars_counter_greater(name, cnt)
+	if name and cnt then
+		local c = load_var(name, 0)
+		if c >= cnt then
+			save_var(name, nil)
+		return true
+		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return xvars_counter_greater("fff", 10)
+end
+
+--работает аналогично, но без удаления
+function xvars_counter_greater2(name, cnt)
+	if name and cnt then
+		local c = load_var(name, 0)
+		return c >= cnt
+	else
+		return false
+	end
+end
+
+
+
+Далее пойдет инфа о pstor и se_stor
 
 🔹 Система pstor🔹
 В S.T.A.L.K.E.R. реализована простая, но мощная система, которая интегрирована в xr_logic.script и используется через хранилище актора (db.storage).
@@ -7,14 +125,18 @@
 🔹 Ray Kenkel: Небольшое хранилище важных данных, которые нужно сохранять, а не каждый раз пересоздавать. Условно говоря, если у НПС есть таймер, где описано что каждые 60 минут он обновит ассортимент, то без сохранения данных это бы значение сбрасывалось при перезагрузке. А так мы сохранили сколько уже осталось времени, а после загрузки вернули обратно это значение.
 
 🔹 Главный нюанс. Ограничение в 8 КБ на чанк сохранения
-Это жёсткое ограничение движка — вы не можете записать в один чанк более 8192 байт (8 КБ). Если попытаться превысить лимит при записи через packet:w_...() — игра аварийно завершится с ошибкой вида:
+Это жёсткое ограничение движка - вы не можете записать в один чанк более 8192 байт (8 КБ). Если попытаться превысить лимит при записи через packet:w_...() — игра аварийно завершится с ошибкой вида:
 assertion failed: size < 8192
 
 Сохранение значения
 xr_logic.pstor_store(obj, "variable_name", value)
+
 obj — объект, обычно db.actor (игрок).
+
 "variable_name" — имя переменной в виде строки.
+
 value — значение, может быть числом, строкой или булевым типом.
+
 
 Пример: 
 xr_logic.pstor_store(db.actor, "noclip_delay_time", 50)
@@ -56,14 +178,11 @@ xr_logic.pstor_load_all(self.object, reader)
 Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
 
 
-
-
-
 Функции для работы с ПСТОР
 
 Для более лёгкого использования вставьте функции показанные ниже, в конец файла \gamedata\scripts\_g.script
 
-Либо в свой скрипт, но тогда использование будет выглядеть так:
+Либо в свой скрипт, НО тогда использование будет выглядеть так:
 Имя_файла.get_value(name, 0)
 Имя_файла.del_value(name)
 Имя_файла.set_value(name, cnt)
@@ -89,9 +208,6 @@ function del_value(var_name)
     st.pstor[var_name] = nil
   end
 end
-
-
-
 
 --' Счётчик который можно использовать в квестах и любых проверках, после получения указанного числа - счётчик удаляется.
 function counter_handler(name, cnt)
@@ -121,9 +237,7 @@ function counter_handler(name, cnt)
 	end
 end
 
-
-
---' Обработчик счётчика, ставится в те места, где функция даст тру, тогда к счётчику будет прибалено 1
+--' Обработчик счётчика, ставится в те места, где функция даст тру, тогда к счётчику будет прибавлено 1
 function counter_handler(counter_name, counter_limit)
   local cnt = get_value(counter_name, 0) + 1
   if cnt >= counter_limit then
@@ -135,17 +249,6 @@ function counter_handler(counter_name, counter_limit)
   end
 end
 
--- Пример:
--- коллбек на использование предметов(если выпита бутылка - к счётчику прибавляется 1, как только будет выпито 30 бутылок - будет выдан инфопоршн и счётчик удалится.
-
-function actor_binder:use_object(obj)  
-  local s_obj = obj:section() 
-    if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
-        if counter_handler("vodka_counter", 30) then
-            db.actor:give_info_portion("vodka_counter_info")
-        end 
-    end
-end
 
 Ещё с оргинала в \gamedata\scripts\xr_effects.script есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять
 
@@ -250,25 +353,6 @@ local val = se_stor.get(var_name, default_value)
 delay_time = GetVar("noclip_delay_time", 30)  
 SetVar("noclip_delay_time", noclip_mode.delay_time)
 
-🆚 Отличия от pstor (из xr_logic)
-Место хранения
-В чанке актёра (8 КБ макс)
-В отдельных объектах (
-CUST_ST
-)
-Типы данных
-Только примитивы
-+ таблицы, векторы, бинарные чанки
-Макс. объём
-~7–7.5 КБ (реально)
-Теоретически неограничен
-Сложность интеграции
-Простая
-Требует модификации конфигов
-Безопасность
-Высокая (встроена в ядро)
-Зависит от реализации
-
 💡 Зачем это нужно?
 Квестовые системы с сотнями флагов
 Прогресс персонажа (скиллы, достижения, инвентарь вне рюкзака)
@@ -286,7 +370,6 @@ se_stor — это must-have для серьёзных модов S.T.A.L.K.E.R.
 
 Совет: если вы пишете мод с большим количеством состояний — начинайте с se_stor сразу. Перенос с pstor потом будет болезненным. 
 
-Готово для включения в статью, документацию или гайд для моддеров!
 
 🔹ПРИМЕРЫ🔹
 
@@ -314,7 +397,7 @@ function se_stor_counter_handler(counter_name, counter_limit)
 end
 
 
---' Аналог который можно использовать в квестах и любых проверках
+--' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
 function se_stor_counter_greater(name, cnt)
 	if name and cnt then
 		local c = GetVar(name, 0)
@@ -322,6 +405,21 @@ function se_stor_counter_greater(name, cnt)
 			SetVar(name, nil)
 		return true
 		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return se_stor_counter_greater("fff", 10)
+end
+
+--работает аналогично, но без удаления
+function se_stor_counter_greater2(name, cnt)
+	if name and cnt then
+		local c = GetVar(name, 0)
+		return c >= cnt
 	else
 		return false
 	end
