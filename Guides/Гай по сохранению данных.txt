@@ -106,7 +106,7 @@ function xvars_counter_greater2(name, cnt)
 end
 
 
---' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+--' Обработчик счётчика xvars, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
 function xvars_counter_handler(counter_name, counter_limit) 
   local cnt = load_var(counter_name, 0) + 1 
   if cnt >= counter_limit then 
