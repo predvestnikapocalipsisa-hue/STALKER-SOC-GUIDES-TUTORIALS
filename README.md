@@ -16,7 +16,7 @@
 ====================================================================
 
 Все файлы репозитория вы можете найти во вкладке [Code](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main)
-там есть распакованный [all.spawn](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/all.spawn), папки [config и scripts](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/GamedataUE) распакованной геймдаты, [Гайды](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Guides) и [фичи](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/features) от нашей команды, [Исходники движка 1.0006](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Xr_engine_orig).
+там есть папки [config и scripts](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/GamedataUE) распакованной геймдаты, [Гайды](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/Guides) и [фичи](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/tree/main/features) от нашей команды.
 
 [WiKi репозитория](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/wiki) с разбором некоторых файлов
 
