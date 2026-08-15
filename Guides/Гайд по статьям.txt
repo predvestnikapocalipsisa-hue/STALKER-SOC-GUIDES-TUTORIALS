@@ -1,4 +1,3 @@
-![Photo](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/blob/main/Logo.png)
 -- -*- mode: xml; coding: windows-1251-dos -*-
 Чтобы добавить свои статьи в энциклопедию, которые будут появляться при обыске нпс нужно в xr_info.script в нужные таблицы записать имя инфопоршн'а, например "encyclopedy_zone_my"
 
