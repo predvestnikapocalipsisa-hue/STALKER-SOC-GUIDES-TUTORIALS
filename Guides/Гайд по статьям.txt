@@ -7,7 +7,7 @@
   <info_portion id="encyclopedy_zone_my">
         <article>zone_my</article>
   </info_portion>
-
+![Photo](https://github.com/predvestnikapocalipsisa-hue/STALKER-SOC-GUIDES-TUTORIALS/blob/main/Logo.png)
 Далее открываем один из файлов  encyclopedia_*.xml
 
 а точнее те файлы, которые прописаны в system.ltx в секции:
