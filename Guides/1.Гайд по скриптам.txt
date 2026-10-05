@@ -233,6 +233,9 @@ local obj = level.object_by_id(sobj.id) -- Клиентский объект
 function имя_функции(actor,obj)
    local sobj = alife():object(obj:id())
 
+ещё можно попробовать так
+function имя_функции(actor,obj)
+   local sobj = obj:get_alife_object()
 
 Вот яркий пример использования серверного метода через клиентский объект и как вызов из логики\диалога без дополнительных данных.
 
