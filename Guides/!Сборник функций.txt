@@ -1,4 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+замена иконки гг или нпс
+db.actor:set_character_icon("name")
+
 Делаем табличку исключений для проверки нпс по имени
 
 local excluded_npc_ids = {
