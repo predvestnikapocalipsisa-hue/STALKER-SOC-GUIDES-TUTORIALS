@@ -1,4 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+Задать физику объекту
+function test()
+local sobj = alife():object("esc_medkit") -- Серверный объект
+local game_object = level.object_by_id(sobj.id) -- Клиентский объект
+local ph_gobj = game_object:get_physics_shell()
+  game_object:set_const_force(vector():set(0,1,0), game_object:mass()*19.62, 65535*65535)
+end
+
 замена иконки гг или нпс
 db.actor:set_character_icon("name")
 
