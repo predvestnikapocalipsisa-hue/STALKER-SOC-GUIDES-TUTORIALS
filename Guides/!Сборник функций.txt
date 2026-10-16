@@ -1,4 +1,26 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+
+Создать вейпоинт, подробности смотреть на вики ОГСР, точки нужно удалять вместе с актором
+db.test_path = CPatrolPath()
+db.test_path:add_point( db.actor:position() )
+local pp = db.test_path:point( 0 )
+level.patrol_path_add( "smart_terrain_kamp_1", db.test_path )
+
+Заспавнить нпс и задать логику, ОГСР
+sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
+    sobj.custom_data = "[logic]\n"..
+              "active = kamp\n"..
+              "[kamp]\n"..
+              "center_point = smart_terrain_kamp_1\n"
+
+Задать физику объекту
+function test()
+local sobj = alife():object("esc_medkit") -- Серверный объект
+local game_object = level.object_by_id(sobj.id) -- Клиентский объект
+local ph_gobj = game_object:get_physics_shell()
+  game_object:set_const_force(vector():set(0,1,0), game_object:mass()*19.62, 65535*65535)
+end
+
 замена иконки гг или нпс
 db.actor:set_character_icon("name")
 
