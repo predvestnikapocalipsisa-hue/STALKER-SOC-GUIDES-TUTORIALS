@@ -35,17 +35,17 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка наличия предмета "wpn_mp5", 1 это количество 
 function prov_item() 
-	return sak.have_item_namber("wpn_mp5",1) ~= false 
+	return sak.have_item_namber("wpn_mp5",1)
 end
 -----------------------------------------------------------------------------------------------------------
 -- Функция проверки наличия нескольких предметов "af_medusa" и "medkit" по 1 штуке
 function prov_item1() 
-	return sak.have_item_namber("af_medusa",1) and sak.have_item_namber("medkit",1) ~= false 
+	return sak.have_item_namber("af_medusa",1) and sak.have_item_namber("medkit",1)
 end
 -----------------------------------------------------------------------------------------------------------
 -- Функция проверки наличия одного из предметов, "af_medusa" или "medkit"
 function prov_item2() 
-	return sak.have_item_namber("af_medusa",1) or sak.have_item_namber("medkit",1) ~= false 
+	return sak.have_item_namber("af_medusa",1) or sak.have_item_namber("medkit",1)
 end
 -----------------------------------------------------------------------------------------------------------
 --Функция проверки наличия нескольких предметов, просто в другом исполнении
@@ -77,7 +77,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка наличия указанных предметов с состоянием более 85%, настраивается в sak.script в функции "cond_cheking_item"
 function prov_item6() 
-	return sak.cond_have_item_namber("wpn_ak74u",3) ~= false
+	return sak.cond_have_item_namber("wpn_ak74u",3)
 end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка одного из двух инфопоршн
