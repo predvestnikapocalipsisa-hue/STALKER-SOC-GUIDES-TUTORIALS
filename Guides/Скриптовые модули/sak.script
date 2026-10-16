@@ -2,7 +2,7 @@
 
 --Проверка на вещь
 function prov() 
-	return sak.have_item_namber("af_medusa",1) ~= false
+	return sak.have_item_namber("af_medusa",1)
 end
 
 --Вещь забирают
@@ -16,170 +16,71 @@ sak.create_items_actor("medkit",3)
 sak.create_items_actor("bandage",5)
 end
 ---------------------------------------------------------------------
--- Ниже идут функции Сяка, просьба свои функции писать сверху
+-- Это были функции Сяка, но ии`шка их чуть переработала
 ---------------------------------------------------------------------
-local items_count = 0
-local itemin = nil
+-- ========== ВСПОМОГАТЕЛЬНЫЕ ==========
 
-function cond_have_item_namber(itm,need_namber) 
-local actor = db.actor 
-	items_count = 0 
-	itemin = itm
-	actor:iterate_inventory(cond_cheking_item,actor) 
-	if items_count >= need_namber then 
-		return true 
-	else 
-		return false 
-	end 
+-- Считает предметы в инвентаре с опциональным предикатом
+function count_items(actor, section, predicate)
+    local count = 0
+    actor:iterate_inventory(function(_, item)
+        if item:section() == section and (not predicate or predicate(item)) then
+            count = count + 1
+        end
+    end, actor)
+    return count
 end
 
-function have_item_namber(itm,need_namber) 
-local actor = db.actor 
-	items_count = 0 
-	itemin = itm 
-	actor:iterate_inventory(cheking_item,actor) 
-	if items_count >= need_namber then 
-		return true 
-	else 
-		return false 
-	end 
+-- ========== ПРОВЕРКА НАЛИЧИЯ ==========
+
+function have_item_namber(section, need)
+    return count_items(db.actor, section) >= need
 end
 
-function cond_cheking_item(actor,item) 
-local items = item:section() 
-local cond = item:condition()
-	if items == itemin and cond >= 0.85 then 
-		items_count = items_count + 1 
-	end 
+function cond_have_item_namber(section, need)
+    return count_items(db.actor, section, function(it) 
+        return it:condition() >= 0.85 
+    end) >= need
 end
 
-function cheking_item(actor,item) 
-local items = item:section() 
-	if items == itemin then 
-		items_count = items_count + 1 
-	end 
+-- ========== СПАВН ==========
+
+function create_items(npc, section, number)
+    for i = 1, number do
+        alife():create(section, npc:position(), npc:level_vertex_id(), npc:game_vertex_id(), npc:id())
+    end
 end
 
-function create_items(npc,section,number)
-        for i = 1, number do
-			alife():create(section, 
-            npc:position(),
-            npc:level_vertex_id(),  
-            npc:game_vertex_id(),
-            npc:id())
-        end 
+function create_items_actor(section, number)
+    create_items(db.actor, section, number)
+    news_manager.relocate_item(db.actor, "in", section)
 end
 
-local reloc_params = {}
-local stalk
-
--- Спавн в инвентарь гг с выдачей сообщения.
-function create_items_actor(itm_section,number)
-	this.create_items(db.actor,itm_section,number)
-	news_manager.relocate_item(db.actor, "in", itm_section)
+function create_items_actor_nomsg(section, number)
+    create_items(db.actor, section, number)
 end
 
--- Спавн в инвентарь гг без выдачи сообщения.
-function create_items_actor_nomsg(itm_section,number)
-	this.create_items(db.actor,itm_section,number)
+-- ========== УДАЛЕНИЕ ==========
+
+function out_item_namber(section, need)
+    for i = 1, need do
+        local obj = db.actor:object(section)
+        if obj then
+            alife():release(alife():object(obj:id()))
+        else
+            break
+        end
+    end
+    news_manager.relocate_item(db.actor, "out", section)
 end
 
--- функция удаления всех itm_section из инвентаря ГГ. Полезна, когда количество неизвестно
-function out_item_all(itm_section)
-	reloc_params.itm_section = itm_section
-	db.actor:iterate_inventory(out_items_all_count,db.actor)
-	news_manager.relocate_item(db.actor, "out", itm_section)
-	reloc_params = {}
-end
-
---удаляем предмет из инвентаря
-function remove_item_from_inventory(remove_item,npc)
-	if npc == nil then
-		npc = db.actor
-	end
-	if remove_item ~= nil then
-		alife():release(alife():object(remove_item:id()), true)
-	return true
-	end
-	return false
-end
-
-function out_items_all_count(actor,item)
-	if item.section and item:section() == reloc_params.itm_section then
-		sak.remove_item_from_inventory(item, actor)
-	end
-end
-function out_item_namber(itm_section,need_number)
-	reloc_params.itm_section = itm_section
-	reloc_params.itm_cnt = need_number
-	reloc_params.itm_cnt_found = 0
-		db.actor:iterate_inventory(checkout_items_count,db.actor)
-	reloc_params.itm_cnt_found = 0
-	if reloc_params.itm_cnt_found <= reloc_params.itm_cnt then
-		db.actor:iterate_inventory(out_items_count,db.actor)
-	end
-	news_manager.relocate_item(db.actor, "out", itm_section)
-	reloc_params = {}
-end
-
--- чтобы забрали без смс
-function out_item_namber_nomsg(itm_section,need_number)
-	reloc_params.itm_section = itm_section
-	reloc_params.itm_cnt = need_number
-	reloc_params.itm_cnt_found = 0
-		db.actor:iterate_inventory(checkout_items_count,db.actor)
-	reloc_params.itm_cnt_found = 0
-	if reloc_params.itm_cnt_found <= reloc_params.itm_cnt then
-		db.actor:iterate_inventory(out_items_count,db.actor)
-	end
-	reloc_params = {}
-end
-
-function relocate_item_namber(stalker,itm_section,need_number)
-	stalk = stalker
-	reloc_params.itm_section = itm_section
-	reloc_params.itm_cnt = need_number
-	reloc_params.itm_cnt_found = 0
-		db.actor:iterate_inventory(checkout_items_count,db.actor)
-	reloc_params.itm_cnt_found = 0
-	if reloc_params.itm_cnt_found <= reloc_params.itm_cnt then
-		db.actor:iterate_inventory(reloc_items_count,db.actor)
-	end
-	news_manager.relocate_item(db.actor, "out", itm_section)
-	reloc_params = {}
-end
-function checkout_items_count(actor,item)
-	if item.section and item:section() == reloc_params.itm_section then
-		reloc_params.itm_cnt_found = reloc_params.itm_cnt_found + 1
-	end
-end
-function reloc_items_count(actor,item)
-	if item.section and item:section() == reloc_params.itm_section and reloc_params.itm_cnt_found < reloc_params.itm_cnt then
-		alife():release(alife():object(item:id()))
-		reloc_params.itm_cnt_found = reloc_params.itm_cnt_found + 1
-	end
-end
-function out_items_count(actor,item)
-	if item.section and item:section() == reloc_params.itm_section and reloc_params.itm_cnt_found < reloc_params.itm_cnt then
-		sak.remove_item_from_inventory(item, actor)
-		reloc_params.itm_cnt_found = reloc_params.itm_cnt_found + 1
-	end
-end
-
---' Для серверного объекта (но можно и клиентский закинуть)
-
-function create_items_ex(sobj,section,number)
-
-		if not sobj.section_name then
-			-- Опа. Так это же клиентский
-			this.create_items(sobj,section,number)
-			return
-		end
-        for i = 1, number do
-			alife():create(section, 
-            sobj.position,
-            sobj.m_level_vertex_id,  
-            sobj.m_game_vertex_id,
-            sobj.id)
-        end 
+function out_item_namber_nomsg(section, need)
+    for i = 1, need do
+        local obj = db.actor:object(section)
+        if obj then
+            alife():release(alife():object(obj:id()))
+        else
+            break
+        end
+    end
 end
