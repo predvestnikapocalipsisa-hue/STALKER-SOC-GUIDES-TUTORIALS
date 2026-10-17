@@ -184,6 +184,20 @@ function test(first_speaker, second_speaker)
 end
 
 
+----------------------------------------------------------------------------------------------------------
+-------------------------------Функция для спавна вещей их таблицы для гг--------------------------------=
+----------------------------------------------------------------------------------------------------------
+
+function spawn_all_items(itr_item)
+local itr_item = {
+    "medkit",
+    "medkit_army"
+}
+    for i = 1, #itr_item do
+        			alife():create(itr_item[i], db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), db.actor:id())
+    end
+end
+
 
 
 
