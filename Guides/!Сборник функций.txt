@@ -1,5 +1,14 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
+Спавн нпс с визуалом и оружием гг
+function spawn(actor, obj)
+        local wpn = db.actor:item_in_slot(2) 
+        local sobj = alife():create("нпс",vector():set(-152.0,-18.0,-144.3),98126,45)
+        sobj.visual_name = db.actor:get_visual_name()        
+        alife():create(wpn,vector(),0,0,sobj.id)
+end
+
+
 Создать вейпоинт, подробности смотреть на вики ОГСР, точки нужно удалять вместе с актором
 db.test_path = CPatrolPath()
 db.test_path:add_point( db.actor:position() )
