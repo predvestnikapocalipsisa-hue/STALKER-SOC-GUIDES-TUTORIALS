@@ -15,6 +15,11 @@ db.test_path:add_point( db.actor:position() )
 local pp = db.test_path:point( 0 )
 level.patrol_path_add( "smart_terrain_kamp_1", db.test_path )
 
+Удалить эту точку
+local path = patrol( "test_path" )
+level.patrol_path_remove( "test_path" )
+
+
 Заспавнить нпс и задать логику, ОГСР
 sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
     sobj.custom_data = "[logic]\n"..
