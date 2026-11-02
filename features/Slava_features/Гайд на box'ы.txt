@@ -1,4 +1,4 @@
--- -*- mode: lua; coding: windows-1251-dos -*-
+9-- -*- mode: lua; coding: windows-1251-dos -*-
 В этих файлах указываются вещи которые могут падать в зависимости от сложности\локации
 
 gamedata\config\misc\ph_box_items_count.ltx
@@ -66,7 +66,7 @@ wpn_pm
 
 А ещё можно спавнить "стандартный тайник" вот так:
 function test()
-local sobj = alife_create("inventory_box", "l01_escape", vector():set(-208,-20,-145))
+local sobj = alife():create("inventory_box",vector():set(-152.0,-18.0,-144.3),98126,45)
 alife():assign_story_id(sobj.id, story_ids.esc_my)
 end
 
