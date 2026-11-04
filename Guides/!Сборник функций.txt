@@ -1,5 +1,18 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+--------------------------------------------------------------------------------------------------------------
+для совершение действий над клиентским объектом по имени в _g.script можно добавить:
+function level_object_by_name( name )
+  local se_obj = alife():object( name )
+  if se_obj then
+    return level.object_by_id( se_obj.id )
+  end
+  return nil
+end
 
+Использование:
+      local npc = level_object_by_name("esc_wolf")
+        alife():set_switch_online(npc:id(), false) -- действие для примера
+--------------------------------------------------------------------------------------------------------------
 Спавн нпс с визуалом и оружием гг
 function spawn(actor, obj)
         local wpn = db.actor:item_in_slot(2) 
@@ -7,8 +20,7 @@ function spawn(actor, obj)
         sobj.visual_name = db.actor:get_visual_name()        
         alife():create(wpn,vector(),0,0,sobj.id)
 end
-
-
+--------------------------------------------------------------------------------------------------------------
 Создать вейпоинт, подробности смотреть на вики ОГСР, точки нужно удалять вместе с актором
 db.test_path = CPatrolPath()
 db.test_path:add_point( db.actor:position() )
@@ -18,15 +30,14 @@ level.patrol_path_add( "smart_terrain_kamp_1", db.test_path )
 Удалить эту точку
 local path = patrol( "test_path" )
 level.patrol_path_remove( "test_path" )
-
-
+--------------------------------------------------------------------------------------------------------------
 Заспавнить нпс и задать логику, ОГСР
 sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
     sobj.custom_data = "[logic]\n"..
               "active = kamp\n"..
               "[kamp]\n"..
               "center_point = smart_terrain_kamp_1\n"
-
+--------------------------------------------------------------------------------------------------------------
 Задать физику объекту
 function test()
 local sobj = alife():object("esc_medkit") -- Серверный объект
@@ -34,10 +45,10 @@ local game_object = level.object_by_id(sobj.id) -- Клиентский объе
 local ph_gobj = game_object:get_physics_shell()
   game_object:set_const_force(vector():set(0,1,0), game_object:mass()*19.62, 65535*65535)
 end
-
+--------------------------------------------------------------------------------------------------------------
 замена иконки гг или нпс
 db.actor:set_character_icon("name")
-
+--------------------------------------------------------------------------------------------------------------
 Делаем табличку исключений для проверки нпс по имени
 
 local excluded_npc_ids = {
