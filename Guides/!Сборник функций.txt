@@ -1,4 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+Спавн объекта из all.spawn по имени(подразумевается, что объект был удален)
+function test()
+local spawn_id = alife():spawn_id("esc_wolf")
+   alife():create(spawn_id)
+end
 --------------------------------------------------------------------------------------------------------------
 для совершение действий над клиентским объектом по имени в _g.script можно добавить:
 function level_object_by_name( name )
