@@ -283,6 +283,25 @@ end
 -- Пример вызова
 Имя_файла.spawn3("esc_wolf", "wpn_svd")
 --------------------------------------------------------------------------------------------------------------
+-- Спавнит нпс и в нем так же спавнит предметы из таблицы 
+local spawn_item = {
+    {name = "wpn_knife", count = 100},
+    {name = "wpn_pm", count = 300}
+}
+
+function spawn_item_to_npc()
+    local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+
+    for _, entry in ipairs(spawn_item) do
+        local item_name = entry.name
+        local count = entry.count
+
+        for i = 1, count do
+            alife():create(item_name,vector(), 0, 0, sobj.id)
+        end
+    end
+end
+--------------------------------------------------------------------------------------------------------------
 -- Отдать предмет нпс, если тип "in", то если предмет не квестовый, тогда он будет просто заспавнен, а не передан
 function spawn(actor, obj)
 	dialogs.relocate_item_section(obj, "wpn_pm", "out")
