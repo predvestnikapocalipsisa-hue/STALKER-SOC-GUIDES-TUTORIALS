@@ -89,49 +89,37 @@ function rewrite_restrictor(se_obj, custom, radius)
 end
 
 --[[
+Суть такая, функция спавнит объект у которого может быть шейп
 открываем \gamedata\scripts\
-
 закидываем туда файл spawn_restrictor.script
+Суть функции такая
+function test_sr()
+local se_obj = alife():create("space_restrictor",vector():set(координаты),вертексы)
+local custom = "кастом дата"
+rewrite_restrictor(se_obj, custom, 5.0)
+end
+5.0 - это радиус рестриктора
 
 для теста на кордоне открываем bind_stalker.script
 ищем	self.object:give_info_portion("level_changer_icons")
 ниже добавляем строку	spawn_restrictor.test_sr() 
-она заспвнит рестриктор на выходе из деревни слева перед деревом
+она заспавнит рестриктор на выходе из деревни в сторону Толика слева перед деревом
 
-Суть функции такая
-function test_sr()
-local se_obj = alife():create("space_restrictor",vector():set(-152.0,-18.0,-144.3),98126,45)
-local custom = "[logic]\n"..
-			   "active = схема\n"..
-			   "[схема]\n"..
-			   "действия схемы"
-rewrite_restrictor(se_obj, custom, 5.0)
-end
-
-Чтобы не громоздить каждый раз функцию под рестриктор, когда нужно, чтобы тот запустил только функцию при входе, есть вариант вызова: spawn_restrictor.create_restrictor_in(vector():set(-152.0,-18.0,-144.3),98126,45,7,"имя_функции")
-
+Чтобы не громоздить каждый раз функцию, когда нужно, чтобы тот запустил только функцию при входе в него, есть вариант вызова:
+spawn_restrictor.create_restrictor_in(vector():set(координаты),вертексы,радиус,"имя_функции")
+Ещё можно использовать "spawn_restrictor.create_restrictor_out" - запускает функцию при выходе
 Пример: spawn_restrictor.create_restrictor_in(vector():set(-152.0,-18.0,-144.3),98126,45,7,"teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)")
 
 то есть спавнить рестриктор, одной строкой, который выполняет функции из файла xr_effects.script, а после активации удаляется.
-
-	"vector():set(-152.0,-18.0,-144.3),98126,45" - координаты
-	"7" радиус
-	"имя_функции" может быть таким: "teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)"
-	
-	если используем так	"spawn_restrictor.create_restrictor_in" то рестриктор проверяет зашли-ли мы в него
-	если "spawn_restrictor.create_restrictor_out" то рестриктор проверчяет вышли мы из него или нет
-	
-	Для работы необходимо в \gamedata\scripts\xr_effects.script	добавить функцию, которая удаляет объект после его активации.
-	
+Для работы необходимо в \gamedata\scripts\xr_effects.script	добавить функцию, которая удаляет объект после его активации.
 	function remove_object(actor, obj)
 	local sobj = obj and alife():object(obj:id())
 		if sobj then
 			alife():release(sobj)
 		end
 	end
-	
 	"имя_функции" может быть и таким: "имя_скрипта.имя_функции", например, sak.nagrada, иногда не удобно кидать свои функции в xr_effects.script
-	для этого требуются правки в xr_logic.script, подробнее в гайде по рестрикторам
+	для этого требуются правки в xr_logic.script, подробнее в гайде по кастом дате
 	
 ]]
 
