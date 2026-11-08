@@ -100,6 +100,18 @@ rewrite_restrictor(se_obj, custom, 5.0)
 end
 5.0 - это радиус рестриктора
 
+Кастом дату можно оформить так:
+    local custom = "[logic]\n"..
+              "active = kamp\n"..
+              "[kamp]\n"..
+              "center_point = smart_terrain_kamp_1\n"
+
+Пустая кастом дата оформляется так:
+    local custom = ""
+
+Ещё можно в одну строку так:
+    local custom = "[logic]\nactive = ph_idle\n[ph_idle]\ntips = tip_my\non_use = nil %=give_item(wpn_ak74)%\n[collide]\nignore_static\n"
+
 для теста на кордоне открываем bind_stalker.script
 ищем	self.object:give_info_portion("level_changer_icons")
 ниже добавляем строку	spawn_restrictor.test_sr() 
@@ -144,6 +156,7 @@ local custom = "[logic]\n"..
 			   "[sr_idle]\n"..
 			   "on_actor_inside = %=teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)% nil"
 rewrite_restrictor(se_obj, custom, 5.0)
+level.map_add_object_spot(se_obj.id, "crlc_big", "space_restrictor")
 end
 
 
