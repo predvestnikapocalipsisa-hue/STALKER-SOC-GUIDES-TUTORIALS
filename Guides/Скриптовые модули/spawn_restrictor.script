@@ -98,7 +98,17 @@ end
 ниже добавляем строку	spawn_restrictor.test_sr() 
 она заспвнит рестриктор на выходе из деревни слева перед деревом
 
-Чтобы не громоздить каждый раз функцию под рестриктор, когда нужно, чтобы тот запустил только функцию, есть вариант вызова: spawn_restrictor.create_restrictor_in(vector():set(-152.0,-18.0,-144.3),98126,45,7,"имя_функции")
+Суть функции такая
+function test_sr()
+local se_obj = alife():create("space_restrictor",vector():set(-152.0,-18.0,-144.3),98126,45)
+local custom = "[logic]\n"..
+			   "active = схема\n"..
+			   "[схема]\n"..
+			   "действия схемы"
+rewrite_restrictor(se_obj, custom, 5.0)
+end
+
+Чтобы не громоздить каждый раз функцию под рестриктор, когда нужно, чтобы тот запустил только функцию при входе, есть вариант вызова: spawn_restrictor.create_restrictor_in(vector():set(-152.0,-18.0,-144.3),98126,45,7,"имя_функции")
 
 Пример: spawn_restrictor.create_restrictor_in(vector():set(-152.0,-18.0,-144.3),98126,45,7,"teleport_actor(esc_lager_wolf_walk:esc_lager_wolf_look)")
 
