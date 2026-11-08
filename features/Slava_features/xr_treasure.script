@@ -1,0 +1,124 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+--'------------------------------------------------------------------------------------------------------------------
+--' Binder скриптовых зон для тайников
+--' Все предметы в зоне автоматически становятся частью тайника
+--' При подборе одного предмета - остальные передаются в инвентарь
+--'------------------------------------------------------------------------------------------------------------------
+
+function bind(obj)
+    obj:bind_object(treasure_zone_binder(obj))
+end
+
+--'--------------------------------------------------------------------------------------------------------------------
+--' Глобальная таблица для хранения данных зон
+--'--------------------------------------------------------------------------------------------------------------------
+treasure_zones = {}
+
+--'--------------------------------------------------------------------------------------------------------------------
+--' Глобальная функция обработки подбора предмета
+--'--------------------------------------------------------------------------------------------------------------------
+function on_item_pickup(item)
+    local item_id = item:id()
+    
+    for zone_name, zone_binder in pairs(treasure_zones) do
+        local info = zone_binder.registered_items
+        
+        if info[item_id] then
+            -- Нашли предмет в этой зоне
+            log1("=== Item picked up from zone: " .. zone_name)
+            
+            -- Передаем все остальные предметы актору
+            for obj_id, section in pairs(info) do
+                if obj_id ~= item_id then
+                    local obj = level.object_by_id(obj_id)
+                    if obj then					
+                        log1("Transfering " .. section .. " to actor")
+                        db.actor:transfer_item(obj, db.actor)									
+                    end
+                end
+            end
+ 
+			--Выдача смс
+			pda_news = xr_sound.get_safe_sound_object([[device\pda\pda_news]])
+			pda_news:play(db.actor, 0, sound_object.s2d)
+			local task_texture, task_rect = get_texture_info("ui_iconsTotal_found_thing")
+			local news_text = "%c[255,160,160,160]"..game.translate_string("st_found_treasure")
+			db.actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)	
+			
+			--Снимем метку с зоны, если она есть
+			treasure_manager.get_treasure_manager():treasure_empty(zone_binder.object, zone_binder.object:story_id())
+			
+			--Удаление самой зоны после обыска
+			local sobj = zone_binder.object and alife():object(zone_binder.object:id())
+			if sobj then
+				alife():release(sobj)
+			end			
+			
+            -- Очищаем зону
+            zone_binder.registered_items = {}
+            break
+        end
+    end
+end
+
+--'--------------------------------------------------------------------------------------------------------------------
+--' класс treasure_zone_binder
+--'--------------------------------------------------------------------------------------------------------------------
+class "treasure_zone_binder" (object_binder)
+
+function treasure_zone_binder:__init(obj) 
+    super(obj)
+    self.registered_items = {}
+    treasure_zones[obj:name()] = self
+    log1("Treasure zone initialized: " .. obj:name())
+end
+
+function treasure_zone_binder:net_spawn(server_object)
+    if not object_binder.net_spawn(self, server_object) then
+        return false
+    end
+
+    self.object:set_callback(callback.zone_enter, self.on_enter, self)
+
+    return true
+end
+
+function treasure_zone_binder:net_destroy()
+    self.object:set_callback(callback.zone_enter, nil)
+    
+    treasure_zones[self.object:name()] = nil
+    object_binder.net_destroy(self)
+end
+
+function treasure_zone_binder:on_enter(zone, obj)
+	if obj:is_artefact() or obj:is_ammo() or obj:is_weapon() or obj:is_outfit() or obj:is_food_item() or obj:is_medkit() then
+		self.registered_items[obj:id()] = obj:section()
+		log1("=== Registered item in zone: " .. obj:section() .. " (id=" .. obj:id() .. ")")
+    end
+end
+
+function treasure_zone_binder:save(packet)
+    object_binder.save(self, packet)
+    
+    local num = 0
+    for k,v in pairs(self.registered_items) do 
+        num = num + 1 
+    end
+    
+    packet:w_u16(num)
+    for k,v in pairs(self.registered_items) do
+        packet:w_u16(k)
+        packet:w_string(v)
+    end
+end
+
+function treasure_zone_binder:load(packet)
+    object_binder.load(self, packet)
+
+    local num = packet:r_u16()
+    for i=1,num do
+        local obj_id = packet:r_u16()
+        local section = packet:r_string()
+        self.registered_items[obj_id] = section
+    end
+end
