@@ -1,4 +1,5 @@
--- -*- mode: lua; coding: windows-1251-dos -*-
+
+
 Спавн объекта из all.spawn по имени(подразумевается, что объект был удален)
 function test()
 local spawn_id = alife():spawn_id("esc_wolf")
@@ -1205,3 +1206,4 @@ sobj.visual_name = p[1]
 в логике:
 on_actor_dist_le_nvis = 10 | %=new_visual(actors\neytral\stalker_neytral_rukzak_3)% 
 
+-- -*- mode: lua; coding: windows-1251-dos -*-
