@@ -1,5 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-Один из подписчиков поделился со мной такой фичей, которая исправляет баг направления взгляда нпс, когда он направляет на нас оружие.
+
+исправляет баг направления взгляда нпс, когда он направляет на нас оружие.
 D:\X-Ray_test\gamedata\scripts\state_mgr.script
 
 через поиск находим:
@@ -17,3 +18,25 @@ state_lib.states[state_name].movement == move.stand
 then
 self.npc:movement_enabled(false)
 end
+
+
+gulag_escape.script
+
+нужно изменить чтобы получилось так:
+добавилось not
+
+	if type == "esc_lager" then
+		return function(gulag)
+			local actor = db.actor
+			if not actor then
+				return gulag.state
+			end
+			if has_alife_info("escape_lager_help") and not has_alife_info("escape_lager_killers_die") then
+				return 2 -- оборона лагеря
+			elseif level.get_time_hours() >= 5 and level.get_time_hours() <= 22 then
+				return 0  -- день
+			else
+				return 1  -- ночь
+			end
+		end
+	end
