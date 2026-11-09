@@ -20,6 +20,8 @@ self.npc:movement_enabled(false)
 end
 
 
+Фикс бага логики нпс в деревне новичков после атаки наемников:
+
 gulag_escape.script
 
 нужно изменить чтобы получилось так:
