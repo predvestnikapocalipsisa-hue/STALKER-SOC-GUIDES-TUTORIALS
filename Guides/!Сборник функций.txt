@@ -1,5 +1,22 @@
 Базовые функции
 --------------------------------------------------------------------------------------------------------------
+--Для функций ниже будем использовать следующие обозначения:
+
+-- sobj - серверный объект
+-- obj - клиентский
+
+-- по стори айди - 14
+	local sobj = alife():story_object(14)
+	local obj = level_object_by_sid(14)
+
+-- по имени из all.spawn
+	local sobj = alife():object("esc_wolf")
+	local obj = level_object_by_name("esc_wolf")
+
+-- по имени нпс заспавненых через скрипт
+ local obj = level_object_by_spawn("esc_wolf")
+ local sobj = alife_object_by_spawn("esc_wolf")
+
 --Нужно в _g.script добавить функции:
 -- Для совершение действий над клиентским объектом по имени
 function level_object_by_name( name )
@@ -10,9 +27,6 @@ function level_object_by_name( name )
 	return nil
 end
 
--- Использование:
-    local obj = level_object_by_name("esc_wolf")
-
 -- Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
 function level_object_by_spawn( name )
         for a=1,65535,1 do
@@ -22,8 +36,6 @@ function level_object_by_spawn( name )
                 end
         end
 end
---Использование:
-    local obj = level_object_by_spawn("esc_wolf")
 
 --Для совершение действий над серверным объектом, заспавненным через скрипт по имени
 function alife_object_by_spawn( name )
@@ -34,8 +46,6 @@ function alife_object_by_spawn( name )
                 end
         end
 end
---Использование:
-    local sobj = alife_object_by_spawn("esc_wolf")
 
 -- ОГСР версии (они приоритетнее)
 -- Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
@@ -47,8 +57,6 @@ function level_object_by_spawn( name )
 		end
 	end
 end
--- Использование:
-    local obj = level_object_by_spawn("esc_wolf")
 	
 -- Для совершение действий над серверным объектом, заспавненным через скрипт по имени
 function alife_object_by_spawn( name )
@@ -58,8 +66,6 @@ function alife_object_by_spawn( name )
 		end
 	end
 end
--- Использование:
-    local sobj = alife_object_by_spawn("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
 -- При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx
 function spawn_with_story()
