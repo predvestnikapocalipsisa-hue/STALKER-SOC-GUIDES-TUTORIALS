@@ -1,0 +1,19 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+Один из подписчиков поделился со мной такой фичей, которая исправляет баг направления взгляда нпс, когда он направляет на нас оружие.
+D:\X-Ray_test\gamedata\scripts\state_mgr.script
+
+через поиск находим:
+if state_lib.states[self.target_state].movement ~= move.stand and
+
+после неё вставляем
+state_lib.states[self.target_state].animation ~= nil and
+
+и вместе получается
+
+—' Если мы переключаемся из идущего положения в стоящее - надо задизаблить перемещение
+if state_lib.states[self.target_state].movement ~= move.stand and
+state_lib.states[self.target_state].animation ~= nil and
+state_lib.states[state_name].movement == move.stand
+then
+self.npc:movement_enabled(false)
+end
