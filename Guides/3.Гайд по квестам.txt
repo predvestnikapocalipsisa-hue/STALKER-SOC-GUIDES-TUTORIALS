@@ -78,10 +78,10 @@ db.actor:give_info_portion("tutorial_artefact_gain")
 Диалог под этот квест разобран в Гайде по диалогам.txt и ещё в:
 
 Разбор GSC Dialog Editor со скриншотами:
-https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/gsc-dialog-editor?authuser=0
+https://sites.google.com/view/stsocmoding/туториалы/разное/gsc-dialog-editor?authuser=0
 
 Разбор RoH Dialog Editor со скриншотами:
-https://sites.google.com/view/stsocmoding/%D0%B1%D0%B0%D0%B7%D0%B0/roh-dialog-editor
+https://sites.google.com/view/stsocmoding/туториалы/разное/roh-dialog-editor?authuser=0
 ---------------------------------------------------------------------------------------------------	
 ---------------------------------------------------------------------------------------------------	
 1.Приступим к написанию квеста. Открываем \gamedata\config\text\rus\string_table_tasks_escape.xml(или иной файл с ру текстом)
