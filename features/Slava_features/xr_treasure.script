@@ -25,14 +25,14 @@ function on_item_pickup(item)
         
         if info[item_id] then
             -- Нашли предмет в этой зоне
-            log1("=== Item picked up from zone: " .. zone_name)
+            -- log1("=== Item picked up from zone: " .. zone_name)
             
             -- Передаем все остальные предметы актору
             for obj_id, section in pairs(info) do
                 if obj_id ~= item_id then
                     local obj = level.object_by_id(obj_id)
                     if obj then					
-                        log1("Transfering " .. section .. " to actor")
+                        -- log1("Transfering " .. section .. " to actor")
                         db.actor:transfer_item(obj, db.actor)									
                     end
                 end
@@ -70,7 +70,7 @@ function treasure_zone_binder:__init(obj)
     super(obj)
     self.registered_items = {}
     treasure_zones[obj:name()] = self
-    log1("Treasure zone initialized: " .. obj:name())
+    -- log1("Treasure zone initialized: " .. obj:name())
 end
 
 function treasure_zone_binder:net_spawn(server_object)
@@ -91,9 +91,9 @@ function treasure_zone_binder:net_destroy()
 end
 
 function treasure_zone_binder:on_enter(zone, obj)
-	if obj:is_artefact() or obj:is_ammo() or obj:is_weapon() or obj:is_outfit() or obj:is_food_item() or obj:is_medkit() then
+	if obj:is_artefact() or obj:is_ammo() or obj:is_weapon() or obj:is_outfit() or obj:is_food_item() or obj:is_medkit() or obj:is_inventory_item() then
 		self.registered_items[obj:id()] = obj:section()
-		log1("=== Registered item in zone: " .. obj:section() .. " (id=" .. obj:id() .. ")")
+		-- log1("=== Registered item in zone: " .. obj:section() .. " (id=" .. obj:id() .. ")")
     end
 end
 
