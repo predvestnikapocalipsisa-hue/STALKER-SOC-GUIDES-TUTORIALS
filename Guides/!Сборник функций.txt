@@ -1,353 +1,46 @@
-
-
-Спавн объекта из all.spawn по имени(подразумевается, что объект был удален)
-function test()
-local spawn_id = alife():spawn_id("esc_wolf")
-   alife():create(spawn_id)
-end
+Базовые функции
 --------------------------------------------------------------------------------------------------------------
-для совершение действий над клиентским объектом по имени в _g.script можно добавить:
+-- Для совершение действий над клиентским объектом по имени в _g.script можно добавить
 function level_object_by_name( name )
-  local se_obj = alife():object( name )
-  if se_obj then
-    return level.object_by_id( se_obj.id )
-  end
-  return nil
+	local sobj = alife():object( name )
+	if sobj then
+		return level.object_by_id( sobj.id )
+	end
+	return nil
 end
 
-Использование:
-      local npc = level_object_by_name("esc_wolf")
-        alife():set_switch_online(npc:id(), false) -- действие для примера
---------------------------------------------------------------------------------------------------------------
-Спавн нпс с визуалом и оружием гг
-function spawn(actor, obj)
-        local wpn = db.actor:item_in_slot(2) 
-        local sobj = alife():create("нпс",vector():set(-152.0,-18.0,-144.3),98126,45)
-        sobj.visual_name = db.actor:get_visual_name()        
-        alife():create(wpn,vector(),0,0,sobj.id)
-end
---------------------------------------------------------------------------------------------------------------
-Создать вейпоинт, подробности смотреть на вики ОГСР, точки нужно удалять вместе с актором
-db.test_path = CPatrolPath()
-db.test_path:add_point( db.actor:position() )
-local pp = db.test_path:point( 0 )
-level.patrol_path_add( "smart_terrain_kamp_1", db.test_path )
+-- Использование:
+    local obj = level_object_by_name("esc_wolf")
+-- это будет использовано во всех функциях ниже
 
-Удалить эту точку
-local path = patrol( "test_path" )
-level.patrol_path_remove( "test_path" )
---------------------------------------------------------------------------------------------------------------
-Заспавнить нпс и задать логику, ОГСР
-sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
-    sobj.custom_data = "[logic]\n"..
-              "active = kamp\n"..
-              "[kamp]\n"..
-              "center_point = smart_terrain_kamp_1\n"
---------------------------------------------------------------------------------------------------------------
-Задать физику объекту
-function test()
-local sobj = alife():object("esc_medkit") -- Серверный объект
-local game_object = level.object_by_id(sobj.id) -- Клиентский объект
-local ph_gobj = game_object:get_physics_shell()
-  game_object:set_const_force(vector():set(0,1,0), game_object:mass()*19.62, 65535*65535)
-end
---------------------------------------------------------------------------------------------------------------
-замена иконки гг или нпс
-db.actor:set_character_icon("name")
---------------------------------------------------------------------------------------------------------------
-Делаем табличку исключений для проверки нпс по имени
-
-local excluded_npc_ids = {
-["esc_wolf"] = true,
-["esc_trader"] = true,
-}
-
-  if not excluded_npc_ids[npc:name()] then  
-       npc:disable_trade() -- действие
-  end
---------------------------------------------------------------------------------------------------------------
-закрыть инвентарь
-  local inventory_wnd = level.get_inventory_wnd()
-  if inventory_wnd then
-    level.start_stop_menu(inventory_wnd, true)
- end
-
-закрыть текущий ui
-  local inventory_wnd = level.main_input_receiver()
-  if inventory_wnd then
-    level.start_stop_menu(inventory_wnd, true)
- end
-
---------------------------------------------------------------------------------------------------------------
-Выполняет переход на другую локацию. Тоже самое, как создать на месте актора level_changer, только без лишних телодвижений.
-level.change_level( game_vertex_id, level_vertex_id, pos, dir )
-
-Пример:
-level.change_level( 12, 213330,vector():set(-129.5,-9.56,-147.3), vector():set(-0.6, 0, 0.75))
---------------------------------------------------------------------------------------------------------------
--- Очистка инвентаря гг от всех предметов(если применять для нпс, тогда нужно делать исключение для болта, иначе вылет)
-local keep_item = {
-    ["bolt"] = true,
-    ["device_pda"] = true,
-    -- ["wpn_knife"] = true,
-}
-
-function clear_inv()
-    if not db.actor then return end
-    
-    local to_remove = {}
-    db.actor:iterate_inventory(function(_, item)
-        local section = item:section()
-        if not keep_item[section] then
-            table.insert(to_remove, item:id())
-        end
-    end, nil)
-    
-    for _, id in ipairs(to_remove) do
-        alife():release(alife():object(id), true)
-    end
-end
---------------------------------------------------------------------------------------------------------------
--- Использование/съедание предметов
-
--- в диалоге/логике для гг
-function do_something(actor, obj)
--- для нпс: obj вместо actor
-    local item = actor:object("antirad")
-    if item then
-        actor:eat(item)
-    end
-end
-
--- Если вызов вне диалога/логики:
--- Обозначение актора - db.actor
-
--- Можно обозначить нпс по стори айди
-	local obj = level_object_by_sid(6)
-
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
---------------------------------------------------------------------------------------------------------------
--- Восстановление здоровья, выносливости, радиации, кровотечения гг в диалоге
-function medic_magic_potion(actor, obj)
--- для нпс: obj вместо actor
-	actor.health = 1
-	actor.power = 1
-	actor.radiation = -1
-	actor:heal_wounds(1.0)
-end
-
--- Если вызов вне диалога/логики:
--- Обозначение актора - db.actor
-
--- Можно обозначить нпс по стори айди
-	local obj = level_object_by_sid(6)
-
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
---------------------------------------------------------------------------------------------------------------
--- ОГСР. Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
-function spawn(actor, obj)
-   local sobj = alife():object("esc_wolf")
-   sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
-end
-
--- если вызов через диалог/логику то sobj можно определить так:
-   local sobj = alife():object(obj:id())
---------------------------------------------------------------------------------------------------------------
--- Один из способов выводить получившееся значение в смс
-function send_message(msg) 
-    news_manager.send_tip(db.actor, msg, nil, nil, 5000)  
-end
-
--- Пример вызова
-Имя_файла.send_message(tostring(значение))
-
--- В ОГСР\ХЕ вывод инфы в лог\консоль
-log1("коммент")
-log1("коммент".. tostring(значение))
-log1(tostring(значение))
---------------------------------------------------------------------------------------------------------------
--- В ОГСР блокировка нажатия клавиш
-level.block_action(key_bindings.kTORCH)
-level.unblock_action(key_bindings.kTORCH)
---------------------------------------------------------------------------------------------------------------
--- level.add_call(...) теперь возвращает управляющий объект, у которого есть метод :set_pause( ms ). После использования этого метода, функция, заданная в add_call(...), будет вызвана через ms миллисекунд. Вот простейший пример:
-level.add_call(
-	function()
-		log3( "condition" )
-		return true
-	end,
-	function() log3( "action" ) end
-	):set_pause( 3000 )
--- Через 3 секунды будет выведено:
--- condition
--- action
---------------------------------------------------------------------------------------------------------------
--- Спавн с использованием клиентских методов
-function spawn()
-	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-	level.client_spawn_manager():add(sobj.id, 65535,
-		function (id, obj)
-			obj:set_goodwill(-5000, db.actor)
+-- ОГСР Для совершение действий над клиентским объектом, заспавненным через скрипт по имени в _g.script можно добавить
+function level_object_by_spawn( name )
+	for id, sobj in alife():objects() do 
+		local obj=level.object_by_id(sobj.id)
+		if obj and string.find(obj:name(),name) then
+			return obj
 		end
-		)
-	return obj
-end
---------------------------------------------------------------------------------------------------------------	
--- Поставить метку на объект в диалоге\логике, green_location - тип метки
-function metka(actor, obj)
-	level.map_add_object_spot_ser(obj:id(), "green_location", "name")
---level.map_add_object_spot -- без "_ser" метка пропадет после сейв лоада
-end	
-
--- по стори айди, 14 - стори айди
-	local sobj = alife():story_object(14)
-
--- по имени из all.spawn
- local sobj = alife():object("esc_wolf")
-
-	level.map_add_object_spot_ser(sobj.id, "green_location", "name")
-	
--- определение по клиентскому объекту по стори айди, либо через level.object_by_id(id)
-	local obj = level_object_by_sid(14)
-	level.map_add_object_spot_ser(obj:id(), "green_location", "name")	
-
--- удалить метку
-level.map_remove_object_spot(obj:id(), "green_location")
-
---при удалении нужно передавать тот же айди нпс, то есть :id(), либо .id и название метки
---------------------------------------------------------------------------------------------------------------
--- спавн предмета в рюкзак герою без сообщения
-function create_items_actor_without_sms(section)
-	alife():create(section, vector(), 0, 0, db.actor:id())
-end
--- Пример вызова
-Имя_файла.create_items_actor_without_sms("wpn_pm")
-
--- удалить предмет из рюкзака героя без сообщения
-function out_item_namber_without_sms(section)
-	alife():release(alife():object(db.actor:object(section):id()), true)
-end
--- Пример вызова
-Имя_файла.out_item_namber_without_sms("wpn_pm")
---------------------------------------------------------------------------------------------------------------
--- оригинальная выдача предметов гг
-function spawn()
-	dialogs.relocate_item_section(db.actor, "wpn_pm", "in")
-end
---------------------------------------------------------------------------------------------------------------
--- спавн себе в инвентарь без дополнительных скриптов
-function spawn2()
-	alife():create("wpn_pm", vector(), 0, 0, db.actor:id())
-end
---------------------------------------------------------------------------------------------------------------
--- спавн себе в инвентарь, позволяет указать количество, для работы функций нужен sak.script из сборника, его копируем себе в gamedata\scripts\
-function nagrada()
-	sak.create_items_actor("medkit",3)
-end
-
--- Вещь забирают\удаление предмета
-
-	sak.out_item_namber("af_medusa",1)
-
---Вещь дают БЕЗ СМС
-
-	sak.create_items_actor_nomsg("medkit",3)
-
---Вещь забирают\удаление предмета БЕЗ СМС
-
-	sak.out_item_namber_nomsg("medkit",3)
-
---------------------------------------------------------------------------------------------------------------
--- Заспавнить вещь нпс в инвентарь по имени объекта из all.spawn
-function spawn2()
-	local sobj = alife():object("esc_wolf")
-	alife():create("wpn_svd", vector(), 0, 0, sobj.id)
-end
--- определение по клиентскому объекту, либо через level.object_by_id(id)
-	local obj = level_object_by_sid(6)
-	alife():create("bandage", vector(), 0, 0, obj:id())
---------------------------------------------------------------------------------------------------------------
-спавн предмета нпс в инвентарь через диалог\логику
-function spawn4(actor, obj)
-	alife():create("bandage", vector(), 0, 0, obj:id())
-end
---------------------------------------------------------------------------------------------------------------
--- Заспавнить вещь нпс по имени объекта из all.spawn с общей функцией:
-function spawn3(npc, item)
-	local sobj = alife():object(npc)
-	alife():create(item, vector(), 0, 0, sobj.id)
-end
--- Пример вызова
-Имя_файла.spawn3("esc_wolf", "wpn_svd")
---------------------------------------------------------------------------------------------------------------
--- Спавнит нпс и в нем так же спавнит предметы из таблицы 
-local spawn_item = {
-    {name = "wpn_knife", count = 100},
-    {name = "wpn_pm", count = 300}
-}
-
-function spawn_item_to_npc()
-    local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-
-    for _, entry in ipairs(spawn_item) do
-        local item_name = entry.name
-        local count = entry.count
-
-        for i = 1, count do
-            alife():create(item_name,vector(), 0, 0, sobj.id)
-        end
-    end
-end
---------------------------------------------------------------------------------------------------------------
--- Отдать предмет нпс, если тип "in", то если предмет не квестовый, тогда он будет просто заспавнен, а не передан
-function spawn(actor, obj)
-	dialogs.relocate_item_section(obj, "wpn_pm", "out")
-end
---------------------------------------------------------------------------------------------------------------
--- НПС передает предмет нам, либо мы ему передаем, при этом у предмет исчезает.
-function relocate_item_my(victim, section, type)
-	if db.actor and victim then
-		if type == "in" then
-			if victim:object(section) ~= nil then
-				victim:transfer_item(victim:object(section), db.actor)
-			end
-		elseif type == "out" then
-			db.actor:transfer_item(db.actor:object(section), victim)
-		end
-		news_manager.relocate_item(db.actor, type, section)
 	end
 end
-
--- Пример вызова
--- "in" - нпс отдает предмет нам
--- "out" - мы отдаем предмет нпс
-function my(actor, obj)
-Имя_файла.relocate_item_my(obj, "wpn_rpg7", "in")
+-- Использование:
+    local obj = level_object_by_spawn("esc_wolf")
+	
+-- ОГСР Для совершение действий над серверным объектом, заспавненным через скрипт по имени в _g.script можно добавить
+function alife_object_by_spawn( name )
+	for id, sobj in alife():objects() do 
+		if string.find(sobj:name(),name) then
+			return sobj
+		end
+	end
 end
+-- Использование:
+    local sobj = alife_object_by_spawn("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
--- забрать все деньги у актора
-function out_all_money()
-local money = db.actor:money()
-db.actor:give_money(-money)
-end
---------------------------------------------------------------------------------------------------------------
--- Получаем деньги от нпс
-function give_3k(actor, obj)
-	dialogs.relocate_money(obj, 3000, "in")
-end
---------------------------------------------------------------------------------------------------------------
--- Отдаем деньги епс
-function give_3k_out(actor, obj)
-	dialogs.relocate_money(obj, 3000, "out")
-end
---------------------------------------------------------------------------------------------------------------
--- выдача инфопоршн
-function give_info()
-	db.actor:give_info_portion("esc_gromov_quest_0")		
+-- При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx
+function spawn_with_story()
+	local sobj = alife():create("mad_stalker_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
+	alife():assign_story_id(nil, nil, sobj.id, story_ids.test) -- xray-extensions
+	alife():assign_story_id(sobj.id, story_ids.test)           -- ОГСР
 end
 --------------------------------------------------------------------------------------------------------------
 -- спавн кого\чего-либо, без привязки к аи сетке, чтобы объект не проваливался под карту, работает при правках xray-extensions, либо в ОГСР
@@ -377,7 +70,6 @@ function spawn()
    local patrol = patrol("my_way_walk1")
    alife():create("medkit", patrol:point(0), patrol:level_vertex_id(0), patrol:game_vertex_id(0))
 end
-
 --------------------------------------------------------------------------------------------------------------
 Спавн на координатах гг + 10 метров по оси Х
 function spawn3()
@@ -388,7 +80,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Заспавнить нпс, который не сможет уйти в оффлайн
 function main1 ()
-	sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 	alife():set_switch_offline(sobj.id, false)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -399,66 +91,149 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- ОГСР спавн трупа\установка здоровья, работает только при спавне 
 function spawn_on_death()
-	sobj = alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45)
+	local sobj = alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45)
 	sobj:set_health(0)
 end
 --------------------------------------------------------------------------------------------------------------
--- ОГСР от 3.432
--- получение левел и гейм вертекс по имени локации, кладем в _g.script 
-function get_lv_gv(level_name, pos)
-    local lg, ct
-    if level.name() == level_name then
-        lg = level_graph()
-        ct = cross_table()
-    else
-        lg = level_graph(level_name)
-        ct = cross_table(level_name)
-    end
-
-    local lv = lg:vertex_id(pos)
-    if not lg:valid_vertex_id(lv) then
-        lv = lg:nearest_vertex_id(pos)
-    end
-    local gv = ct:vertex(lv):game_vertex_id()
-    return lv, gv
+-- выдача инфопоршн
+function give_info()
+	db.actor:give_info_portion("esc_gromov_quest_0")		
 end
-
 --------------------------------------------------------------------------------------------------------------
--- Новый спавн только по координатам, кладем в _g.script  
-function alife_create(section, level_name, pos)
-    local lv, gv = get_lv_gv(level_name, pos)
-    return alife():create(section, pos, lv, gv)
+-- забрать все деньги у актора
+function out_all_money()
+local money = db.actor:money()
+db.actor:give_money(-money)
 end
-
--- и в удобнном скрипте вызываем:
-function spawn_test()
-    alife_create("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
-end
-
 --------------------------------------------------------------------------------------------------------------
--- Телепорт объекта по стори айди ОГСР
-function npc_teleport_sid(sid, level_name, pos)
-    local lv, gv = get_lv_gv(level_name, pos)
-    local npc = alife():story_object(sid)
-	alife():teleport_object(npc.id, pos, lv, gv)
+-- Получаем деньги от нпс
+function give_3k(actor, obj)
+	dialogs.relocate_money(obj, 3000, "in")
+end
+--------------------------------------------------------------------------------------------------------------
+-- Отдаем деньги епс
+function give_3k_out(actor, obj)
+	dialogs.relocate_money(obj, 3000, "out")
+end
+--------------------------------------------------------------------------------------------------------------
+-- НПС передает предмет нам, либо мы ему передаем, при этом у предмет исчезает.
+function relocate_item_my(victim, section, type)
+	if db.actor and victim then
+		if type == "in" then
+			if victim:object(section) ~= nil then
+				victim:transfer_item(victim:object(section), db.actor)
+			end
+		elseif type == "out" then
+			db.actor:transfer_item(db.actor:object(section), victim)
+		end
+		news_manager.relocate_item(db.actor, type, section)
+	end
+end
+
+-- Пример вызова
+-- "in" - нпс отдает предмет нам
+-- "out" - мы отдаем предмет нпс
+function my(actor, obj)
+Имя_файла.relocate_item_my(obj, "wpn_rpg7", "in")
+end
+--------------------------------------------------------------------------------------------------------------
+-- Отдать предмет нпс, если тип "in", то если предмет не квестовый, тогда он будет просто заспавнен в нпс, а не передан
+function spawn(actor, obj)
+	dialogs.relocate_item_section(obj, "wpn_pm", "out")
+end
+--------------------------------------------------------------------------------------------------------------
+-- Заспавнить вещь нпс в инвентарь
+function spawn2()
+	local sobj = alife():object("esc_wolf")
+	local sobj = alife():story_object(14)
+	alife():create("wpn_svd", vector(), 0, 0, sobj.id)
+end
+-- определение по клиентскому объекту, либо через level.object_by_id(id)
+	local obj = level_object_by_sid(6)
+    local obj = level_object_by_name("esc_wolf")
+	alife():create("bandage", vector(), 0, 0, obj:id())
+--------------------------------------------------------------------------------------------------------------
+-- спавн предмета нпс в инвентарь через диалог\логику
+function spawn4(actor, obj)
+	alife():create("bandage", vector(), 0, 0, obj:id())
+end
+--------------------------------------------------------------------------------------------------------------
+-- Заспавнить вещь нпс по имени объекта из all.spawn с общей функцией:
+function spawn3(npc, item)
+	local sobj = alife():object(npc)
+	alife():create(item, vector(), 0, 0, sobj.id)
 end
 -- Пример вызова
-Имя_файла.npc_teleport_sid(33, "l01_escape", vector():set(-152.0,-18.0,-144.3))
+Имя_файла.spawn3("esc_wolf", "wpn_svd")
+--------------------------------------------------------------------------------------------------------------
+-- спавн себе в инвентарь, позволяет указать количество, для работы функций нужен sak.script из сборника, его копируем себе в gamedata\scripts\
+function nagrada()
+	sak.create_items_actor("medkit",3)
+end
 
--- по имени объекта
-function npc_teleport_sobj(name, level_name, pos)
-	local lv, gv = get_lv_gv(level_name, pos)
-	local sobj = alife():object(name)
-	alife():teleport_object(sobj.id, pos, lv, gv)
+-- Вещь забирают\удаление предмета
+
+	sak.out_item_namber("af_medusa",1)
+
+--Вещь дают БЕЗ СМС
+
+	sak.create_items_actor_nomsg("medkit",3)
+
+--Вещь забирают\удаление предмета БЕЗ СМС
+
+	sak.out_item_namber_nomsg("medkit",3)
+--------------------------------------------------------------------------------------------------------------
+-- спавн предмета в рюкзак герою без сообщения
+function create_items_actor_without_sms(section)
+	alife():create(section, vector(), 0, 0, db.actor:id())
 end
 -- Пример вызова
-Имя_файла.npc_teleport_sobj("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
+Имя_файла.create_items_actor_without_sms("wpn_pm")
+
+-- удалить предмет из рюкзака героя без сообщения
+function out_item_namber_without_sms(section)
+	alife():release(alife():object(db.actor:object(section):id()), true)
+end
+-- Пример вызова
+Имя_файла.out_item_namber_without_sms("wpn_pm")
+
+-- или чуть проще
+function spawn2()
+	alife():create("wpn_pm", vector(), 0, 0, db.actor:id())
+end
 --------------------------------------------------------------------------------------------------------------
--- При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx
-function spawn_with_story()
-	local sobj = alife():create("mad_stalker_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
-	alife():assign_story_id(nil, nil, sobj.id, story_ids.test) -- xray-extensions
-	alife():assign_story_id(sobj.id, story_ids.test)           -- ОГСР
+-- оригинальная выдача предметов гг
+function spawn()
+	dialogs.relocate_item_section(db.actor, "wpn_pm", "in")
+end
+--------------------------------------------------------------------------------------------------------------	
+-- Поставить метку на объект в диалоге\логике, green_location - тип метки
+function metka(actor, obj)
+	level.map_add_object_spot_ser(obj:id(), "green_location", "name")
+--level.map_add_object_spot -- без "_ser" метка пропадет после сейв лоада
+end	
+
+-- по стори айди, 14 - стори айди
+	local sobj = alife():story_object(14)
+
+-- по имени из all.spawn
+	local sobj = alife():object("esc_wolf")
+
+	level.map_add_object_spot_ser(sobj.id, "green_location", "name")
+	
+-- определение по клиентскому объекту по стори айди, либо через level.object_by_id(id)
+	local obj = level_object_by_sid(14)
+	local obj = level_object_by_name("esc_wolf")
+	level.map_add_object_spot_ser(obj:id(), "green_location", "name")	
+
+-- удалить метку
+	level.map_remove_object_spot(obj:id(), "green_location")
+
+-- при удалении нужно передавать тот же айди нпс, то есть :id(), либо .id и название метки
+--------------------------------------------------------------------------------------------------------------
+-- перенос гг на вейпоинт "esc_fabrika_bandit_day_night_sniper_walk", смотреть гг будет на вейпоинт "esc_fabrika_bandit_day_night_sniper_look"
+function actor_teleport()
+	xr_effects.teleport_actor(db.actor, obj,{"esc_fabrika_bandit_day_night_sniper_walk","esc_fabrika_bandit_day_night_sniper_look"})
 end
 --------------------------------------------------------------------------------------------------------------
 -- перенос гг на координаты
@@ -466,65 +241,43 @@ function teleport()
 	db.actor:set_actor_position(vector():set(345,15,-26))
 end
 --------------------------------------------------------------------------------------------------------------
--- перенос гг на вейпоинт "esc_fabrika_bandit_day_night_sniper_walk", смотреть гг будет на вейпоинт "esc_fabrika_bandit_day_night_sniper_look"
-function actor_teleport()
-	xr_effects.teleport_actor(db.actor, obj,{"esc_fabrika_bandit_day_night_sniper_walk","esc_fabrika_bandit_day_night_sniper_look"})
-end
---------------------------------------------------------------------------------------------------------------
--- Перенос нпс на координаты при правках xray-extensions
-function teleport1()
-	local sobj = alife():object("esc_wolf")
-	alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,sobj.id)
-end
---------------------------------------------------------------------------------------------------------------
--- Перенос нпс на координаты ОГСР(работает перенос на другую локацию) 
--- принимает obj:id() и sobj.id
-function teleport2()
-	local obj = level_object_by_sid(3)
-	alife():teleport_object(obj:id(), vector():set(32,0.4,-264),205410,262)	
-end
+-- Использование/съедание предметов
 
--- через диалог\логику
-function teleport3(actor, obj)
-	alife():teleport_object(obj:id(), vector():set(32,0.4,-264),205410,262)	
-end
-
--- обозначаем по имени из all.spawn
-	local sobj = alife():object("esc_wolf")
-	alife():teleport_object(sobj.id, vector():set(32,0.4,-264),205410,262)
-
--- аналог по имени точки
-	local patrol = patrol( "yan_scientist_guider_walk" )
-	alife():teleport_object(sobj.id, patrol:point( 0 ), patrol:level_vertex_id( 0 ), patrol:game_vertex_id( 0 ))
---------------------------------------------------------------------------------------------------------------
--- Перенос нпс на координаты ОГСР в масштабе одной локации через диалог\логику 
-function teleport3(actor, obj)
-	obj:set_npc_position(vector():set(-152.0,-18.0,-144.3))
+-- в диалоге/логике для гг
+function do_something(actor, obj)
+-- для нпс: obj вместо actor
+    local item = actor:object("antirad")
+    if item then
+        actor:eat(item)
+    end
 end
 
 -- Если вызов вне диалога/логики:
+-- Обозначение актора - db.actor
 
 -- Можно обозначить нпс по стори айди
 	local obj = level_object_by_sid(6)
 
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
--- Воспроизведение звука в голове гг, звук класть в /gamedata/sounds/Cyberpunk2077.ogg
-function main()
-	local snd = sound_object([[Cyberpunk2077]])
-	snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 1.0)
+-- Восстановление здоровья, выносливости, радиации, кровотечения гг в диалоге
+function medic_magic_potion(actor, obj)
+-- для нпс: obj вместо actor
+	actor.health = 1
+	actor.power = 1
+	actor.radiation = -1
+	actor:heal_wounds(1.0)
 end
---------------------------------------------------------------------------------------------------------------
--- Воспроизведение звука от объекта
-звук должен лежать в /gamedata/sounds/
-function main()
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
-	local snd = sound_object([[characters_voice\dialogs\escape_trader_jobs_611111111]])
-	snd:play_no_feedback(obj,sound_object.s3d, 0, obj:position(), 1.0)
-end
+
+-- Если вызов вне диалога/логики:
+-- Обозначение актора - db.actor
+
+-- Можно обозначить нпс по стори айди
+	local obj = level_object_by_sid(6)
+
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
 -- С кем говорим враг
 function enemy (actor, obj)
@@ -539,9 +292,8 @@ end
 -- Можно обозначить нпс по стори айди
 	local obj = level_object_by_sid(6)
 
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)	
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")	
 
 --Установить отношения между нпс
    local npc1 = level_object_by_sid (704)
@@ -578,9 +330,8 @@ end
 -- Можно обозначить нпс по стори айди
 	local obj = level_object_by_sid(006)
 
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)	
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")	
 --------------------------------------------------------------------------------------------------------------
 -- Функция наносит урон нпс\объекту через диалог\логику
 function kill_npc1 (actor, obj)
@@ -600,18 +351,8 @@ end
 -- Можно обозначить нпс по стори айди
 	local obj = level_object_by_sid(006)
 
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)	
---------------------------------------------------------------------------------------------------------------
--- Функция таймера "esc_timer" выполняющая функцию "kill_npc" из того же файла, где и лежит функция таймера, рассчёт в миллисекундах, таймер не будет  работать после перезагрузки. Даже если поставить на апдейт, то он будет сбрасываться в 0, поэтому  используйте  только в своих тестах.
-function esc_timer()
-	local iTimer = time_global() + 10*1000
-	local function check_timer()
-			 return time_global() > iTimer
-		  end
-	level.add_call(check_timer, kill_npc)
-end
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")	
 --------------------------------------------------------------------------------------------------------------
 -- Перевести объект в оффлайн
 function main0 ()
@@ -705,6 +446,284 @@ local tbl_remove = {"bar_stalker", "kat_bandit_0006"}
 	end
 end
 --------------------------------------------------------------------------------------------------------------
+-- Воспроизведение звука в голове гг, звук класть в /gamedata/sounds/Cyberpunk2077.ogg
+function main()
+	local snd = sound_object([[Cyberpunk2077]])
+	snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 1.0)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Воспроизведение звука от объекта
+звук должен лежать в /gamedata/sounds/
+function main()
+	local obj = level_object_by_name("esc_wolf")
+	local snd = sound_object([[characters_voice\dialogs\escape_trader_jobs_611111111]])
+	snd:play_no_feedback(obj,sound_object.s3d, 0, obj:position(), 1.0)
+end
+--------------------------------------------------------------------------------------------------------------
+-- Перенос нпс на координаты ОГСР в масштабе одной локации через диалог\логику 
+function teleport3(actor, obj)
+	obj:set_npc_position(vector():set(-152.0,-18.0,-144.3))
+end
+
+-- Если вызов вне диалога/логики:
+
+-- Можно обозначить нпс по стори айди
+	local obj = level_object_by_sid(6)
+
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")
+--------------------------------------------------------------------------------------------------------------
+-- Перенос нпс на координаты ОГСР(работает перенос на другую локацию) 
+-- принимает obj:id() и sobj.id
+function teleport2()
+	local obj = level_object_by_sid(3)
+	alife():teleport_object(obj:id(), vector():set(32,0.4,-264),205410,262)	
+end
+
+-- через диалог\логику
+function teleport3(actor, obj)
+	alife():teleport_object(obj:id(), vector():set(32,0.4,-264),205410,262)	
+end
+
+-- обозначаем по имени из all.spawn
+	local sobj = alife():object("esc_wolf")
+	alife():teleport_object(sobj.id, vector():set(32,0.4,-264),205410,262)
+
+-- аналог по имени точки
+	local patrol = patrol( "yan_scientist_guider_walk" )
+	alife():teleport_object(sobj.id, patrol:point( 0 ), patrol:level_vertex_id( 0 ), patrol:game_vertex_id( 0 ))
+--------------------------------------------------------------------------------------------------------------
+-- Перенос нпс на координаты при правках xray-extensions
+function teleport1()
+	local sobj = alife():object("esc_wolf")
+	alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,sobj.id)
+end
+--------------------------------------------------------------------------------------------------------------
+замена иконки гг или нпс
+db.actor:set_character_icon("name")
+--------------------------------------------------------------------------------------------------------------
+Спавн объекта из all.spawn по имени(подразумевается, что объект был удален)
+function test()
+local spawn_id = alife():spawn_id("esc_wolf")
+   alife():create(spawn_id)
+end
+--------------------------------------------------------------------------------------------------------------
+Спавн нпс с визуалом и оружием гг
+function spawn(actor, obj)
+        local wpn = db.actor:item_in_slot(2) 
+        local sobj = alife():create("нпс",vector():set(-152.0,-18.0,-144.3),98126,45)
+        sobj.visual_name = db.actor:get_visual_name()        
+        alife():create(wpn,vector(),0,0,sobj.id)
+end
+--------------------------------------------------------------------------------------------------------------
+Создать вейпоинт, подробности смотреть на вики ОГСР, точки нужно удалять вместе с актором
+db.test_path = CPatrolPath()
+db.test_path:add_point( db.actor:position() )
+local pp = db.test_path:point( 0 )
+level.patrol_path_add( "smart_terrain_kamp_1", db.test_path )
+
+Удалить эту точку
+local path = patrol( "test_path" )
+level.patrol_path_remove( "test_path" )
+--------------------------------------------------------------------------------------------------------------
+Заспавнить нпс и задать логику, ОГСР
+sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
+    sobj.custom_data = "[logic]\n"..
+              "active = kamp\n"..
+              "[kamp]\n"..
+              "center_point = smart_terrain_kamp_1\n"
+--------------------------------------------------------------------------------------------------------------
+Задать физику объекту
+function test()
+local sobj = alife():object("esc_medkit") -- Серверный объект
+local game_object = level.object_by_id(sobj.id) -- Клиентский объект
+local ph_gobj = game_object:get_physics_shell()
+  game_object:set_const_force(vector():set(0,1,0), game_object:mass()*19.62, 65535*65535)
+end
+--------------------------------------------------------------------------------------------------------------
+Делаем табличку исключений для проверки нпс по имени
+
+local excluded_npc_ids = {
+["esc_wolf"] = true,
+["esc_trader"] = true,
+}
+
+  if not excluded_npc_ids[npc:name()] then  
+       npc:disable_trade() -- действие
+  end
+--------------------------------------------------------------------------------------------------------------
+закрыть инвентарь
+  local inventory_wnd = level.get_inventory_wnd()
+  if inventory_wnd then
+    level.start_stop_menu(inventory_wnd, true)
+ end
+
+закрыть текущий ui
+  local inventory_wnd = level.main_input_receiver()
+  if inventory_wnd then
+    level.start_stop_menu(inventory_wnd, true)
+ end
+
+--------------------------------------------------------------------------------------------------------------
+Выполняет переход на другую локацию. Тоже самое, как создать на месте актора level_changer, только без лишних телодвижений.
+level.change_level( game_vertex_id, level_vertex_id, pos, dir )
+
+Пример:
+level.change_level( 12, 213330,vector():set(-129.5,-9.56,-147.3), vector():set(-0.6, 0, 0.75))
+--------------------------------------------------------------------------------------------------------------
+-- Очистка инвентаря гг от всех предметов(если применять для нпс, тогда нужно делать исключение для болта, иначе вылет)
+local keep_item = {
+    ["bolt"] = true,
+    ["device_pda"] = true,
+    -- ["wpn_knife"] = true,
+}
+
+function clear_inv()
+    if not db.actor then return end
+    
+    local to_remove = {}
+    db.actor:iterate_inventory(function(_, item)
+        local section = item:section()
+        if not keep_item[section] then
+            table.insert(to_remove, item:id())
+        end
+    end, nil)
+    
+    for _, id in ipairs(to_remove) do
+        alife():release(alife():object(id), true)
+    end
+end
+--------------------------------------------------------------------------------------------------------------
+-- ОГСР. Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше вляния онлайна
+function spawn(actor, obj)
+   local sobj = alife():object("esc_wolf")
+   sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+end
+
+-- если вызов через диалог/логику то sobj можно определить так:
+   local sobj = alife():object(obj:id())
+--------------------------------------------------------------------------------------------------------------
+-- Один из способов выводить получившееся значение в смс
+function send_message(msg) 
+    news_manager.send_tip(db.actor, msg, nil, nil, 5000)  
+end
+
+-- Пример вызова
+Имя_файла.send_message(tostring(значение))
+
+-- В ОГСР\ХЕ вывод инфы в лог\консоль
+log1("коммент")
+log1("коммент".. tostring(значение))
+log1(tostring(значение))
+--------------------------------------------------------------------------------------------------------------
+-- В ОГСР блокировка нажатия клавиш. kTORCH - фонарик
+level.block_action(key_bindings.kTORCH)
+level.unblock_action(key_bindings.kTORCH)
+--------------------------------------------------------------------------------------------------------------
+-- level.add_call(...) теперь возвращает управляющий объект, у которого есть метод :set_pause( ms ). После использования этого метода, функция, заданная в add_call(...), будет вызвана через ms миллисекунд. Вот простейший пример:
+level.add_call(
+	function()
+		log3( "condition" )
+		return true
+	end,
+	function() log3( "action" ) end
+	):set_pause( 3000 )
+-- Через 3 секунды будет выведено:
+-- condition
+-- action
+--------------------------------------------------------------------------------------------------------------
+-- Спавн с использованием клиентских методов
+function spawn()
+	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+	level.client_spawn_manager():add(sobj.id, 65535,
+		function (id, obj)
+			obj:set_goodwill(-5000, db.actor)
+		end
+		)
+	return obj
+end
+
+--------------------------------------------------------------------------------------------------------------
+-- Спавнит нпс и в нем так же спавнит предметы из таблицы 
+local spawn_item = {
+    {name = "wpn_knife", count = 100},
+    {name = "wpn_pm", count = 300}
+}
+
+function spawn_item_to_npc()
+    local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+
+    for _, entry in ipairs(spawn_item) do
+        local item_name = entry.name
+        local count = entry.count
+
+        for i = 1, count do
+            alife():create(item_name,vector(), 0, 0, sobj.id)
+        end
+    end
+end
+
+--------------------------------------------------------------------------------------------------------------
+-- ОГСР от 3.432
+-- получение левел и гейм вертекс по имени локации, кладем в _g.script 
+function get_lv_gv(level_name, pos)
+    local lg, ct
+    if level.name() == level_name then
+        lg = level_graph()
+        ct = cross_table()
+    else
+        lg = level_graph(level_name)
+        ct = cross_table(level_name)
+    end
+
+    local lv = lg:vertex_id(pos)
+    if not lg:valid_vertex_id(lv) then
+        lv = lg:nearest_vertex_id(pos)
+    end
+    local gv = ct:vertex(lv):game_vertex_id()
+    return lv, gv
+end
+
+--------------------------------------------------------------------------------------------------------------
+-- Новый спавн только по координатам через get_lv_gv(), кладем в _g.script
+function alife_create(section, level_name, pos)
+    local lv, gv = get_lv_gv(level_name, pos)
+    return alife():create(section, pos, lv, gv)
+end
+
+-- и в удобнном скрипте вызываем:
+function spawn_test()
+    alife_create("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
+end
+
+--------------------------------------------------------------------------------------------------------------
+-- Телепорт объекта по стори айди ОГСР через get_lv_gv()
+function npc_teleport_sid(sid, level_name, pos)
+    local lv, gv = get_lv_gv(level_name, pos)
+    local sobj = alife():story_object(sid)
+	alife():teleport_object(sobj.id, pos, lv, gv)
+end
+-- Пример вызова
+Имя_файла.npc_teleport_sid(33, "l01_escape", vector():set(-152.0,-18.0,-144.3))
+
+-- по имени объекта
+function npc_teleport_sobj(name, level_name, pos)
+	local lv, gv = get_lv_gv(level_name, pos)
+	local sobj = alife():object(name)
+	alife():teleport_object(sobj.id, pos, lv, gv)
+end
+-- Пример вызова
+Имя_файла.npc_teleport_sobj("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
+--------------------------------------------------------------------------------------------------------------
+-- Функция таймера "esc_timer" выполняющая функцию "kill_npc" из того же файла, где и лежит функция таймера, рассчёт в миллисекундах, таймер не будет  работать после перезагрузки. Даже если поставить на апдейт, то он будет сбрасываться в 0, поэтому  используйте  только в своих тестах.
+function esc_timer()
+	local iTimer = time_global() + 10*1000
+	local function check_timer()
+			 return time_global() > iTimer
+		  end
+	level.add_call(check_timer, kill_npc)
+end
+--------------------------------------------------------------------------------------------------------------
 -- Рандомное место спавна обьекта "wpn_svd_m1" в игре:
 function spawn_random()
 	local fr_prob={
@@ -773,9 +792,8 @@ end
 -- Либо обозначить нпс по стори айди
 	local obj = level_object_by_sid(6)
 
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
 -- Устанавливаем группировку ГГ
 function actor_set_dolg()
@@ -789,9 +807,8 @@ end
 -- по стори айди
 	local obj = level_object_by_sid(6)
 	
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
 -- Установка отношения группировки к нам, это не прибавка, а перезапись знаний как в game_relations.ltx
 function vrag_dolg()
@@ -829,9 +846,8 @@ end
 -- ещё можно обозначить через стори айди
 	local obj = level_object_by_sid(6)
 	
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)	
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")	
 --------------------------------------------------------------------------------------------------------------
 -- ГГ станет другом лагерю esc_lager
 function set_actor_friend ()
@@ -893,9 +909,8 @@ end
 -- по стори айди
 	local obj = level_object_by_sid(6)
 	
--- Есть и такой вариант по имени в all.spawn
-	local sobj = alife():object("esc_wolf")
-	local obj = level.object_by_id(sobj.id)
+-- по имени в all.spawn
+	local obj = level_object_by_name("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
 -- Активация слота
 function activate_slot()
