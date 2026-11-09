@@ -1,6 +1,7 @@
 Базовые функции
 --------------------------------------------------------------------------------------------------------------
--- Для совершение действий над клиентским объектом по имени в _g.script можно добавить
+--Нужно в _g.script добавить функции:
+-- Для совершение действий над клиентским объектом по имени
 function level_object_by_name( name )
 	local sobj = alife():object( name )
 	if sobj then
@@ -11,9 +12,33 @@ end
 
 -- Использование:
     local obj = level_object_by_name("esc_wolf")
--- это будет использовано во всех функциях ниже
 
--- ОГСР Для совершение действий над клиентским объектом, заспавненным через скрипт по имени в _g.script можно добавить
+-- Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
+function level_object_by_spawn( name )
+        for a=1,65535,1 do
+        local obj=level.object_by_id(a)
+                if obj and string.find(obj:name(),name) then
+                        return obj
+                end
+        end
+end
+--Использование:
+    local obj = level_object_by_spawn("esc_wolf")
+
+--Для совершение действий над серверным объектом, заспавненным через скрипт по имени
+function alife_object_by_spawn( name )
+        for a=1,65535,1 do
+        local sobj=alife():object(a)
+                if sobj and string.find(sobj:name(),name) then
+                        return sobj
+                end
+        end
+end
+--Использование:
+    local sobj = alife_object_by_spawn("esc_wolf")
+
+-- ОГСР версии (они приоритетнее)
+-- Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
 function level_object_by_spawn( name )
 	for id, sobj in alife():objects() do 
 		local obj=level.object_by_id(sobj.id)
@@ -25,7 +50,7 @@ end
 -- Использование:
     local obj = level_object_by_spawn("esc_wolf")
 	
--- ОГСР Для совершение действий над серверным объектом, заспавненным через скрипт по имени в _g.script можно добавить
+-- Для совершение действий над серверным объектом, заспавненным через скрипт по имени
 function alife_object_by_spawn( name )
 	for id, sobj in alife():objects() do 
 		if string.find(sobj:name(),name) then
