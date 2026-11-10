@@ -1,24 +1,24 @@
 Базовые функции
 --------------------------------------------------------------------------------------------------------------
---Для функций ниже будем использовать следующие обозначения:
+Для функций ниже будем использовать следующие обозначения:
 
--- sobj - серверный объект
--- obj - клиентский
+sobj - серверный объект
+obj - клиентский
 
--- по стори айди - 14
+по стори айди - 14
 	local sobj = alife():story_object(14)
 	local obj = level_object_by_sid(14)
 
--- по имени из all.spawn
+по имени из all.spawn
 	local sobj = alife():object("esc_wolf")
 	local obj = level_object_by_name("esc_wolf")
 
--- по имени нпс заспавненых через скрипт
+по имени нпс заспавненых через скрипт
  local obj = level_object_by_spawn("esc_wolf")
  local sobj = alife_object_by_spawn("esc_wolf")
 
---Нужно в _g.script добавить функции:
--- Для совершение действий над клиентским объектом по имени
+Нужно в _g.script добавить функции:
+Для совершение действий над клиентским объектом по имени
 function level_object_by_name( name )
 	local sobj = alife():object( name )
 	if sobj then
@@ -27,7 +27,7 @@ function level_object_by_name( name )
 	return nil
 end
 
--- Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
+Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
 function level_object_by_spawn( name )
         for a=1,65535,1 do
         local obj=level.object_by_id(a)
@@ -37,7 +37,7 @@ function level_object_by_spawn( name )
         end
 end
 
---Для совершение действий над серверным объектом, заспавненным через скрипт по имени
+Для совершение действий над серверным объектом, заспавненным через скрипт по имени
 function alife_object_by_spawn( name )
         for a=1,65535,1 do
         local sobj=alife():object(a)
@@ -47,8 +47,8 @@ function alife_object_by_spawn( name )
         end
 end
 
--- ОГСР версии (они приоритетнее)
--- Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
+ОГСР версии (они приоритетнее)
+Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
 function level_object_by_spawn( name )
 	for id, sobj in alife():objects() do 
 		local obj=level.object_by_id(sobj.id)
@@ -58,7 +58,7 @@ function level_object_by_spawn( name )
 	end
 end
 	
--- Для совершение действий над серверным объектом, заспавненным через скрипт по имени
+Для совершение действий над серверным объектом, заспавненным через скрипт по имени
 function alife_object_by_spawn( name )
 	for id, sobj in alife():objects() do 
 		if string.find(sobj:name(),name) then
@@ -67,37 +67,67 @@ function alife_object_by_spawn( name )
 	end
 end
 --------------------------------------------------------------------------------------------------------------
--- При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx
-function spawn_with_story()
-	local sobj = alife():create("mad_stalker_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
-	alife():assign_story_id(nil, nil, sobj.id, story_ids.test) -- xray-extensions
-	alife():assign_story_id(sobj.id, story_ids.test)           -- ОГСР
+ОГСР от 3.432 получение левел и гейм вертекс по имени локации, кладем в _g.script 
+function get_lv_gv(level_name, pos)
+    local lg, ct
+    if level.name() == level_name then
+        lg = level_graph()
+        ct = cross_table()
+    else
+        lg = level_graph(level_name)
+        ct = cross_table(level_name)
+    end
+
+    local lv = lg:vertex_id(pos)
+    if not lg:valid_vertex_id(lv) then
+        lv = lg:nearest_vertex_id(pos)
+    end
+    local gv = ct:vertex(lv):game_vertex_id()
+    return lv, gv
+end
+
+--------------------------------------------------------------------------------------------------------------
+Новый спавн только по координатам через get_lv_gv(), кладем в _g.script
+function alife_create(section, level_name, pos)
+    local lv, gv = get_lv_gv(level_name, pos)
+    return alife():create(section, pos, lv, gv)
+end
+
+и в удобнном скрипте вызываем:
+    alife_create("stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
+--------------------------------------------------------------------------------------------------------------
+спавн кого\чего-либо
+function spawn() 
+	alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн кого\чего-либо, без привязки к аи сетке, чтобы объект не проваливался под карту, работает при правках xray-extensions, либо в ОГСР
-function spawn_no_use_ai()
-	sobj = alife():create("wpn_pm",vector():set(-152.0,-18.0,-144.3),98126,45)
+При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx
+function spawn_with_story_id() 
+	local sobj = alife():create("mad_stalker_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
+	alife():assign_story_id(sobj.id, story_ids.test) -- ОГСР
+end
+
+	alife():assign_story_id(nil, nil, sobj.id, story_ids.test) -- xray-extensions
+--------------------------------------------------------------------------------------------------------------
+спавн без привязки к аи сетке, работает при правках xray-extensions, либо в ОГСР
+function spawn_with_no_use_ai_locations() 
+	local sobj = alife():create("wpn_pm",vector():set(-152.0,-18.0,-144.3),98126,45)
 	alife():use_ai_locations(sobj, false)
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн с заданным направлением, работает при правках xray-extensions, либо в ОГСР
-function spawn_pda()
+спавн с заданным направлением, работает при правках xray-extensions, либо в ОГСР
+function spawn_with_angle() 
 	sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45)
 	sobj.angle = vector():set(0,1,0)
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн кого\чего-либо
-function spawn()
-	alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-end
---------------------------------------------------------------------------------------------------------------
--- спавн на координатах гг
-function spawn2()
+спавн на координатах гг
+function spawn_on_actor_position() 
 	alife():create("bandage", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id())
 end
 --------------------------------------------------------------------------------------------------------------
--- спавн чего-то, либо кого-то по имени точки
-function spawn()  
+спавн по расположению точки пути\вей поинта
+function spawn_on_point()  
    local patrol = patrol("my_way_walk1")
    alife():create("medkit", patrol:point(0), patrol:level_vertex_id(0), patrol:game_vertex_id(0))
 end
@@ -111,7 +141,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Заспавнить нпс, который не сможет уйти в оффлайн
 function main1 ()
-	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+	local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 	alife():set_switch_offline(sobj.id, false)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -665,7 +695,7 @@ level.add_call(
 --------------------------------------------------------------------------------------------------------------
 -- Спавн с использованием клиентских методов
 function spawn()
-	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+	local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 	level.client_spawn_manager():add(sobj.id, 65535,
 		function (id, obj)
 			obj:set_goodwill(-5000, db.actor)
@@ -694,38 +724,6 @@ function spawn_item_to_npc()
     end
 end
 
---------------------------------------------------------------------------------------------------------------
--- ОГСР от 3.432
--- получение левел и гейм вертекс по имени локации, кладем в _g.script 
-function get_lv_gv(level_name, pos)
-    local lg, ct
-    if level.name() == level_name then
-        lg = level_graph()
-        ct = cross_table()
-    else
-        lg = level_graph(level_name)
-        ct = cross_table(level_name)
-    end
-
-    local lv = lg:vertex_id(pos)
-    if not lg:valid_vertex_id(lv) then
-        lv = lg:nearest_vertex_id(pos)
-    end
-    local gv = ct:vertex(lv):game_vertex_id()
-    return lv, gv
-end
-
---------------------------------------------------------------------------------------------------------------
--- Новый спавн только по координатам через get_lv_gv(), кладем в _g.script
-function alife_create(section, level_name, pos)
-    local lv, gv = get_lv_gv(level_name, pos)
-    return alife():create(section, pos, lv, gv)
-end
-
--- и в удобнном скрипте вызываем:
-function spawn_test()
-    alife_create("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
-end
 
 --------------------------------------------------------------------------------------------------------------
 -- Телепорт объекта по стори айди ОГСР через get_lv_gv()
@@ -744,7 +742,7 @@ function npc_teleport_sobj(name, level_name, pos)
 	alife():teleport_object(sobj.id, pos, lv, gv)
 end
 -- Пример вызова
-Имя_файла.npc_teleport_sobj("my_test_stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
+Имя_файла.npc_teleport_sobj("stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))
 --------------------------------------------------------------------------------------------------------------
 -- Функция таймера "esc_timer" выполняющая функцию "kill_npc" из того же файла, где и лежит функция таймера, рассчёт в миллисекундах, таймер не будет  работать после перезагрузки. Даже если поставить на апдейт, то он будет сбрасываться в 0, поэтому  используйте  только в своих тестах.
 function esc_timer()
