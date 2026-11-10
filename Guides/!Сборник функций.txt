@@ -498,6 +498,12 @@ end
 function remove_npc()
 	Имя_файла.remove_sobj("esc_wolf")
 end
+
+-- Если у вас огср и есть функция из начала файла то можно так
+function remove_sobj()
+	local sobj = alife_object_by_spawn("dolg_regular")
+	alife():release(sobj, true)
+end
 --------------------------------------------------------------------------------------------------------------
 -- Таким способом можно удалить несколько
 function clear_two()
