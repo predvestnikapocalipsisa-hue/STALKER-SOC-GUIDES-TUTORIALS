@@ -313,27 +313,13 @@ utils.send_to_nearest_accessible_vertex(obj,107814)
 local sobj = alife():object("esc_wolf")
 не получится, так как их имя секции превращается в "esc_wolf12445", т.е. к нему добавился айди, который заранее неизвестен
 
+Поэтому их надо искать путем перебора всех объектов, в сборнике функций есть два способа для оригинала и огср
+
 Для определения клиента:
-function perebor_obj()
-	for a=1,65535,1 do
-	local obj=level.object_by_id(a)
-		if obj and string.find(obj:name(),"esc_wolf") then
-			-- действие, например, убить этого нпс:
-			obj:kill(obj)
-		end
-	end
-end
+local obj = level_object_by_spawn("esc_wolf")
 
 Для сервера:
-function perebor_sobj()
-	for a=1,65535,1 do
-	local sobj=alife():object(a)
-		if sobj and string.find(sobj:name(),"esc_wolf") then
-			-- действие, например, удалить этого нпс:
-			alife():release(sobj, true)
-		end
-	end
-end
+local sobj = alife_object_by_spawn("esc_wolf")
 --------------------------------------------------------------------------------------------------------------
 Использование функций в логике
 --------------------------------------------------------------------------------------------------------------
