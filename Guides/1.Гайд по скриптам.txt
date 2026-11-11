@@ -34,7 +34,7 @@ local var1, var2 = 10, 20 --локальные переменные(множес
 Условия.
 Инструкция if(если) проверяет условие на истину, и выполняет последующие инструкции в случае истины. В случае неуспешной проверки(условие ложно), выполняется else(иначе) часть(если она присутствует). Если необходимо несколько else условий то их удобнее заменить elseif(иначе если) инструкциями, без необходимости закрывать каждую инструкцию с помощью end:
 
-if предметов => 0 then log1("Positive") end
+if предметов >= 0 then log1("Positive") end
 
 if предметов > 0 then
     действие если предметов больше чем 0
@@ -287,21 +287,32 @@ level.map_add_object_spot(obj:id(), "green_location", "текст")
 Исользование методов класса game_object при спавне нпс через скрипт
 
 Когда мы спавним нпс, его клиентская сторона образуется не сразу и использование методов класса game_object, т.е. клиентских приведет к вылету, поэтому есть такой вот способ, как без сейвлоадов сразу использовать клиентские методы на нашем нпс:
-function spawn()
-	local sobj = alife():create("my_test_stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+function spawn_client_spawn_manager()
+	local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 	level.client_spawn_manager():add(sobj.id, 65535,
     function (id, obj)
-      obj:set_goodwill(-5000, db.actor)
+		obj:set_goodwill(-5000, db.actor)
     end
-	)
-	return obj
+    )
 end
-Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне.
+
+можно чуть универсализировать функцию в _g.script
+function client_spawn(section, pos, lv, gv, func)
+    local sobj = alife():create(section, pos, lv, gv)
+    level.client_spawn_manager():add(sobj.id, 65535, function(id, obj) func(id, obj) end)
+end
+
+и вызов
+client_spawn("stalker",vector():set(-152.0,-18.0,-144.3),98126,45,function(id, obj)
+    obj:set_goodwill(-5000, db.actor) 
+	end)
+	
+Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне(зависит от switch_distance).
 
 В данной функции указываются координаты и секция вашего нпс, всё как обычно, а вот взаимодействие может быть разным, тут:
 obj:set_goodwill(-5000, db.actor)
 изменение отношения этого нпс к актору, параметр obj передаётся за счёт
-function (id, obj)
+function(id, obj)
 поэтому структуру не менять, а само взаимодействие с obj можно сделать так:
 utils.send_to_nearest_accessible_vertex(obj,107814)
 то есть передаём как удобно.
@@ -313,7 +324,48 @@ utils.send_to_nearest_accessible_vertex(obj,107814)
 local sobj = alife():object("esc_wolf")
 не получится, так как их имя секции превращается в "esc_wolf12445", т.е. к нему добавился айди, который заранее неизвестен
 
-Поэтому их надо искать путем перебора всех объектов, в сборнике функций есть два способа для оригинала и огср
+Поэтому их надо искать путем перебора всех объектов
+
+Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
+function level_object_by_spawn( name )
+        for a=1,65535,1 do
+        local obj=level.object_by_id(a)
+                if obj and string.find(obj:name(),name) then
+                        return obj
+                end
+        end
+end
+
+Для совершение действий над серверным объектом, заспавненным через скрипт по имени
+function alife_object_by_spawn( name )
+        for a=1,65535,1 do
+        local sobj=alife():object(a)
+                if sobj and string.find(sobj:name(),name) then
+                        return sobj
+                end
+        end
+end
+
+ОГСР версии (они приоритетнее)
+Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
+function level_object_by_spawn( name )
+	for id, sobj in alife():objects() do 
+		local obj=level.object_by_id(sobj.id)
+		if obj and string.find(obj:name(),name) then
+			return obj
+		end
+	end
+end
+	
+Для совершение действий над серверным объектом, заспавненным через скрипт по имени
+function alife_object_by_spawn( name )
+	for id, sobj in alife():objects() do 
+		if string.find(sobj:name(),name) then
+			return sobj
+		end
+	end
+end
+
 
 Для определения клиента:
 local obj = level_object_by_spawn("esc_wolf")
@@ -432,13 +484,14 @@ end
 Можно сделать более простую проверку на предмет af_medusa и также использовать в прекондишене
 --------------------------------------------------------------------------------------------------------------
 function prov() 
-	return sak.have_item_namber("af_medusa",1) ~= false
+	return sak.have_item_namber("af_medusa",1)
 end
 --------------------------------------------------------------------------------------------------------------
 Можно сделать проверку, если есть инфо "storyline_actor_start" и нет инфо "when_out_kordon", то будет выдан инфо "infoportion_xxx"
 function prov_info2()
 	if has_alife_info("storyline_actor_start") and not has_alife_info("when_out_kordon") then
 		db.actor:give_info_portion("infoportion_xxx")
+		return true
 	end 
 end
 --------------------------------------------------------------------------------------------------------------
@@ -693,45 +746,6 @@ for id, sobj in alife():objects() do
 -- !!!Ни в коем случае нельзя удалять/спавнить объекты внутри цикла!!!
 end
 
-Функция, которая по имени объектов запускает для них клиентский метод:
-function main ()
-local table = {"имя", "имя"}
-        for k,v in pairs(table) do
-        local sobj = alife():object(v)
-        local obj = level.object_by_id(sobj.id)
-                --действие над obj
-        end        
-end
-
-запустить серверный метод:
-function main ()
-local table = {"имя", "имя"}
-        for k,v in pairs(table) do
-        local sobj = alife():object(v)
-           --действие над sobj
-        end        
-end
-
-аналог по стори  айди с серверными методами
-function main ()
-local story_table = {3,6,14,7}
-        for k,v in pairs(story_table) do
-        local sobj = alife():story_object(v)
-                --действие над sobj
-        end        
-end
-
-тоже стори но для клиентских
-function main ()
-local story_table = {3,6,14,7}
-        for k,v in pairs(story_table) do
-        local obj = level_object_by_sid (v)
-                --действие над obj
-        end        
-end
-
-
-
 
 
 
@@ -826,7 +840,7 @@ end
 если нужно только ночью, то создадим новую функцию
 
 function is_night()
-    return level.get_time_hours() >= 21 or level.get_time_hours() <= 6
+    return level.get_time_hours() >= 21 or level.get_time_hours() < 6
 end  
 
 и тогда в диалоге 

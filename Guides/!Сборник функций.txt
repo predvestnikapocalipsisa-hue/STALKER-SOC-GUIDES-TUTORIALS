@@ -295,32 +295,33 @@ end
 удалить метку, при удалении нужно передавать тот же айди нпс и название метки
 	level.map_remove_object_spot(obj:id(), "green_location")
 --------------------------------------------------------------------------------------------------------------
--- СМС сообщения
+СМС сообщения
 --------------------------------------------------------------------------------------------------------------
-function sms0() --смс придет от иконки дефаулт, dm_action_info_1 текст из папки текст\рус
+смс придет от иконки дефаулт, dm_action_info_1 текст из папки текст\рус
+function sms0()
 	news_manager.send_tip(db.actor, "dm_action_info_1", nil, nil, nil)
 end
 
--- указана иконка сидора, trader из news_manager.script в tips_icons
+указана иконка сидора, trader из news_manager.script в tips_icons
 	news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", nil)
 
--- указана иконка сидора и время показа смс
+указана иконка сидора и время показа смс
 	news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", 300000)
 
--- Если текст пишем сразу в скрипте, то ставим файлу кодировку: Кириллица Windows-1251
+Если текст пишем сразу в скрипте, то ставим файлу кодировку: Кириллица Windows-1251
 	news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[default] Привет сталкер!".."".."\n", nil, "arena", 300000)
 
 	news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, 70000)
 
 	news_manager.send_tip(db.actor, "%c[255,0,255,0]".."Илюха:".."\\n".."%c[255,255,255,0] Привет сталкер!".."".."\n", nil, nil, nil)
 --------------------------------------------------------------------------------------------------------------
--- Выдача тайника
+Выдача тайника
 treasure_manager.get_treasure_manager():give_treasure("new_esc_secret")
 --------------------------------------------------------------------------------------------------------------
--- Выдать все тайники одной строкой
+Выдать все тайники одной строкой
 treasure_manager.get_treasure_manager():check()
 --------------------------------------------------------------------------------------------------------------
--- Завершить\провалить\пропустить квест. 0 - номер обжектива, можно подзадание вырубать
+Завершить\провалить\пропустить квест. 0 - номер обжектива, можно подзадание вырубать
 	   level_tasks.set_task_state (task.completed, "mil_courier_job", 0)
 	   level_tasks.set_task_state (task.fail, "mil_courier_job", 0)
 	   level_tasks.set_task_state (task.skipped, "mil_courier_job", 0) -- OGSR
@@ -353,20 +354,8 @@ end
 Отношение группировки к нам 5000
 	relation_registry.set_community_goodwill ("группировка", db.actor:id(), 5000)
 --------------------------------------------------------------------------------------------------------------
--- ГГ станет врагом лагерю esc_lager
-function set_actor_enemy ()
-    xr_gulag.setGulagEnemy("esc_lager", db.actor)
-end
--- ГГ станет нейтралом лагерю esc_lager
-    xr_gulag.setGulagNeutral("esc_lager", db.actor)
---------------------------------------------------------------------------------------------------------------
--- натравить гулаг на нпс через диалог/логику	
-function vrag(actor, obj)
-	xr_gulag.setGulagEnemy("esc_lager", obj)	
-end	
---------------------------------------------------------------------------------------------------------------
--- ГГ станет другом лагерю esc_lager
-function set_actor_friend ()
+Установить отношения с лагерем\гулагом вместо friend доступно neutral и enemy
+function set_relation(actor, obj)
     xr_gulag.setGulagRelation("esc_lager", game_object.friend, db.actor)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -487,14 +476,25 @@ function release_sobj()
 	alife():release(sobj, true) 
 end
 --------------------------------------------------------------------------------------------------------------
+Действие над списком объектов, вместо level_object_by_name можно использовать функции из начала файла
+function func_table_by_name ()
+local name_table = {"name3","name1","name14","name7"}
+    for k,v in pairs(name_table) do
+    local obj = level_object_by_name(v)
+		if obj then
+            --действие над obj
+		end		
+    end        
+end
+--------------------------------------------------------------------------------------------------------------
 Удаление списка объектов по стори айди, нужно указать номера вместо {3,6,14,7} 
 function release_table_by_story ()
 local story_table = {3,6,14,7}
 	for k,v in pairs(story_table) do
 	local sobj = alife():story_object(v)
-       if sobj then
-		  alife():release(sobj, true)
-	   end
+		if sobj then
+			alife():release(sobj, true)
+		end
 	end	
 end
 --------------------------------------------------------------------------------------------------------------
@@ -503,14 +503,11 @@ function release_table_by_name ()
 local name_table = {"name3","name1","name14","name7"}
 	for k,v in pairs(name_table) do
 	local sobj = alife():object(v)
-       if sobj then
-		  alife():release(sobj, true)
-	   end
+		if sobj then
+			alife():release(sobj, true)
+		end
     end	
 end
-
-Для нпс заспавненных через скрипт
-	local sobj = alife_object_by_spawn(v)
 --------------------------------------------------------------------------------------------------------------
 Воспроизведение звука в голове гг, звук класть по пути /gamedata/sounds/Cyberpunk2077.ogg
 function actor_play_sound()
@@ -547,7 +544,7 @@ function npc_teleport_sobj(name, level_name, pos)
 	local sobj = alife():object(name)
 	alife():teleport_object(sobj.id, pos, lv, gv)
 end
--- Пример вызова
+Пример вызова
 	Имя_файла.npc_teleport_sobj("stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))	
 --------------------------------------------------------------------------------------------------------------
 Перенос нпс на координаты при правках xray-extensions
@@ -608,9 +605,9 @@ end
 Делаем табличку исключений для проверки нпс по имени
 
 local excluded_npc_ids = {
-["esc_wolf"] = true,
-["esc_trader"] = true,
-}
+	["esc_wolf"] = true,
+	["esc_trader"] = true,
+	}
 
 	if not excluded_npc_ids[npc:name()] then  
 		npc:disable_trade() -- действие
@@ -705,18 +702,40 @@ function esc_timer()
 	level.add_call(check_timer, kill_npc)
 end
 --------------------------------------------------------------------------------------------------------------
-Спавн с использованием клиентских методов
+Исользование методов класса game_object при спавне нпс через скрипт
+
+Когда мы спавним нпс, его клиентская сторона образуется не сразу и использование методов класса game_object, т.е. клиентских приведет к вылету, поэтому есть такой вот способ, как без сейвлоадов сразу использовать клиентские методы на нашем нпс:
 function spawn_client_spawn_manager()
 	local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
 	level.client_spawn_manager():add(sobj.id, 65535,
-		function (id, obj)
-			obj:set_goodwill(-5000, db.actor)
-		end
-		)
-	return obj
+    function (id, obj)
+		obj:set_goodwill(-5000, db.actor)
+    end
+    )
 end
+
+можно чуть универсализировать функцию в _g.script
+function client_spawn(section, pos, lv, gv, func)
+    local sobj = alife():create(section, pos, lv, gv)
+    level.client_spawn_manager():add(sobj.id, 65535, function(id, obj) func(id, obj) end)
+end
+
+и вызов
+client_spawn("stalker",vector():set(-152.0,-18.0,-144.3),98126,45,function(id, obj)
+    obj:set_goodwill(-5000, db.actor) 
+	end)
+	
+Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне(зависит от switch_distance).
+
+В данной функции указываются координаты и секция вашего нпс, всё как обычно, а вот взаимодействие может быть разным, тут:
+obj:set_goodwill(-5000, db.actor)
+изменение отношения этого нпс к актору, параметр obj передаётся за счёт
+function(id, obj)
+поэтому структуру не менять, а само взаимодействие с obj можно сделать так:
+utils.send_to_nearest_accessible_vertex(obj,107814)
+то есть передаём как удобно.	
 --------------------------------------------------------------------------------------------------------------
--- вывод иконок в диалоге:
+вывод иконок в диалоге
 function main3231(actor, obj)
 local test = 33
 local total = ""
@@ -730,7 +749,7 @@ stalker - это текст из xml
 " %c[255,238,155,23]"..test.."" - тоже часть текста, но другим цветом из local test = 33
 "iconed_trade_info" - хз для чего это, но надо)
 --------------------------------------------------------------------------------------------------------------
--- Спавнит нпс и в нем так же спавнит предметы из таблицы 
+Спавнит нпс и в нем так же спавнит предметы из таблицы 
 local spawn_item = {
     {name = "wpn_knife", count = 100},
     {name = "wpn_pm", count = 300}
@@ -748,67 +767,25 @@ function spawn_item_to_npc()
         end
     end
 end
---------------------------------------------------------------------------------------------------------------
--- Спавнит вещи в объекте, указанном по стори айди
-local spawn_item = {"wpn_knife","wpn_pm"} --таблица предметов для спауна
 
-local function spawn_item_to_box(items_table, sid)
-  local obj = alife():story_object(sid)
-  
-  if #items_table == 0 then return end
-  
-  for i = 1,#items_table do
-    alife():create(items_table[i],
-            obj.position,
-            obj.m_level_vertex_id,
-            obj.m_game_vertex_id,
-            obj.id)
-  end
-end
- 
-function spawn_item_to_treasure()
-  spawn_item_to_box(spawn_item, 2000)
-end
---------------------------------------------------------------------------------------------------------------
--- и ещё есть вариант с указыванием количества:
---------------------------------------------------------------------------------------------------------------
-local spawn_item = {
-    {name = "wpn_knife", count = 1},
-    {name = "wpn_pm", count = 3}
-}
-
-local function spawn_item_to_box(items_table, sid)
-    local obj = alife():story_object(sid)
-    
-    if not obj or #items_table == 0 then
-        return
-    end
+Спавнит вещи в объекте, указанном по имени
+function spawn_item_to_object(items_table, n)
+    local sobj = alife():object(n)
 
     for _, entry in ipairs(items_table) do
         local item_name = entry.name
-        local count = entry.count or 1  -- если количество не указано, по умолчанию 1
+        local count = entry.count
 
-        for i = 1, count do
-            alife():create(
-                item_name,
-                obj.position,
-                obj.m_level_vertex_id,
-                obj.m_game_vertex_id,
-                obj.id
-            )
-        end
-    end
+        for i = 1, count do          
+            alife():create(item_name,vector(), 0, 0, sobj.id)
+		end
+	end
 end
- 
+
+Вызов, указываем таблицу и имя объекта
 function spawn_item_to_treasure()
-  spawn_item_to_box(spawn_item, 2000)
+	spawn_item_to_object(spawn_item, "esc_wolf")
 end
---------------------------------------------------------------------------------------------------------------
--- Вариант по имени:
-
-    local obj = alife():object(sid)
-	
-	spawn_item_to_box(spawn_item, "esc_wolf")
 --------------------------------------------------------------------------------------------------------------
 Рандомное место спавна обьекта "wpn_svd_m1" в игре:
 function spawn_random()
@@ -839,36 +816,6 @@ function spawn_full_random()
 	alife():create(stalker_types[math.random(4)], vector():set(a.position.x,a.position.y,a.position.z), a.lv, a.gv)
 end
 --------------------------------------------------------------------------------------------------------------
--- Рандомный спавн от положения гг
-function random_spawn()
-  local obj=level.object_by_id(db.actor)
-  lv_id=obj:level_vertex_id()
-  gv_id=obj:game_vertex_id()
-
-  local lv_new
-  local pos_new = vector()
-  
-  local level_vertexes={
-    l01_escape = 595580,
-    l02_garbage = 384039,
-    l03_agroprom = 438379,
-    l04_darkvalley = 392517,
-    l06_rostok = 69283,
-    l07_military = 915663,
-    l10_radar = 796328,
-    l11_pripyat = 295965
-  }
-  
-  if math.random(0,1)>0.5 then lv_new = lv_id + math.random(1000,5000) 
-  else lv_new = lv_id - math.random(1000,5000) end
-  if lv_new < 1 or lv_new > level_vertexes[level.name()] then lv_new = math.random(1000,5000) end
-  
-  pos_new = level.vertex_position(lv_new)
-  
-  local obj = alife():create("stalker", pos_new, lv_new, gv_id) -- сам спавн
-  level.map_add_object_spot(obj.id, "green_location", obj:name())
-end
---------------------------------------------------------------------------------------------------------------
 -- Получаем удар в морду
 function punch()
     local snd_obj = xr_sound.get_safe_sound_object([[affects\hit_fist]])
@@ -881,7 +828,7 @@ function activate_slot()
 	db.actor:activate_slot(2)
 end
 --------------------------------------------------------------------------------------------------------------
--- запуск туториала
+-- запуск туториала\видео\текст
 function start_tutorial()
 	if xr_conditions.can_send_tutorial() then
 		game.start_tutorial("my_tutor")
@@ -908,8 +855,8 @@ on_info = %=run_cam_effector(bar_fly)%
 on_info = %=run_postprocess(agr_u_fade)%
 
 --------------------------------------------------------------------------------------------------------------
--- Посчитать количество полученных инфо
-function count_achieved_infos()
+Посчитать количество полученных инфо
+function count_info()
     local count = 0
 
     -- Список всех info_portion
@@ -928,34 +875,29 @@ function count_achieved_infos()
     return count
 end
 --------------------------------------------------------------------------------------------------------------
--- смена визуала нпс через диалог/логику на ОГСР
-function esc_timer(actor, obj)
-local iTimer = time_global() + 1
-local sobj = alife():object(obj:id())
-   if xr_logic.pstor_retrieve(db.actor, "set_switch_offline"..obj:id(), 0) ~= 1 then
-      sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3" --визуал
-      alife():set_switch_online(sobj.id, false)
-      xr_logic.pstor_store(db.actor, "set_switch_offline"..obj:id(), 1)
-   end
-   local function check_timer()
-      return time_global() > iTimer
-   end
-   local function switch_online()
-      if xr_logic.pstor_retrieve(db.actor, "set_switch_online"..sobj.id, 0) ~= 1 then
-         alife():set_switch_online(sobj.id, true)
-         xr_logic.pstor_store(db.actor, "set_switch_online"..sobj.id, 1)
-      end
-   end
-   level.add_call(check_timer, switch_online)           
+ОГСР смена визуала нпс
+function change_visual_now()
+local sobj = alife():object("esc_wolf")
+  sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+  alife():set_switch_online(sobj.id, false)
+  level.add_call(
+      function() return true end,
+      function() alife():set_switch_online(sobj.id, true) end
+      ):set_pause( 1 )
 end
 
--- рабочий вариант с указыванием любого визуала прямо в логике:
-function esc_timer(actor, obj, p)
+function change_visual_now2()
+local iTimer = time_global() + 1
+local sobj = alife():object("esc_wolf")
+  sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+  alife():set_switch_online(sobj.id, false)
+  level.add_call(
+      function() return time_global() > iTimer end,
+      function() alife():set_switch_online(sobj.id, true) end
+      )
+end
 
-sobj.visual_name = p[1]
-
-в логике:
-on_actor_dist_le_nvis = 10 | %=new_visual(actors\neytral\stalker_neytral_rukzak_3)% 
+разница в реализации таймера, что тут что там функция слетает при перезагрузке
 --------------------------------------------------------------------------------------------------------------
 Функция для замены одной текстуры на другую. Работает только на огср. Изначально эта функция лежала на вики огср, после чего мы ее переместили в ray_features. А теперь я сделал из нее модуль
 function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем. Пути указывать по типу такого: "act\\act_arm_perchatka1" 
@@ -970,8 +912,8 @@ end
 
 (если надо заменить, скажем, траву то не указываем папку а сразу build_details -- aboba.change_texture("build_details", "year\\build_details_winter")
 --------------------------------------------------------------------------------------------------------------
--- Закрыть скриптом текущее оконо, в данном случае торговли
---// поставить вызов OnTrade(info_id)  в начало функции actor_binder:info_callback(npc, info_id)  - файл bind_stalker.script
+Закрыть скриптом текущее оконо, в данном случае торговли
+// поставить вызов OnTrade(info_id)  в начало функции actor_binder:info_callback(npc, info_id)  - файл bind_stalker.script
 
 local UITradeWnd
 
@@ -983,26 +925,26 @@ function OnTrade(info_id)
    end
 end
 
---// вызов функции закрывает окно торговли - можно ставить куда угодно -хоть на апдейт
+вызов функции закрывает окно торговли - можно ставить куда угодно -хоть на апдейт
 function HideTradeWnd()
     if UITradeWnd then 
     UITradeWnd:GetHolder():start_stop_menu(UITradeWnd, true)
     end 
 end
 
---Если вместо инфопоршн на открытие\закрытие окна торговли указать инфопоршн на открытие\закрытие пда -"ui_pda" и "ui_pda_hide - или окна инвентаря - ui_inventory\ui_inventory_hide - будет тоже самое.
+Если вместо инфопоршн на открытие\закрытие окна торговли указать инфопоршн на открытие\закрытие пда -"ui_pda" и "ui_pda_hide" - или окна инвентаря - ui_inventory\ui_inventory_hide - будет тоже самое.
 
--- Можно по короче:
+Можно по короче:
 if info_id =="ui_trade" then
 	level.start_stop_menu(level.main_input_reciever, true)
 end
 --------------------------------------------------------------------------------------------------------------
-  local env = level.environment()
-  local env_desc = env:getCurrentWeather( idx )  
+Взаимодействие с параметрами текущей погоды.
+
+	local env = level.environment()
+	local env_desc = env:getCurrentWeather( idx )  
 
     env_desc.wind_velocity = factor
-
-Взаимодействие с параметрами текущей погоды. 
 
 ПРЕДУПРЕЖДЕНИЕ!!!:
 
@@ -1022,7 +964,7 @@ end
     function set_env_ambient(string, CEnvironment*);
 };
 --------------------------------------------------------------------------------------------------------------
-  level.set_weather( weather, true )
+	level.set_weather( weather, true )
 
 Это загрузит секции погоды в Current[0] и Current[1]. Далее погода
 будет плавно меняться от Current[0] к Current[1].
@@ -1030,7 +972,7 @@ end
 
 Проверка даты целиком (и вывод в лог). Проверка текущего дня, месяца и года 
 
-function proverka()
+function check_date()
     local game_time = game.get_game_time()
     local year, month, day, hour, minute, second, ms = game_time:get()
 
@@ -1063,7 +1005,6 @@ function current_month()
 end
 
 function current_year()
-
 	local game_time = game.get_game_time()
 	local year, month, day, hour, minute, second, ms = game_time:get()
 	local year   = year 

@@ -298,7 +298,7 @@ end
 если нужно только ночью, то создадим новую функцию
 
 function is_night()
-    return level.get_time_hours() >= 21 or level.get_time_hours() <= 6
+    return level.get_time_hours() >= 21 or level.get_time_hours() < 6
 end  
 
 и тогда в диалоге 
