@@ -8,11 +8,11 @@
 
 Проверка на участок времени с 23:00 до 3:00
 
-Ночной разрыв (23–6) → `or`
-Дневной сплошной интервал (6–23) → `and`
+Ночной разрыв (23–3) → `or`
+Дневной сплошной интервал (3–23) → `and`
 
 function check_night()
-  if level.get_time_hours() >= 23 or level.get_time_hours() <= 3 then
+  if level.get_time_hours() >= 23 or level.get_time_hours() < 3 then
     --ваше действие
     return true
   end
@@ -93,12 +93,13 @@ end
 function prov_info1()
 	if has_alife_info("storyline_actor_start") and not has_alife_info("when_out_kordon") then
 		db.actor:give_info_portion("infoportion_xxx")
+	return true 
 	end 
 end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка наличия у нас денег
 function actor_have_money_500(actor,npc)
-	return db.actor:money() > 500
+	return db.actor:money() >= 500
 end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка группировки актора, если "монолит", то например, диалог будет доступен.
@@ -146,6 +147,7 @@ end
 -- Если здоровье гг 10% то станет 60% или любое другое действие
 if db.actor.health < 0.1 then
 	db.actor.health = 0.60
+end	
 --------------------------------------------------------------------------------------------------------------
 -- Примерное оформление квеста на убийство нескольких нпс, можно поменять and на or, если для выполнения хватит смерти одного из двух нпс.
 function proverka_death_nps() 
@@ -248,11 +250,9 @@ end
 --------------------------------------------------------------------------------------------------------------
 -- Проверка на каком мы уровне, если свалка, то выдаётся инфопоршн
 function search_level(actor, npc) 
-	if db.actor ~= nil then 
-		if db.actor and (level.name() == "l02_garbage") then
-			db.actor:give_info_portion("infoportion_xxx") 
-			return true 
-		end 
+	if db.actor and (level.name() == "l02_garbage") then
+		db.actor:give_info_portion("infoportion_xxx") 
+		return true 
 	end 
 	return false 
 end

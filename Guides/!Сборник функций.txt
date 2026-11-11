@@ -150,7 +150,7 @@ end
 --------------------------------------------------------------------------------------------------------------
 спавн с заданным направлением, работает при правках xray-extensions, либо в ОГСР
 function spawn_with_angle() 
-	sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45)
+	local sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45)
 	sobj.angle = vector():set(0,1,0)
 end
 --------------------------------------------------------------------------------------------------------------
@@ -287,7 +287,7 @@ end
 	Имя_файла.out_item_namber_without_sms("wpn_pm")
 --------------------------------------------------------------------------------------------------------------	
 Поставить метку на объект, green_location - тип метки, без "_ser" метка пропадет после сейв лоада
-function metka(actor, obj)
+function mapspot(actor, obj)
 	local obj = level_object_by_name("esc_wolf")
 	level.map_add_object_spot_ser(obj:id(), "green_location", "name")
 end
@@ -376,7 +376,7 @@ function medic_magic_potion(actor, obj)
 end
 --------------------------------------------------------------------------------------------------------------
 ОГСР Установить ранг, деньги НПС
-function main(actor, obj)
+function set_different(actor, obj)
 	local obj = level_object_by_name("esc_wolf")
 	obj:set_money(65000)
 	obj:set_character_rank(1000)
@@ -545,7 +545,7 @@ function npc_teleport_sobj(name, level_name, pos)
 	alife():teleport_object(sobj.id, pos, lv, gv)
 end
 Пример вызова
-	Имя_файла.npc_teleport_sobj("stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))	
+	Имя_файла.npc_teleport_sobj("esc_wolf", "l01_escape", vector():set(-152.0,-18.0,-144.3))	
 --------------------------------------------------------------------------------------------------------------
 Перенос нпс на координаты при правках xray-extensions
 function teleport_object()
@@ -582,8 +582,8 @@ end
 
 Удалить эту точку
 function remove_point()
-	local path = patrol( "test_path" )
-	level.patrol_path_remove( "test_path" )
+	local path = patrol( "smart_terrain_kamp_1" )
+	level.patrol_path_remove( "smart_terrain_kamp_1" )
 end
 --------------------------------------------------------------------------------------------------------------
 ОГСР Заспавнить нпс и задать логику
@@ -936,7 +936,7 @@ end
 
 Можно по короче:
 if info_id =="ui_trade" then
-	level.start_stop_menu(level.main_input_reciever, true)
+	level.start_stop_menu(level.main_input_reciever(), true)
 end
 --------------------------------------------------------------------------------------------------------------
 Взаимодействие с параметрами текущей погоды.
