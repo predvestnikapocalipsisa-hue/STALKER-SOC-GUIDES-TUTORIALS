@@ -63,15 +63,19 @@ end
 -- ========== УДАЛЕНИЕ ==========
 
 function out_item_namber(section, need)
+	local removed = 0
     for i = 1, need do
         local obj = db.actor:object(section)
         if obj then
             alife():release(alife():object(obj:id()))
+            removed = removed + 1
         else
             break
         end
     end
-    news_manager.relocate_item(db.actor, "out", section)
+    if removed > 0 then
+        news_manager.relocate_item(db.actor, "out", section)
+    end	
 end
 
 function out_item_namber_nomsg(section, need)
