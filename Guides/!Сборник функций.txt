@@ -36,7 +36,6 @@ function level_object_by_name( name )
 	if sobj then
 		return level.object_by_id( sobj.id )
 	end
-	return nil
 end
 
 Для совершение действий над клиентским объектом, заспавненным через скрипт по имени
