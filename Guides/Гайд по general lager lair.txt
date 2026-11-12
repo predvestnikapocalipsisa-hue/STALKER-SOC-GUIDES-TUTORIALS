@@ -10,8 +10,6 @@ switch_1 = {!is_day};Переключение состояния смарта, �
 указываем кого может принять локация:
 
 \gamedata\config\misc\smart_terrain_presets.ltx
-\gamedata\config\misc\general_lager.ltx
-\gamedata\config\misc\general_lair.ltx
 
 
 Создадим смарт для НПС
