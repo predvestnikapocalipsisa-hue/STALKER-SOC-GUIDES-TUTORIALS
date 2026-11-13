@@ -786,6 +786,64 @@ function spawn_item_to_treasure()
 	spawn_item_to_object(spawn_item, "esc_wolf")
 end
 --------------------------------------------------------------------------------------------------------------
+Рандомное место спавна по всей зоне
+local gv_cache
+
+local function all_gvs()
+    if gv_cache then return gv_cache end
+    local t, g, i = {}, game_graph(), 0
+    while g:valid_vertex_id(i) do
+        t[#t+1] = i
+        i = i + 1
+    end
+    gv_cache = t
+    return t
+end
+
+function spawn_item_anywhere(section)
+    local t = all_gvs()
+    if #t == 0 then return nil end
+
+    local gv = t[math.random(#t)]
+    local v  = game_graph():vertex(gv)
+    local s  = alife():create(section, v:level_point(), v:level_vertex_id(), gv)
+    level.map_add_object_spot_ser(s.id, "green_location", s:name())
+end
+
+вызов
+	Имя_файла.spawn_item_anywhere("stalker")
+--------------------------------------------------------------------------------------------------------------
+Рандомное место спавна по указанной локации, если не указана, то текущей
+local gv_cache = {}
+
+local function level_gvs(lname)
+    if gv_cache[lname] then return gv_cache[lname] end
+    local t, g, i = {}, game_graph(), 0
+    while g:valid_vertex_id(i) do
+        if alife():level_name(g:vertex(i):level_id()) == lname then
+            t[#t+1] = i
+        end
+        i = i + 1
+    end
+    gv_cache[lname] = t
+    return t
+end
+
+function spawn_item_anywhere(section, lname)
+    lname = lname or alife():level_name(alife():level_id())
+    local t = level_gvs(lname)
+    if #t == 0 then return nil end
+
+    local gv = t[math.random(#t)]
+    local v  = game_graph():vertex(gv)
+	local s = alife():create(section, v:level_point(), v:level_vertex_id(), gv)
+	level.map_add_object_spot_ser(s.id, "green_location", s:name())
+end
+
+вызов
+	Имя_файла.spawn_item_anywhere("af_medusa")              -- текущая локация
+	Имя_файла.spawn_item_anywhere("wpn_pm", "l01_escape")   -- указанная
+--------------------------------------------------------------------------------------------------------------
 Рандомное место спавна обьекта "wpn_svd_m1" в игре:
 function spawn_random()
 	local fr_prob={
