@@ -220,6 +220,7 @@
             <div class="toc-category">8. UI, СМС и таймеры</div>
             <ul>
                 <li><a href="#func_mapspot">mapspot <span class="toc-desc">Поставить/удалить метку на объект</span></a></li>
+                <li><a href="#func_talk_icon">talk_icon <span class="toc-desc">Вывод иконок в диалоге</span></a></li>
                 <li><a href="#func_sms">sms <span class="toc-desc">Отправка СМС сообщения</span></a></li>
                 <li><a href="#func_add_call_timer_set_pause">add_call_timer_set_pause <span class="toc-desc">ОГСР: Таймер через level.add_call()</span></a></li>
                 <li><a href="#func_add_call_timer">add_call_timer <span class="toc-desc">Аналог таймера на оригинале</span></a></li>
@@ -258,7 +259,6 @@
                 <li><a href="#func_spawn_item_random">spawn_item_random <span class="toc-desc">Рандомный предмет на фиксированных коорд.</span></a></li>
                 <li><a href="#func_spawn_full_random">spawn_full_random <span class="toc-desc">Полный рандом предмета и места</span></a></li>
                 <li><a href="#func_count_info">count_info <span class="toc-desc">Посчитать количество полученных инфопоршней</span></a></li>
-                <li><a href="#func_talk_icon">talk_icon <span class="toc-desc">Вывод иконок в диалоге</span></a></li>
             </ul>
 
             <div class="toc-category">11. Дата и погода</div>
@@ -834,6 +834,20 @@ end</code></pre>
 end
 Удалить метку: level.map_remove_object_spot(obj:id(), "green_location")</code></pre>
 
+    <h3 id="func_talk_icon">talk_icon</h3>
+    <p class="desc-text">Вывод иконок в диалоге.</p>
+    <pre><code class="language-lua">function talk_icon(actor, obj)
+    local test = 33
+    local total = ""
+    local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
+    total = game.translate_string("stalker").." %c[255,238,155,23]"..test..""
+    actor:give_talk_message(total, task_texture, task_rect, "iconed_trade_info")
+end
+ui_iconsTotal_artefact - это иконка из ui_iconstotal.xml
+stalker - это текст из xml
+" %c[255,238,155,23]"..test.."" - тоже часть текста, но другим цветом из local test = 33
+"iconed_trade_info" - хз для чего это, но надо)</code></pre>
+
     <h3 id="func_sms">sms</h3>
     <p class="desc-text">СМС сообщения. смс придет от иконки дефаулт, dm_action_info_1 текст из папки текст\рус. Если текст пишем сразу в скрипте, то ставим файлу кодировку: Кириллица Windows-1251.</p>
     <pre><code class="language-lua">function sms()
@@ -1215,16 +1229,6 @@ end</code></pre>
     return count
 end</code></pre>
 
-    <h3 id="func_talk_icon">talk_icon</h3>
-    <p class="desc-text">Вывод иконок в диалоге.</p>
-    <pre><code class="language-lua">function talk_icon(actor, obj)
-    local test = 33
-    local total = ""
-    local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
-    total = game.translate_string("stalker").." %c[255,238,155,23]"..test..""
-    actor:give_talk_message(total, task_texture, task_rect, "iconed_trade_info")
-end</code></pre>
-
     <h2 id="date-weather">11. Дата и погода</h2>
 
     <h3 id="func_check_date">check_date</h3>
@@ -1266,12 +1270,33 @@ end</code></pre>
 
     <h3 id="weather_control">Управление погодой</h3>
     <p class="desc-text">Взаимодействие с параметрами текущей погоды. Взаимодействовать скриптом можно только с параметрами которые описаны в CEnvDescriptor в lua_help.</p>
-    <pre><code class="language-lua">local env = level.environment()
-local env_desc = env:getCurrentWeather( idx )  
-env_desc.wind_velocity = factor
+    <pre><code class="language-lua">	local env = level.environment()
+	local env_desc = env:getCurrentWeather( idx )  
 
-Это загрузит секции погоды в Current[0] и Current[1]. Далее погода будет плавно меняться от Current[0] к Current[1].
-level.set_weather( weather, true )</code></pre>
+    env_desc.wind_velocity = factor
+
+ПРЕДУПРЕЖДЕНИЕ!!!:
+
+взаимодействовать скриптом можно только с параметрами которые описаны в CEnvDescriptor в lua_help:
+
+	C++ class CEnvDescriptor {
+ property			far_plane                (number);
+ property			fog_density              (number);
+ property			fog_distance             (number);
+ property			m_fSunShaftsIntensity    (number);
+ property			m_fTreeAmplitudeIntensity(number);
+ property			m_identifier;
+ property			sun_dir                  (___VECTOR);
+ property			wind_direction           (number);
+ property			wind_velocity            (number);
+    
+    function set_env_ambient(string, CEnvironment*);
+};
+
+	level.set_weather( weather, true )
+
+Это загрузит секции погоды в Current[0] и Current[1]. Далее погода
+будет плавно меняться от Current[0] к Current[1].</code></pre>
 
     <button class="back-to-top" id="backToTop" title="Наверх">↑</button>
 
