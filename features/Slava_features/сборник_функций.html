@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Справочник скриптовых функций S.T.A.L.K.E.R. (OGSR/X-Ray)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #e0e0e0; max-width: 1200px; margin: 0 auto; padding: 15px; background-color: #1e1e1e; }
+        h1 { text-align: center; color: #61afef; border-bottom: 2px solid #61afef; padding-bottom: 10px; font-size: 1.5em; }
+        h2 { color: #98c379; margin-top: 40px; border-bottom: 1px solid #5c6370; padding-bottom: 5px; font-size: 1.3em; }
+        
+        /* Исправление: перенос длинных названий функций */
+        h3 { 
+            color: #e5c07b; 
+            font-family: "Consolas", "Monaco", monospace; 
+            background: #2c313a; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            margin-top: 25px; 
+            border-left: 4px solid #e5c07b; 
+            font-size: 1.05em;
+            word-break: break-all;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+        
+        /* Оглавление - БЕЗ sticky, просто обычный блок */
+        .toc { 
+            background: #282c34; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+            margin-bottom: 20px;
+        }
+        .toc-header { display: flex; justify-content: space-between; align-items: center; }
+        .toc-header h2 { margin: 0; font-size: 1.2em; color: #61afef; border: none; }
+        .toc-toggle { background: #3e4451; border: 1px solid #5c6370; color: #abb2bf; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .toc-toggle:hover { background: #4b5263; color: #fff; }
+        .toc-toggle .arrow { display: inline-block; transition: transform 0.3s ease; font-size: 0.8em; }
+        .toc.collapsed .toc-toggle .arrow { transform: rotate(-90deg); }
+        
+.toc-content { 
+    overflow: hidden; 
+    transition: max-height 0.5s ease, opacity 0.3s ease, margin 0.3s ease; 
+    max-height: 10000px; /* увеличено с 2000 */
+    opacity: 1; 
+    margin-top: 15px; 
+}
+.toc.collapsed .toc-content { 
+    max-height: 0; 
+    opacity: 0; 
+    margin-top: 0; 
+}
+        .toc.collapsed {
+    padding: 8px 12px;
+    margin-bottom: 10px;
+}
+.toc.collapsed .toc-toggle .label {
+    display: none; /* скрываем текст кнопки, оставляем только стрелку */
+}
+        
+        .toc-category { font-weight: bold; color: #98c379; margin-top: 12px; margin-bottom: 4px; font-size: 0.95em; }
+        .toc-category:first-child { margin-top: 0; }
+        .toc ul { list-style-type: none; padding-left: 12px; margin: 0; }
+        .toc li { margin: 3px 0; font-size: 0.85em; }
+        .toc a { text-decoration: none; color: #abb2bf; transition: color 0.2s; display: block; padding: 2px 0; word-break: break-word; }
+        .toc a:hover { color: #61afef; }
+        .toc-desc { color: #5c6370; font-size: 0.85em; margin-left: 4px; font-style: italic; display: block; }
+        
+        /* Мобильная версия */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.3em; }
+            h2 { font-size: 1.15em; margin-top: 30px; }
+            h3 { 
+                font-size: 0.9em; 
+                padding: 6px 10px;
+                word-break: break-all;
+            }
+            .toc { padding: 12px; }
+            .toc-header h2 { font-size: 1em; }
+            .toc-toggle {     padding: 3px 8px;
+    font-size: 0.8em;
+}
+            .toc li { font-size: 0.8em; }
+            .toc-category { font-size: 0.9em; }
+            pre { font-size: 0.75em !important; padding: 10px !important; }
+            .desc-text { font-size: 0.9em; }
+        }
+        
+        /* Кнопка наверх */
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #61afef;
+            color: #1e1e1e;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .back-to-top.visible { opacity: 1; visibility: visible; }
+        .back-to-top:hover { background: #528bff; transform: translateY(-2px); }
+        
+        pre { border-radius: 6px; margin: 10px 0 20px 0 !important; overflow-x: auto; }
+        code { font-family: "Consolas", "Monaco", monospace; }
+        p { margin-bottom: 10px; color: #abb2bf; }
+        .desc-text { color: #dcdfe4; margin-bottom: 8px; font-size: 0.95em; }
+    </style>
+</head>
+<body>
+
+    <h1>Справочник скриптовых функций S.T.A.L.K.E.R.</h1>
+
+    <div class="toc" id="toc">
+        <div class="toc-header">
+            <h2>Оглавление</h2>
+            <button class="toc-toggle" id="tocToggle" title="Свернуть/развернуть оглавление">
+                <span class="arrow">▼</span>
+                <span class="label">Свернуть</span>
+            </button>
+        </div>
+        <div class="toc-content" id="tocContent">
+            <div class="toc-category">1. Базовые функции</div>
+            <ul>
+                <li><a href="#func_level_object_by_name">level_object_by_name <span class="toc-desc">Клиентский объект по имени</span></a></li>
+                <li><a href="#func_level_object_by_spawn">level_object_by_spawn <span class="toc-desc">Клиентский объект, заспавненный скриптом</span></a></li>
+                <li><a href="#func_alife_object_by_spawn">alife_object_by_spawn <span class="toc-desc">Серверный объект, заспавненный скриптом</span></a></li>
+                <li><a href="#func_level_object_by_spawn_ogsr">level_object_by_spawn (OGSR) <span class="toc-desc">Приоритетная версия для ОГСР</span></a></li>
+                <li><a href="#func_alife_object_by_spawn_ogsr">alife_object_by_spawn (OGSR) <span class="toc-desc">Приоритетная версия для ОГСР</span></a></li>
+            </ul>
+
+            <div class="toc-category">2. Координаты</div>
+            <ul>
+                <li><a href="#func_get_lv_gv">get_lv_gv <span class="toc-desc">Получение level и game vertex по имени локации</span></a></li>
+                <li><a href="#coords_f1">Снятие координат (F1) <span class="toc-desc">Вывод координат в меню по нажатию F1</span></a></li>
+            </ul>
+
+            <div class="toc-category">3. Спавн объектов</div>
+            <ul>
+                <li><a href="#func_alife_create">alife_create <span class="toc-desc">Спавн по координатам через get_lv_gv</span></a></li>
+                <li><a href="#func_spawn">spawn <span class="toc-desc">Базовый спавн по координатам</span></a></li>
+                <li><a href="#func_spawn_with_story_id">spawn_with_story_id <span class="toc-desc">Спавн с заданием story_id</span></a></li>
+                <li><a href="#func_spawn_with_no_use_ai_locations">spawn_with_no_use_ai_locations <span class="toc-desc">Спавн без привязки к AI-сетке</span></a></li>
+                <li><a href="#func_spawn_with_angle">spawn_with_angle <span class="toc-desc">Спавн с заданным направлением</span></a></li>
+                <li><a href="#func_spawn_on_actor_position">spawn_on_actor_position <span class="toc-desc">Спавн на координатах ГГ</span></a></li>
+                <li><a href="#func_spawn_on_actor_position_x">spawn_on_actor_position_x <span class="toc-desc">Спавн на координатах ГГ + 10м по X</span></a></li>
+                <li><a href="#func_spawn_on_point">spawn_on_point <span class="toc-desc">Спавн по расположению точки пути</span></a></li>
+                <li><a href="#func_spawn_on_death">spawn_on_death <span class="toc-desc">Спавн трупа</span></a></li>
+                <li><a href="#func_spawn_on_death_ogsr">spawn_on_death_ogsr <span class="toc-desc">ОГСР спавн трупа/установка здоровья</span></a></li>
+            </ul>
+
+            <div class="toc-category">4. Инвентарь и предметы</div>
+            <ul>
+                <li><a href="#func_out_all_money">out_all_money <span class="toc-desc">Забрать все деньги у актора</span></a></li>
+                <li><a href="#func_take_money">take_money <span class="toc-desc">Получить деньги от НПС</span></a></li>
+                <li><a href="#func_give_money">give_money <span class="toc-desc">Отдать деньги НПС</span></a></li>
+                <li><a href="#func_transfer_items">transfer_items <span class="toc-desc">Передача предмета между НПС и ГГ</span></a></li>
+                <li><a href="#func_item_to_box">item_to_box <span class="toc-desc">Перенос ВСЕХ вещей в указанный объект</span></a></li>
+                <li><a href="#func_out_item">out_item <span class="toc-desc">Отдать предмет НПС (диалог)</span></a></li>
+                <li><a href="#func_get_item">get_item <span class="toc-desc">Получить предмет от НПС (диалог)</span></a></li>
+                <li><a href="#func_spawn_to_inventory_npc">spawn_to_inventory_npc <span class="toc-desc">Заспавнить вещь НПС в инвентарь</span></a></li>
+                <li><a href="#func_sak_spawn_items">sak_spawn_items <span class="toc-desc">Спавн себе в инвентарь с количеством (sak)</span></a></li>
+                <li><a href="#func_spawn_to_inventory">spawn_to_inventory <span class="toc-desc">Спавн предмета в рюкзак без сообщения</span></a></li>
+                <li><a href="#func_out_item_namber_without_sms">out_item_namber_without_sms <span class="toc-desc">Удалить предмет из рюкзака без сообщения</span></a></li>
+                <li><a href="#func_clear_inv">clear_inv <span class="toc-desc">Очистка инвентаря ГГ (с исключениями)</span></a></li>
+                <li><a href="#func_eat_something">eat_something <span class="toc-desc">Использование/съедание предметов</span></a></li>
+            </ul>
+
+            <div class="toc-category">5. Отношения, репутация и группировки</div>
+            <ul>
+                <li><a href="#func_give_info_portion">give_info_portion <span class="toc-desc">Выдача инфопоршня</span></a></li>
+                <li><a href="#func_rep_min_100">rep_min_100 <span class="toc-desc">Репутация -100</span></a></li>
+                <li><a href="#func_rep_plus_100">rep_plus_100 <span class="toc-desc">Репутация +100</span></a></li>
+                <li><a href="#func_set_community_goodwill">set_community_goodwill <span class="toc-desc">Установка отношения группировки к нам</span></a></li>
+                <li><a href="#func_set_gulag_relation">set_gulag_relation <span class="toc-desc">Отношения с лагерем/гулагом</span></a></li>
+                <li><a href="#func_set_npc_relation">set_npc_relation <span class="toc-desc">Сделать НПС врагом/другом/нейтралом</span></a></li>
+                <li><a href="#func_set_relation_between_npcs">set_relation_between_npcs <span class="toc-desc">Установить отношения между НПС</span></a></li>
+                <li><a href="#func_set_number_goodwill">set_number_goodwill <span class="toc-desc">Установить отношения числом (goodwill)</span></a></li>
+                <li><a href="#func_set_community">set_community <span class="toc-desc">Устанавливаем группировку ГГ</span></a></li>
+            </ul>
+
+            <div class="toc-category">6. Перемещение и телепортация</div>
+            <ul>
+                <li><a href="#func_teleport_actor_to_point">teleport_actor_to_point <span class="toc-desc">Перенос ГГ на вейпоинт (walk/look)</span></a></li>
+                <li><a href="#func_teleport_actor">teleport_actor <span class="toc-desc">Перенос ГГ на координаты</span></a></li>
+                <li><a href="#func_set_npc_position">set_npc_position <span class="toc-desc">ОГСР: Перенос НПС в масштабе локации</span></a></li>
+                <li><a href="#func_teleport_object">teleport_object <span class="toc-desc">ОГСР: Перенос НПС (в т.ч. на другую локацию)</span></a></li>
+                <li><a href="#func_npc_teleport_sobj">npc_teleport_sobj <span class="toc-desc">ОГСР: Телепорт по имени через get_lv_gv</span></a></li>
+                <li><a href="#func_teleport_object_xray">teleport_object (xray) <span class="toc-desc">Перенос НПС при правках xray-extensions</span></a></li>
+                <li><a href="#func_level_change_level">level.change_level <span class="toc-desc">Переход на другую локацию</span></a></li>
+            </ul>
+
+            <div class="toc-category">7. Управление состоянием объектов</div>
+            <ul>
+                <li><a href="#func_set_different_stat">set_different_stat <span class="toc-desc">ОГСР: Установить ранг и деньги НПС</span></a></li>
+                <li><a href="#func_kill_actor">kill_actor <span class="toc-desc">Убийство ГГ или НПС</span></a></li>
+                <li><a href="#func_hit_obj">hit_obj <span class="toc-desc">Нанесение урона объекту</span></a></li>
+                <li><a href="#func_set_offline">set_offline <span class="toc-desc">Перевод объекта в оффлайн/онлайн</span></a></li>
+                <!-- <li><a href="#func_spawn_not_switch_offline">spawn_not_switch_offline <span class="toc-desc">Спавн НПС, не уходящего в оффлайн</span></a></li> -->
+                <li><a href="#func_remove_object">remove_object <span class="toc-desc">Удаление объектов через логику</span></a></li>
+                <li><a href="#func_release_sobj">release_sobj <span class="toc-desc">Удаление объекта по имени</span></a></li>
+                <li><a href="#func_func_table_by_name">func_table_by_name <span class="toc-desc">Действие над списком объектов по имени</span></a></li>
+                <li><a href="#func_release_table_by_story">release_table_by_story <span class="toc-desc">Удаление списка объектов по story_id</span></a></li>
+                <li><a href="#func_release_table_by_name">release_table_by_name <span class="toc-desc">Удаление списка объектов по имени</span></a></li>
+                <li><a href="#func_set_physics">set_physics <span class="toc-desc">Задать физику объекту</span></a></li>
+            </ul>
+
+            <div class="toc-category">8. UI, СМС и таймеры</div>
+            <ul>
+                <li><a href="#func_mapspot">mapspot <span class="toc-desc">Поставить/удалить метку на объект</span></a></li>
+                <li><a href="#func_sms">sms <span class="toc-desc">Отправка СМС сообщения</span></a></li>
+                <li><a href="#func_add_call_timer_set_pause">add_call_timer_set_pause <span class="toc-desc">ОГСР: Таймер через level.add_call()</span></a></li>
+                <li><a href="#func_add_call_timer">add_call_timer <span class="toc-desc">Аналог таймера на оригинале</span></a></li>
+                <li><a href="#func_client_spawn">client_spawn <span class="toc-desc">Методы game_object при спавне без сейв-лоада</span></a></li>
+                <li><a href="#func_hide_trade_wnd">HideTradeWnd <span class="toc-desc">Закрыть скриптом текущее окно (торговли)</span></a></li>
+                <li><a href="#func_send_message">send_message <span class="toc-desc">Вывод значения в СМС</span></a></li>
+            </ul>
+
+            <div class="toc-category">9. Звук, визуал и эффекты</div>
+            <ul>
+                <li><a href="#func_actor_play_sound">actor_play_sound <span class="toc-desc">Воспроизведение звука в голове ГГ</span></a></li>
+                <li><a href="#func_play_sound_from_obj">play_sound_from_obj <span class="toc-desc">Воспроизведение звука от объекта</span></a></li>
+                <li><a href="#func_change_icon">change_icon <span class="toc-desc">Замена иконки ГГ или НПС</span></a></li>
+                <li><a href="#func_change_name">change_name <span class="toc-desc">Замена имени ГГ или НПС</span></a></li>
+                <li><a href="#func_change_visual">change_visual <span class="toc-desc">ОГСР: Смена визуала НПС</span></a></li>
+                <li><a href="#func_change_visual_now">change_visual_now <span class="toc-desc">ОГСР: Мгновенная смена визуала НПС</span></a></li>
+                <li><a href="#func_change_visual_now2">change_visual_now2 <span class="toc-desc">Альтернативная мгновенная смена визуала</span></a></li>
+                <li><a href="#func_change_texture">change_texture <span class="toc-desc">ОГСР: Замена одной текстуры на другую</span></a></li>
+                <li><a href="#func_punch">punch <span class="toc-desc">Получение удара в морду (звук + эффект)</span></a></li>
+                <li><a href="#func_activate_slot">activate_slot <span class="toc-desc">Активация слота</span></a></li>
+                <li><a href="#func_start_tutorial">start_tutorial <span class="toc-desc">Запуск туториала/видео/текста</span></a></li>
+                <li><a href="#post_effects">Пост-эффекты <span class="toc-desc">Добавление/удаление camera и pp эффектов</span></a></li>
+            </ul>
+
+            <div class="toc-category">10. Квесты, тайники и утилиты</div>
+            <ul>
+                <li><a href="#treasure_manager">treasure_manager <span class="toc-desc">Выдача тайника / всех тайников</span></a></li>
+                <li><a href="#level_tasks">level_tasks <span class="toc-desc">Завершить/провалить/пропустить квест</span></a></li>
+                <li><a href="#func_create_point">create_point / remove_point <span class="toc-desc">Создать/удалить вейпоинт</span></a></li>
+                <li><a href="#func_spawn_npc_with_custom_data">spawn_npc_with_custom_data <span class="toc-desc">ОГСР: Заспавнить НПС и задать логику</span></a></li>
+                <li><a href="#excluded_npc_ids">excluded_npc_ids <span class="toc-desc">Табличка исключений для проверки НПС</span></a></li>
+                <li><a href="#func_spawn_item_to_npc">spawn_item_to_npc <span class="toc-desc">Спавн НПС и предметов в нем из таблицы</span></a></li>
+                <li><a href="#func_spawn_item_to_object">spawn_item_to_object <span class="toc-desc">Спавнит вещи в объекте по имени</span></a></li>
+                <li><a href="#func_spawn_item_anywhere">spawn_item_anywhere <span class="toc-desc">Рандомное место спавна (глобально/локально)</span></a></li>
+                <li><a href="#func_spawn_random">spawn_random <span class="toc-desc">Рандомное место спавна из списка координат</span></a></li>
+                <li><a href="#func_spawn_item_random">spawn_item_random <span class="toc-desc">Рандомный предмет на фиксированных коорд.</span></a></li>
+                <li><a href="#func_spawn_full_random">spawn_full_random <span class="toc-desc">Полный рандом предмета и места</span></a></li>
+                <li><a href="#func_count_info">count_info <span class="toc-desc">Посчитать количество полученных инфопоршней</span></a></li>
+                <li><a href="#func_talk_icon">talk_icon <span class="toc-desc">Вывод иконок в диалоге</span></a></li>
+            </ul>
+
+            <div class="toc-category">11. Дата и погода</div>
+            <ul>
+                <li><a href="#func_check_date">check_date <span class="toc-desc">Проверка даты целиком и вывод в лог</span></a></li>
+                <li><a href="#func_current_day">current_day / month / year <span class="toc-desc">Получение текущего дня, месяца или года</span></a></li>
+                <li><a href="#weather_control">Управление погодой <span class="toc-desc">Изменение параметров CEnvDescriptor и set_weather</span></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <h2 id="base">1. Базовые функции</h2>
+    <p class="desc-text">Для функций ниже будем использовать следующие обозначения: <code>sobj</code> - серверный объект, <code>obj</code> - клиентский.</p>
+    <p class="desc-text">по стори айди:</p>
+	<pre><code class="language-lua">local sobj = alife():story_object(14)
+local obj = level_object_by_sid(14)</code></pre>
+
+<p class="desc-text">по имени из all.spawn:</p>
+	<pre><code class="language-lua">local sobj = alife():object("esc_wolf")
+local obj = level_object_by_name("esc_wolf")</code></pre>
+
+<p class="desc-text">по имени нпс заспавненых через скрипт:</p>
+	<pre><code class="language-lua">local obj = level_object_by_spawn("esc_wolf")
+local sobj = alife_object_by_spawn("esc_wolf")</code></pre>
+
+<p class="desc-text">если вызов через диалог/логику то sobj можно определить так:</p>
+    <code class="language-lua">local sobj = alife():object(obj:id())</code>
+
+<p class="desc-text">Если вы увидите функции в которых фигурирует <code>db.actor и в аргументах стоит <code>(actor, obj)</code>, значит вместо <code>db.actor</code> можно указать obj и наоборот</p>
+
+<code class="language-lua">function имя_функции(actor, obj)</code>
+
+<p class="desc-text">Так же эти функции можно использовать в диалоге/логике и действия будут применяться к собеседникам или объектам, в кастом дате которых бала вызвана функция.</p>
+
+<p class="desc-text">Также будут функции у которых определение через айди - можно указывать:</p>
+sobj.id или obj:id()
+
+<p class="desc-text">Нужно в _g.script добавить функции:</p>
+
+    <h3 id="func_level_object_by_name">level_object_by_name</h3>
+    <p class="desc-text">Для совершение действий над клиентским объектом по имени.</p>
+    <pre><code class="language-lua">function level_object_by_name( name )
+    local sobj = alife():object( name )
+    if sobj then
+        return level.object_by_id( sobj.id )
+    end
+end</code></pre>
+
+    <h3 id="func_level_object_by_spawn">level_object_by_spawn</h3>
+    <p class="desc-text">Для совершение действий над клиентским объектом, заспавненным через скрипт по имени.</p>
+    <pre><code class="language-lua">function level_object_by_spawn( name )
+    for a=1,65535,1 do
+        local obj=level.object_by_id(a)
+        if obj and string.find(obj:name(),name) then
+            return obj
+        end
+    end
+end</code></pre>
+
+    <h3 id="func_alife_object_by_spawn">alife_object_by_spawn</h3>
+    <p class="desc-text">Для совершение действий над серверным объектом, заспавненным через скрипт по имени.</p>
+    <pre><code class="language-lua">function alife_object_by_spawn( name )
+    for a=1,65535,1 do
+        local sobj=alife():object(a)
+        if sobj and string.find(sobj:name(),name) then
+            return sobj
+        end
+    end
+end</code></pre>
+
+    <h3 id="func_level_object_by_spawn_ogsr">level_object_by_spawn (OGSR)</h3>
+    <p class="desc-text">ОГСР версии (они приоритетнее). Для совершение действий над клиентским объектом, заспавненным через скрипт по имени.</p>
+    <pre><code class="language-lua">function level_object_by_spawn( name )
+    for id, sobj in alife():objects() do 
+        local obj=level.object_by_id(sobj.id)
+        if obj and string.find(obj:name(),name) then
+            return obj
+        end
+    end
+end</code></pre>
+
+    <h3 id="func_alife_object_by_spawn_ogsr">alife_object_by_spawn (OGSR)</h3>
+    <p class="desc-text">ОГСР версии (они приоритетнее). Для совершение действий над серверным объектом, заспавненным через скрипт по имени.</p>
+    <pre><code class="language-lua">function alife_object_by_spawn( name )
+    for id, sobj in alife():objects() do 
+        if string.find(sobj:name(),name) then
+            return sobj
+        end
+    end
+end</code></pre>
+
+    <h2 id="coords">2. Координаты</h2>
+
+    <h3 id="func_get_lv_gv">get_lv_gv</h3>
+    <p class="desc-text">ОГСР от 3.432 получение левел и гейм вертекс по имени локации, кладем в _g.script.</p>
+    <pre><code class="language-lua">function get_lv_gv(level_name, pos)
+    local lg, ct
+    if level.name() == level_name then
+        lg = level_graph()
+        ct = cross_table()
+    else
+        lg = level_graph(level_name)
+        ct = cross_table(level_name)
+    end
+
+    local lv = lg:vertex_id(pos)
+    if not lg:valid_vertex_id(lv) then
+        lv = lg:nearest_vertex_id(pos)
+    end
+    local gv = ct:vertex(lv):game_vertex_id()
+    return lv, gv
+end</code></pre>
+
+    <h3 id="coords_f1">Снятие координат (F1)</h3>
+    <p class="desc-text">Находясь в меню можно будет жать Ф1 и появятся коорды. Откройте файл \gamedata\scripts\ui_main_menu.script. Через поиск найдите function main_menu:OnKeyboard(dik, keyboard_action). В этот участок if keyboard_action == ui_events.WINDOW_KEY_PRESSED then добавим это:</p>
+    <pre><code class="language-lua">if dik == DIK_keys.DIK_F1 then
+    local gv = db.actor:game_vertex_id()
+    local lv = db.actor:level_vertex_id()
+    local pos = db.actor:position()
+    local posx = pos.x
+    local posy = pos.y
+    local posz = pos.z
+    local dir = db.actor:direction()
+    local dirx = dir.x
+    local diry = dir.y
+    local dirz = dir.z
+    news_manager.send_tip(db.actor, "Position:".."\\n".."X: "..posx.."\\n".."Y: "..posy.."\\n".."Z: "..posz.."\\n".."Direction: ".."\\n".."X: "..dirx.."\\n".."Y: "..diry.."\\n".."Z: "..dirz.."\\n".."Game Vertex ID: "..gv.."\\n".."Level Vertex ID: "..lv.."\\n".."That's all.", nil, nil, 100000)    
+    console:execute("main_menu off")
+end</code></pre>
+
+    <h2 id="spawn">3. Спавн объектов</h2>
+
+    <h3 id="func_alife_create">alife_create</h3>
+    <p class="desc-text">Новый спавн только по координатам через get_lv_gv(), кладем в _g.script.</p>
+    <pre><code class="language-lua">function alife_create(section, level_name, pos)
+    local lv, gv = get_lv_gv(level_name, pos)
+    return alife():create(section, pos, lv, gv)
+end
+
+и в удобном скрипте вызываем:
+alife_create("stalker", "l01_escape", vector():set(-152.0,-18.0,-144.3))</code></pre>
+
+    <h3 id="func_spawn">spawn</h3>
+    <p class="desc-text">Спавн кого\чего-либо.</p>
+    <pre><code class="language-lua">function spawn() 
+    alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+end</code></pre>
+
+    <h3 id="func_spawn_with_story_id">spawn_with_story_id</h3>
+    <p class="desc-text">При спавне задать story_id стори айди "test", который должен быть в game_story_ids.ltx.</p>
+    <pre><code class="language-lua">function spawn_with_story_id() 
+    local sobj = alife():create("mad_stalker_respawn_2",vector():set(-152.0,-18.0,-144.3),98126,45)
+    alife():assign_story_id(sobj.id, story_ids.test) -- ОГСР
+    alife():assign_story_id(nil, nil, sobj.id, story_ids.test) -- xray-extensions
+end</code></pre>
+
+    <h3 id="func_spawn_with_no_use_ai_locations">spawn_with_no_use_ai_locations</h3>
+    <p class="desc-text">Спавн без привязки к аи сетке, работает при правках xray-extensions, либо в ОГСР.</p>
+    <pre><code class="language-lua">function spawn_with_no_use_ai_locations() 
+    local sobj = alife():create("wpn_pm",vector():set(-152.0,-18.0,-144.3),98126,45)
+    alife():use_ai_locations(sobj, false)
+end</code></pre>
+
+    <h3 id="func_spawn_with_angle">spawn_with_angle</h3>
+    <p class="desc-text">Спавн с заданным направлением, работает при правках xray-extensions, либо в ОГСР.</p>
+    <pre><code class="language-lua">function spawn_with_angle() 
+    local sobj = alife():create("lights_hanging_lamp",vector():set(-152.0,-18.0,-144.3),98126,45)
+    sobj.angle = vector():set(0,1,0)
+end</code></pre>
+
+    <h3 id="func_spawn_on_actor_position">spawn_on_actor_position</h3>
+    <p class="desc-text">Спавн на координатах гг.</p>
+    <pre><code class="language-lua">function spawn_on_actor_position() 
+    alife():create("bandage", db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id())
+end</code></pre>
+
+    <h3 id="func_spawn_on_actor_position_x">spawn_on_actor_position_x</h3>
+    <p class="desc-text">Спавн на координатах гг + 10 метров по оси Х.</p>
+    <pre><code class="language-lua">function spawn_on_actor_position_x()
+    local position = db.actor:position()
+    position.x = position.x + 10
+    alife():create("bandage", position, db.actor:level_vertex_id(), db.actor:game_vertex_id())
+end</code></pre>
+
+    <h3 id="func_spawn_on_point">spawn_on_point</h3>
+    <p class="desc-text">Спавн по расположению точки пути\вей поинта.</p>
+    <pre><code class="language-lua">function spawn_on_point()  
+    local patrol = patrol("my_way_walk1")
+    alife():create("medkit", patrol:point(0), patrol:level_vertex_id(0), patrol:game_vertex_id(0))
+end</code></pre>
+
+    <h3 id="func_spawn_on_death">spawn_on_death</h3>
+    <p class="desc-text">Спавн трупа.</p>
+    <pre><code class="language-lua">function spawn_on_death()
+    alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45):on_death()
+end</code></pre>
+
+    <h3 id="func_spawn_on_death_ogsr">spawn_on_death_ogsr</h3>
+    <p class="desc-text">ОГСР спавн трупа\установка здоровья, работает только при спавне.</p>
+    <pre><code class="language-lua">function spawn_on_death_ogsr()
+    local sobj = alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45)
+    sobj:set_health(0)
+end</code></pre>
+
+    <h2 id="inventory">4. Инвентарь и предметы</h2>
+
+    <h3 id="func_out_all_money">out_all_money</h3>
+    <p class="desc-text">Забрать все деньги у актора.</p>
+    <pre><code class="language-lua">function out_all_money(actor, obj)
+    local money = db.actor:money()
+    db.actor:give_money(-money)
+end</code></pre>
+
+    <h3 id="func_take_money">take_money</h3>
+    <p class="desc-text">Получаем деньги от нпс.</p>
+    <pre><code class="language-lua">function take_money(actor, obj)
+    dialogs.relocate_money(obj, 3000, "in")
+end</code></pre>
+
+    <h3 id="func_give_money">give_money</h3>
+    <p class="desc-text">Отдаем деньги нпс.</p>
+    <pre><code class="language-lua">function give_money(actor, obj)
+    dialogs.relocate_money(obj, 3000, "out")
+end</code></pre>
+
+    <h3 id="func_transfer_items">transfer_items</h3>
+    <p class="desc-text">НПС передает предмет нам, либо мы ему передаем, при этом у нас предмет исчезает. "in" - нпс отдает предмет нам, "out" - мы отдаем предмет нпс.</p>
+    <pre><code class="language-lua">function transfer_items(victim, section, type)
+    if db.actor and victim then
+        if type == "in" then
+            if victim:object(section) ~= nil then
+                victim:transfer_item(victim:object(section), db.actor)
+            end
+        elseif type == "out" then
+            if db.actor:object(section) ~= nil then
+                db.actor:transfer_item(db.actor:object(section), victim)
+            end
+        end
+        news_manager.relocate_item(db.actor, type, section)
+    end
+end
+
+Пример вызова:
+function my(actor, obj)
+    Имя_файла.transfer_items(obj, "wpn_rpg7", "in")
+end</code></pre>
+
+    <h3 id="func_item_to_box">item_to_box / transfer_object_item</h3>
+    <p class="desc-text">Функция переносит ВСЕ ваши вещи в указанный объект. Точно также как на арене в баре. Тут это ящик со стори айди 2000. Кладем это в ваш условно my.script и вызываем my.item_to_box().</p>
+    <pre><code class="language-lua">function transfer_object_item(item) -- функцию кладем туда же, где и item_to_box()
+    out_object:transfer_item(item, in_object)
+end
+
+function item_to_box()
+    out_object = db.actor
+    in_object  = level_object_by_sid (2000)
+    out_object:inventory_for_each(transfer_object_item) 
+end</code></pre>
+
+    <h3 id="func_out_item">out_item</h3>
+    <p class="desc-text">Отдать предмет нпс, актуально только для диалога.</p>
+    <pre><code class="language-lua">function out_item(actor, obj)
+    dialogs.relocate_item_section(obj, "wpn_pm", "out")
+end</code></pre>
+
+    <h3 id="func_get_item">get_item</h3>
+    <p class="desc-text">Получить предмет от нпс, актуально только для диалога. Если указать db.actor, то можно использовать вне диалога.</p>
+    <pre><code class="language-lua">function get_item(actor, obj)
+    dialogs.relocate_item_section(obj, "wpn_pm", "in")
+end
+Вне диалога: dialogs.relocate_item_section(db.actor, "wpn_pm", "in")</code></pre>
+
+    <h3 id="func_spawn_to_inventory_npc">spawn_to_inventory_npc</h3>
+    <p class="desc-text">Заспавнить вещь нпс в инвентарь.</p>
+    <pre><code class="language-lua">function spawn_to_inventory_npc(actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    alife():create("bandage", vector(), 0, 0, obj:id())
+end</code></pre>
+
+    <h3 id="func_sak_spawn_items">sak_spawn_items</h3>
+    <p class="desc-text">Спавн себе в инвентарь, позволяет указать количество, для работы функций нужен sak.script из сборника, его копируем себе в gamedata\scripts\.</p>
+    <pre><code class="language-lua">function sak_spawn_items()
+    sak.create_items_actor("medkit",3)
+end
+
+Вещь забирают: sak.out_item_namber("af_medusa",1)
+Вещь дают БЕЗ СМС: sak.create_items_actor_nomsg("medkit",3)
+Вещь забирают БЕЗ СМС: sak.out_item_namber_nomsg("medkit",3)</code></pre>
+
+    <h3 id="func_spawn_to_inventory">spawn_to_inventory</h3>
+    <p class="desc-text">Спавн предмета в рюкзак герою без сообщения.</p>
+    <pre><code class="language-lua">function spawn_to_inventory()
+    alife():create("wpn_pm", vector(), 0, 0, db.actor:id())
+end</code></pre>
+
+    <h3 id="func_out_item_namber_without_sms">out_item_namber_without_sms</h3>
+    <p class="desc-text">Удалить предмет из рюкзака героя без сообщения.</p>
+    <pre><code class="language-lua">function out_item_namber_without_sms(section)
+    alife():release(alife():object(db.actor:object(section):id()), true)
+end
+
+Пример вызова: Имя_файла.out_item_namber_without_sms("wpn_pm")</code></pre>
+
+    <h3 id="func_clear_inv">clear_inv</h3>
+    <p class="desc-text">Очистка инвентаря гг от всех предметов (если применять для нпс, тогда нужно делать исключение для болта, иначе вылет).</p>
+    <pre><code class="language-lua">local keep_item = {
+    ["bolt"] = true,
+    ["device_pda"] = true,
+    ["wpn_knife"] = true,
+}
+
+function clear_inv()
+    if not db.actor then return end
+    
+    local to_remove = {}
+    db.actor:iterate_inventory(function(_, item)
+        local section = item:section()
+        if not keep_item[section] then
+            table.insert(to_remove, item:id())
+        end
+    end, nil)
+    
+    for _, id in ipairs(to_remove) do
+        alife():release(alife():object(id), true)
+    end
+end</code></pre>
+
+    <h3 id="func_eat_something">eat_something</h3>
+    <p class="desc-text">Использование/съедание предметов.</p>
+    <pre><code class="language-lua">function eat_something(actor, obj)
+    local item = db.actor:object("antirad")
+    if item then
+        db.actor:eat(item)
+    end
+end</code></pre>
+
+    <h2 id="relations">5. Отношения, репутация и группировки</h2>
+
+    <h3 id="func_give_info_portion">give_info_portion</h3>
+    <p class="desc-text">Выдача инфопоршня.</p>
+    <pre><code class="language-lua">function give_info_portion()
+    db.actor:give_info_portion("esc_gromov_quest_0")        
+end</code></pre>
+
+    <h3 id="func_rep_min_100">rep_min_100</h3>
+    <p class="desc-text">Репутация у нас - 100.</p>
+    <pre><code class="language-lua">function rep_min_100(actor, obj)
+    db.actor:change_character_reputation(db.actor:character_reputation() - 100)
+end</code></pre>
+
+    <h3 id="func_rep_plus_100">rep_plus_100</h3>
+    <p class="desc-text">Репутация у нас + 100.</p>
+    <pre><code class="language-lua">function rep_plus_100()
+    db.actor:change_character_reputation(db.actor:character_reputation() + 100)
+end</code></pre>
+
+    <h3 id="func_set_community_goodwill">set_community_goodwill</h3>
+    <p class="desc-text">Установка отношения группировки к нам, это не прибавка, а перезапись знаний как в game_relations.ltx.</p>
+    <pre><code class="language-lua">function set_community_goodwill(actor, obj)
+    relation_registry.set_community_goodwill ("группировка", db.actor:id(), - 5000)
+end
+
+Отношение группировки к нам 5000:
+relation_registry.set_community_goodwill ("группировка", db.actor:id(), 5000)</code></pre>
+
+    <h3 id="func_set_gulag_relation">set_gulag_relation</h3>
+    <p class="desc-text">Установить отношения с лагерем\гулагом вместо friend доступно neutral и enemy.</p>
+    <pre><code class="language-lua">function set_gulag_relation(actor, obj)
+    xr_gulag.setGulagRelation("esc_lager", game_object.friend, db.actor)
+end</code></pre>
+
+    <h3 id="func_set_npc_relation">set_npc_relation</h3>
+    <p class="desc-text">Сделать нпс врагом гг (или другом, или нейтралом).</p>
+    <pre><code class="language-lua">function set_npc_relation (actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    obj:set_relation(game_object.enemy, db.actor)
+end
+
+другом: obj:set_relation(game_object.friend, db.actor)
+нейтралом: obj:set_relation(game_object.neutral, db.actor)</code></pre>
+
+    <h3 id="func_set_relation_between_npcs">Установить отношения между нпс</h3>
+    <pre><code class="language-lua">local npc1 = level_object_by_sid (704)
+local npc2 = level_object_by_sid (705)
+npc1:set_relation(game_object.enemy, npc2)
+npc2:set_relation(game_object.enemy, npc1)</code></pre>
+
+    <h3 id="func_set_number_goodwill">set_number_goodwill</h3>
+    <p class="desc-text">Установить отношения числом.</p>
+    <pre><code class="language-lua">function set_number_goodwill (actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    obj:set_goodwill(-5000, db.actor)
+end</code></pre>
+
+    <h3 id="func_set_community">set_community</h3>
+    <p class="desc-text">Устанавливаем группировку.</p>
+    <pre><code class="language-lua">function set_community(actor, obj)
+    db.actor:set_character_community("actor_dolg", 0, 0)
+end
+
+Поставить нпс группировку гг
+obj:set_character_community(db.actor:character_community(), 0, 0)</code></pre>
+
+    <h2 id="teleport">6. Перемещение и телепортация</h2>
+
+    <h3 id="func_teleport_actor_to_point">teleport_actor_to_point</h3>
+    <p class="desc-text">Перенос гг на вейпоинт "esc_fabrika_bandit_day_night_sniper_walk", смотреть гг будет на вейпоинт "esc_fabrika_bandit_day_night_sniper_look".</p>
+    <pre><code class="language-lua">function teleport_actor_to_point()
+    xr_effects.teleport_actor(db.actor, obj,{"esc_fabrika_bandit_day_night_sniper_walk","esc_fabrika_bandit_day_night_sniper_look"})
+end</code></pre>
+
+    <h3 id="func_teleport_actor">teleport_actor</h3>
+    <p class="desc-text">Перенос гг на координаты.</p>
+    <pre><code class="language-lua">function teleport_actor()
+    db.actor:set_actor_position(vector():set(345,15,-26))
+end</code></pre>
+
+    <h3 id="func_set_npc_position">set_npc_position</h3>
+    <p class="desc-text">ОГСР Перенос нпс на координаты в масштабе одной локации.</p>
+    <pre><code class="language-lua">function set_npc_position(actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    obj:set_npc_position(vector():set(-152.0,-18.0,-144.3))
+end</code></pre>
+
+    <h3 id="func_teleport_object">teleport_object</h3>
+    <p class="desc-text">ОГСР Перенос нпс на координаты, работает перенос на другую локацию.</p>
+    <pre><code class="language-lua">function teleport_object(actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    alife():teleport_object(obj:id(), vector():set(32,0.4,-264),205410,262)    
+end
+
+по имени точки:
+local patrol = patrol( "yan_scientist_guider_walk" )
+alife():teleport_object(obj:id(), patrol:point( 0 ), patrol:level_vertex_id( 0 ), patrol:game_vertex_id( 0 ))</code></pre>
+
+    <h3 id="func_npc_teleport_sobj">npc_teleport_sobj</h3>
+    <p class="desc-text">ОГСР Телепорт по имени объекта, через get_lv_gv().</p>
+    <pre><code class="language-lua">function npc_teleport_sobj(name, level_name, pos)
+    local lv, gv = get_lv_gv(level_name, pos)
+    local sobj = alife():object(name)
+    alife():teleport_object(sobj.id, pos, lv, gv)
+end
+Пример вызова: Имя_файла.npc_teleport_sobj("esc_wolf", "l01_escape", vector():set(-152.0,-18.0,-144.3))</code></pre>
+
+    <h3 id="func_teleport_object_xray">teleport_object (xray-extensions)</h3>
+    <p class="desc-text">Перенос нпс на координаты при правках xray-extensions.</p>
+    <pre><code class="language-lua">function teleport_object()
+    local sobj = alife():object("esc_wolf")
+    alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,sobj.id)
+end</code></pre>
+
+    <h3 id="func_level_change_level">level.change_level</h3>
+    <p class="desc-text">Выполняет переход на другую локацию. Тоже самое, как создать на месте актора level_changer, только без лишних телодвижений.</p>
+    <pre><code class="language-lua">level.change_level( game_vertex_id, level_vertex_id, pos, dir )
+
+Пример:
+level.change_level( 12, 213330, vector():set(-129.5,-9.56,-147.3), vector():set(-0.6, 0, 0.75))</code></pre>
+
+    <h2 id="state">7. Управление состоянием объектов</h2>
+
+    <h3 id="func_set_different_stat">set_different_stat</h3>
+    <p class="desc-text">ОГСР Установить ранг, деньги НПС.</p>
+    <pre><code class="language-lua">function set_different_stat(actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    obj:set_money(65000)
+    obj:set_character_rank(1000)
+end</code></pre>
+
+    <h3 id="func_kill_actor">kill_actor</h3>
+    <p class="desc-text">Функция убивает главного героя. (нпс убивает сам себя: obj:kill(obj), нпс убивает актора: actor:kill(obj), актор убивает нпс: obj:kill(actor)).</p>
+    <pre><code class="language-lua">function kill_actor (actor, obj)
+    if db.actor ~= nil and db.actor.health > 0 then
+        db.actor:kill(db.actor)
+    end   
+end</code></pre>
+
+    <h3 id="func_hit_obj">hit_obj</h3>
+    <p class="desc-text">Функция наносит урон объекту.</p>
+    <pre><code class="language-lua">function hit_obj (actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    if obj == nil then return end
+    local h = hit()
+    h.power = 100
+    h.direction = obj:direction()
+    h.draftsman = obj 
+    h.impulse = 1
+    h.type = hit.wound
+    obj:hit(h)
+end</code></pre>
+
+    <h3 id="func_set_offline">set_offline</h3>
+    <p class="desc-text">Перевести объект в оффлайн/онлайн. Разрешить/Запретить объекту переходить в оффлайн.</p>
+    <pre><code class="language-lua">function set_offline ()
+    local sobj = alife():object("esc_wolf")
+    alife():set_switch_online(sobj.id, false) -- Перевести объект в онлайн
+    alife():set_switch_offline(sobj.id, true) -- Разрешить объекту переходить в оффлайн
+    alife():set_switch_offline(sobj.id, false) -- Запретить объекту переходить в оффлайн
+end</code></pre>
+
+    <!-- <h3 id="func_spawn_not_switch_offline">spawn_not_switch_offline</h3> -->
+    <!-- <p class="desc-text">Заспавнить нпс, который не сможет уйти в оффлайн.</p> -->
+    <!-- <pre><code class="language-lua">function spawn_not_switch_offline() -->
+    <!-- local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45) -->
+    <!-- alife():set_switch_offline(sobj.id, false) -->
+<!-- end</code></pre> -->
+
+    <h3 id="func_remove_object">remove_object</h3>
+    <p class="desc-text">Удаление объектов через логику.</p>
+    <pre><code class="language-lua">function remove_object(actor, obj)
+    local sobj = obj and alife():object(obj:id())
+    if sobj then
+        alife():release(sobj)
+    end
+end</code></pre>
+
+    <h3 id="func_release_sobj">release_sobj</h3>
+    <p class="desc-text">Удаление объекта.</p>
+    <pre><code class="language-lua">function release_sobj()
+    local sobj = alife():object("esc_wolf")
+    alife():release(sobj, true) 
+end</code></pre>
+
+    <h3 id="func_func_table_by_name">func_table_by_name</h3>
+    <p class="desc-text">Действие над списком объектов, вместо level_object_by_name можно использовать функции из начала файла.</p>
+    <pre><code class="language-lua">function func_table_by_name ()
+    local name_table = {"name3","name1","name14","name7"}
+    for k,v in pairs(name_table) do
+        local obj = level_object_by_name(v)
+        if obj then
+            --действие над obj
+        end        
+    end        
+end</code></pre>
+
+    <h3 id="func_release_table_by_story">release_table_by_story</h3>
+    <p class="desc-text">Удаление списка объектов по стори айди, нужно указать номера вместо {3,6,14,7}.</p>
+    <pre><code class="language-lua">function release_table_by_story ()
+    local story_table = {3,6,14,7}
+    for k,v in pairs(story_table) do
+        local sobj = alife():story_object(v)
+        if sobj then
+            alife():release(sobj, true)
+        end
+    end    
+end</code></pre>
+
+    <h3 id="func_release_table_by_name">release_table_by_name</h3>
+    <p class="desc-text">Удаление списка объектов по имени (подходит только для объектов из all.spawn), нужно указать имена вместо {name3,name1,name14,name7}.</p>
+    <pre><code class="language-lua">function release_table_by_name ()
+    local name_table = {"name3","name1","name14","name7"}
+    for k,v in pairs(name_table) do
+        local sobj = alife():object(v)
+        if sobj then
+            alife():release(sobj, true)
+        end
+    end    
+end</code></pre>
+
+    <h3 id="func_set_physics">set_physics</h3>
+    <p class="desc-text">Задать физику объекту.</p>
+    <pre><code class="language-lua">function set_physics()
+    local obj = level_object_by_name("esc_wolf")
+    obj:set_const_force(vector():set(0,1,0), obj:mass()*19.62, 65535*65535)
+end</code></pre>
+
+    <h2 id="ui-sms">8. UI, СМС и таймеры</h2>
+
+    <h3 id="func_mapspot">mapspot</h3>
+    <p class="desc-text">Поставить метку на объект, green_location - тип метки, без "_ser" метка пропадет после сейв лоада. При удалении нужно передавать тот же айди нпс и название метки.</p>
+    <pre><code class="language-lua">function mapspot(actor, obj)
+    local obj = level_object_by_name("esc_wolf")
+    level.map_add_object_spot_ser(obj:id(), "green_location", "name")
+end
+Удалить метку: level.map_remove_object_spot(obj:id(), "green_location")</code></pre>
+
+    <h3 id="func_sms">sms</h3>
+    <p class="desc-text">СМС сообщения. смс придет от иконки дефаулт, dm_action_info_1 текст из папки текст\рус. Если текст пишем сразу в скрипте, то ставим файлу кодировку: Кириллица Windows-1251.</p>
+    <pre><code class="language-lua">function sms()
+    news_manager.send_tip(db.actor, "dm_action_info_1", nil, nil, nil)
+end
+
+указана иконка сидора, trader из news_manager.script в tips_icons:
+news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", nil)
+
+указана иконка сидора и время показа смс:
+news_manager.send_tip(db.actor, "dm_action_info_1", nil, "trader", 300000)
+
+Текст сразу в скрипте:
+news_manager.send_tip(db.actor, "%c[default]".."Илюха:".."\\n".."%c[default] Привет сталкер!".."".."\n", nil, "arena", 300000)</code></pre>
+
+    <h3 id="func_add_call_timer_set_pause">add_call_timer_set_pause</h3>
+    <p class="desc-text">ОГСР Таймер через level.add_call(). Через 30 секунд будет выдан нож, при перезагрузке сброс.</p>
+    <pre><code class="language-lua">function add_call_timer_set_pause() 
+    level.add_call(
+        function()
+            return true
+        end,
+        function()
+            dialogs.relocate_item_section(db.actor, "wpn_knife", "in")
+        end
+    ):set_pause( 30000 )
+end</code></pre>
+
+    <h3 id="func_add_call_timer">add_call_timer</h3>
+    <p class="desc-text">Аналог на оригинале. Функция таймера "add_call_timer" выполняющая функцию "kill_npc" из того же файла, где и лежит функция таймера, рассчёт в миллисекундах, таймер не будет работать после перезагрузки.</p>
+    <pre><code class="language-lua">function add_call_timer()
+    local iTimer = time_global() + 10*1000
+    local function check_timer()
+        return time_global() > iTimer
+    end
+    level.add_call(check_timer, kill_npc)
+end</code></pre>
+
+    <h3 id="func_client_spawn">client_spawn</h3>
+    <p class="desc-text">Использование методов класса game_object при спавне нпс через скрипт. Позволяет без сейвлоадов сразу использовать клиентские методы на нашем нпс.</p>
+    <pre><code class="language-lua">function client_spawn(section, pos, lv, gv, func)
+    local sobj = alife():create(section, pos, lv, gv)
+    level.client_spawn_manager():add(sobj.id, 65535, function(id, obj) func(id, obj) end)
+end
+
+и вызов:
+client_spawn("stalker",vector():set(-152.0,-18.0,-144.3),98126,45,function(id, obj)
+    obj:set_goodwill(-5000, db.actor) 
+end)</code></pre>
+
+    <h3 id="func_hide_trade_wnd">HideTradeWnd / OnTrade</h3>
+    <p class="desc-text">Закрыть скриптом текущее окно, в данном случае торговли. Поставить вызов OnTrade(info_id) в начало функции actor_binder:info_callback(npc, info_id) - файл bind_stalker.script.</p>
+    <pre><code class="language-lua">local UITradeWnd
+
+function OnTrade(info_id)
+   if info_id =="ui_trade" then
+       UITradeWnd = level.main_input_receiver()
+   elseif info_id == "ui_trade_hide" then
+       UITradeWnd = nil
+   end
+end
+
+function HideTradeWnd()
+    if UITradeWnd then 
+        UITradeWnd:GetHolder():start_stop_menu(UITradeWnd, true)
+    end 
+end
+
+Можно по короче:
+if info_id =="ui_trade" then
+    level.start_stop_menu(level.main_input_reciever(), true)
+end</code></pre>
+
+    <h3 id="func_send_message">send_message</h3>
+    <p class="desc-text">Один из способов выводить получившееся значение в смс.</p>
+    <pre><code class="language-lua">function send_message(msg) 
+    news_manager.send_tip(db.actor, msg, nil, nil, 5000)  
+end
+
+Пример вызова: Имя_файла.send_message(tostring(значение))</code></pre>
+
+    <h2 id="audio-visual">9. Звук, визуал и эффекты</h2>
+
+    <h3 id="func_actor_play_sound">actor_play_sound</h3>
+    <p class="desc-text">Воспроизведение звука в голове гг, звук класть по пути /gamedata/sounds/Cyberpunk2077.ogg.</p>
+    <pre><code class="language-lua">function actor_play_sound()
+    local snd = sound_object([[Cyberpunk2077]])
+    snd:play_no_feedback(db.actor,sound_object.s2d, 0, vector():set(0, 0, 0), 1.0)
+end</code></pre>
+
+    <h3 id="func_play_sound_from_obj">play_sound_from_obj</h3>
+    <p class="desc-text">Воспроизведение звука от объекта, звук должен лежать в /gamedata/sounds/.</p>
+    <pre><code class="language-lua">function play_sound_from_obj()
+    local obj = level_object_by_name("esc_wolf")
+    local snd = sound_object([[characters_voice\dialogs\escape_trader_jobs_611111111]])
+    snd:play_no_feedback(obj,sound_object.s3d, 0, obj:position(), 1.0)
+end</code></pre>
+
+    <h3 id="func_change_icon">change_icon</h3>
+    <p class="desc-text">Замена иконки гг или нпс.</p>
+    <pre><code class="language-lua">function change_icon(actor, obj)
+    db.actor:set_character_icon("name")
+end</code></pre>
+
+    <h3 id="func_change_name">change_name</h3>
+    <p class="desc-text">Замена имени гг или нпс.</p>
+    <pre><code class="language-lua">function change_name(actor, obj)	
+db.actor:get_inventory_owner():SetName( "treasure_test" )
+local sobj   = db.actor:get_alife_object()
+local trader = sobj:get_trader()
+trader.character_name = "treasure_test"
+end</code></pre>
+
+    <h3 id="func_change_visual">change_visual</h3>
+    <p class="desc-text">ОГСР. Смена визуала нпс, работает только после сейвлоада, либо если улететь дальше влияния онлайна.</p>
+    <pre><code class="language-lua">function change_visual(actor, obj)
+    local sobj = alife():object("esc_wolf")
+    sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+end</code></pre>
+
+    <h3 id="func_change_visual_now">change_visual_now</h3>
+    <p class="desc-text">ОГСР мгновенная смена визуала нпс через принудительный оффлайн/онлайн.</p>
+    <pre><code class="language-lua">function change_visual_now()
+    local sobj = alife():object("esc_wolf")
+    sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+    alife():set_switch_online(sobj.id, false)
+    level.add_call(
+        function() return true end,
+        function() alife():set_switch_online(sobj.id, true) end
+    ):set_pause( 1 )
+end</code></pre>
+
+    <h3 id="func_change_visual_now2">change_visual_now2</h3>
+    <p class="desc-text">Разница в реализации таймера, что тут что там функция слетает при перезагрузке.</p>
+    <pre><code class="language-lua">function change_visual_now2()
+    local iTimer = time_global() + 1
+    local sobj = alife():object("esc_wolf")
+    sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+    alife():set_switch_online(sobj.id, false)
+    level.add_call(
+        function() return time_global() > iTimer end,
+        function() alife():set_switch_online(sobj.id, true) end
+    )
+end</code></pre>
+
+    <h3 id="func_change_texture">change_texture</h3>
+    <p class="desc-text">Функция для замены одной текстуры на другую. Работает только на огср. (если надо заменить, скажем, траву то не указываем папку а сразу build_details).</p>
+    <pre><code class="language-lua">function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем.
+    local t1 = texture_find(texture1) -- возвращает таблицу: ключ имя текстуры, значение объект
+    if t1 then
+        local tex = t1[ texture1 ]
+        log1("found, name=" .. tex:get_name())
+        local name = texture2
+        tex:load(name) -- С этим способом замены текстура будет заменяться везде где используется.
+    end
+end</code></pre>
+
+    <h3 id="func_punch">punch</h3>
+    <p class="desc-text">Получаем удар в морду.</p>
+    <pre><code class="language-lua">function punch()
+    local snd_obj = xr_sound.get_safe_sound_object([[affects\hit_fist]])
+    snd_obj:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
+    level.add_cam_effector("punch_effector.anm", 999, false, "")
+end</code></pre>
+
+    <h3 id="func_activate_slot">activate_slot</h3>
+    <p class="desc-text">Активация слота.</p>
+    <pre><code class="language-lua">function activate_slot()
+    db.actor:activate_slot(2)
+end</code></pre>
+
+    <h3 id="func_start_tutorial">start_tutorial</h3>
+    <p class="desc-text">Запуск туториала\видео\текст.</p>
+    <pre><code class="language-lua">function start_tutorial()
+    if xr_conditions.can_send_tutorial() then
+        game.start_tutorial("my_tutor")
+    end
+end</code></pre>
+
+    <h3 id="post_effects">Пост эффекты</h3>
+    <pre><code class="language-lua">-- добавить облет с номером 1974
+level.add_cam_effector("camera_effects\\cut_scene1.anm", 1974, false, "")
+удалить облет с номером 1974
+level.remove_cam_effector (1974)
+
+запуск ппе эффекта с номером 234
+level.add_pp_effector ("vibros.ppe", 234, false)
+удалить ппе эффект с номером 234
+level.remove_pp_effector (234)
+
+запуск погодного эффекта
+level.set_weather_fx ("surge_day")
+
+функции из xr_effects.script
+on_info = %=run_cam_effector(bar_fly)%
+on_info = %=run_postprocess(agr_u_fade)%</code></pre>
+
+    <h2 id="quests">10. Квесты, тайники и утилиты</h2>
+
+    <h3 id="treasure_manager">treasure_manager</h3>
+    <p class="desc-text">Выдача тайника / Выдать все тайники одной строкой.</p>
+    <pre><code class="language-lua">treasure_manager.get_treasure_manager():give_treasure("new_esc_secret")
+treasure_manager.get_treasure_manager():check()</code></pre>
+
+    <h3 id="level_tasks">level_tasks</h3>
+    <p class="desc-text">Завершить\провалить\пропустить квест. 0 - номер обжектива, можно подзадание вырубать.</p>
+    <pre><code class="language-lua">level_tasks.set_task_state (task.completed, "mil_courier_job", 0)
+level_tasks.set_task_state (task.fail, "mil_courier_job", 0)
+level_tasks.set_task_state (task.skipped, "mil_courier_job", 0) -- OGSR</code></pre>
+
+    <h3 id="func_create_point">create_point / remove_point</h3>
+    <p class="desc-text">Создать вейпоинт, подробности смотреть на вики ОГСР, точки нужно удалять вместе с актором.</p>
+    <pre><code class="language-lua">function create_point()
+    db.test_path = CPatrolPath()
+    db.test_path:add_point( db.actor:position() )
+    local pp = db.test_path:point( 0 )
+    level.patrol_path_add( "smart_terrain_kamp_1", db.test_path )
+end
+
+function remove_point()
+    local path = patrol( "smart_terrain_kamp_1" )
+    level.patrol_path_remove( "smart_terrain_kamp_1" )
+end</code></pre>
+
+    <h3 id="func_spawn_npc_with_custom_data">spawn_npc_with_custom_data</h3>
+    <p class="desc-text">ОГСР Заспавнить нпс и задать логику.</p>
+    <pre><code class="language-lua">function spawn_npc_with_custom_data()
+    local sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
+    sobj.custom_data =
+            "[logic]\n"..
+            "active = kamp\n"..
+            "[kamp]\n"..
+            "center_point = smart_terrain_kamp_1\n"
+end</code></pre>
+
+    <h3 id="excluded_npc_ids">Табличка исключений для проверки нпс по имени</h3>
+    <pre><code class="language-lua">local excluded_npc_ids = {
+    ["esc_wolf"] = true,
+    ["esc_trader"] = true,
+}
+
+if not excluded_npc_ids[npc:name()] then  
+    npc:disable_trade() -- действие
+end</code></pre>
+
+    <h3 id="func_spawn_item_to_npc">spawn_item_to_npc</h3>
+    <p class="desc-text">Спавнит нпс и в нем так же спавнит предметы из таблицы.</p>
+    <pre><code class="language-lua">local spawn_item = {
+    {name = "wpn_knife", count = 100},
+    {name = "wpn_pm", count = 300}
+}
+
+function spawn_item_to_npc()
+    local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+
+    for _, entry in ipairs(spawn_item) do
+        local item_name = entry.name
+        local count = entry.count
+
+        for i = 1, count do
+            alife():create(item_name,vector(), 0, 0, sobj.id)
+        end
+    end
+end</code></pre>
+
+    <h3 id="func_spawn_item_to_object">spawn_item_to_object</h3>
+    <p class="desc-text">Спавнит вещи в объекте, указанном по имени.</p>
+    <pre><code class="language-lua">function spawn_item_to_object(items_table, n)
+    local sobj = alife():object(n)
+
+    for _, entry in ipairs(items_table) do
+        local item_name = entry.name
+        local count = entry.count
+
+        for i = 1, count do          
+            alife():create(item_name,vector(), 0, 0, sobj.id)
+        end
+    end
+end
+
+Вызов, указываем таблицу и имя объекта:
+function spawn_item_to_treasure()
+    spawn_item_to_object(spawn_item, "esc_wolf")
+end</code></pre>
+
+    <h3 id="func_spawn_item_anywhere">spawn_item_anywhere</h3>
+    <p class="desc-text">Рандомное место спавна по всей зоне или по указанной локации.</p>
+    <pre><code class="language-lua">local gv_cache = {}
+
+local function all_gvs()
+    if gv_cache then return gv_cache end
+    local t, g, i = {}, game_graph(), 0
+    while g:valid_vertex_id(i) do
+        t[#t+1] = i
+        i = i + 1
+    end
+    gv_cache = t
+    return t
+end
+
+local function level_gvs(lname)
+    if gv_cache[lname] then return gv_cache[lname] end
+    local t, g, i = {}, game_graph(), 0
+    while g:valid_vertex_id(i) do
+        if alife():level_name(g:vertex(i):level_id()) == lname then
+            t[#t+1] = i
+        end
+        i = i + 1
+    end
+    gv_cache[lname] = t
+    return t
+end
+
+function spawn_item_anywhere(section, lname)
+    lname = lname or alife():level_name(alife():level_id())
+    local t = lname and level_gvs(lname) or all_gvs()
+    if #t == 0 then return nil end
+
+    local gv = t[math.random(#t)]
+    local v  = game_graph():vertex(gv)
+    local s = alife():create(section, v:level_point(), v:level_vertex_id(), gv)
+    level.map_add_object_spot_ser(s.id, "green_location", s:name())
+end
+
+вызов:
+Имя_файла.spawn_item_anywhere("af_medusa")              текущая локация
+Имя_файла.spawn_item_anywhere("wpn_pm", "l01_escape")   -- указанная</code></pre>
+
+    <h3 id="func_spawn_random">spawn_random</h3>
+    <p class="desc-text">Рандомное место спавна обьекта "wpn_svd_m1" в игре из заданного списка.</p>
+    <pre><code class="language-lua">function spawn_random()
+    local fr_prob={
+        {position={x=-205,y=-19,z=-138},gv=61,lv=47845},
+        {position={x=-153,y=-30,z=-233},gv=35,lv=96517},
+        {position={x=-85,y=-4,z=-75},gv=76,lv=180679}
+    }
+    local a = fr_prob[math.random(table.getn(fr_prob))] 
+    alife():create("wpn_svd_m1", vector():set(a.position.x,a.position.y,a.position.z), a.lv, a.gv) 
+end</code></pre>
+
+    <h3 id="func_spawn_item_random">spawn_item_random</h3>
+    <p class="desc-text">Есть ещё вариант, с рандомным предметом.</p>
+    <pre><code class="language-lua">local stalker_types  = {"bread", "kolbasa", "conserva", "vodka"}
+function spawn_item_random() 
+    alife():create(stalker_types[math.random(4)],vector():set(-0.112,0.477,-215.563),174943,265)
+end</code></pre>
+
+    <h3 id="func_spawn_full_random">spawn_full_random</h3>
+    <p class="desc-text">Полный рандом и предмета и места.</p>
+    <pre><code class="language-lua">function spawn_full_random()
+    local fr_prob={
+        {position={x=-205,y=-19,z=-138},gv=61,lv=47845},
+        {position={x=-153,y=-30,z=-233},gv=35,lv=96517},
+        {position={x=-85,y=-4,z=-75},gv=76,lv=180679}
+    }
+    local a = fr_prob[math.random(table.getn(fr_prob))] 
+    local stalker_types  = {"bread", "kolbasa", "conserva", "vodka"}
+    alife():create(stalker_types[math.random(4)], vector():set(a.position.x,a.position.y,a.position.z), a.lv, a.gv)
+end</code></pre>
+
+    <h3 id="func_count_info">count_info</h3>
+    <p class="desc-text">Посчитать количество полученных инфо.</p>
+    <pre><code class="language-lua">function count_info()
+    local count = 0
+
+    -- Список всех info_portion
+    local info_list = {
+        "info1",
+        "info2",
+        "info3"
+    }
+
+    for _, info in ipairs(info_list) do
+        if has_alife_info(info) then
+            count = count + 1
+        end
+    end
+
+    return count
+end</code></pre>
+
+    <h3 id="func_talk_icon">talk_icon</h3>
+    <p class="desc-text">Вывод иконок в диалоге.</p>
+    <pre><code class="language-lua">function talk_icon(actor, obj)
+    local test = 33
+    local total = ""
+    local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
+    total = game.translate_string("stalker").." %c[255,238,155,23]"..test..""
+    actor:give_talk_message(total, task_texture, task_rect, "iconed_trade_info")
+end</code></pre>
+
+    <h2 id="date-weather">11. Дата и погода</h2>
+
+    <h3 id="func_check_date">check_date</h3>
+    <p class="desc-text">Проверка даты целиком (и вывод в лог). Проверка текущего дня, месяца и года.</p>
+    <pre><code class="language-lua">function check_date()
+    local game_time = game.get_game_time()
+    local year, month, day, hour, minute, second, ms = game_time:get()
+
+    local d   = day     
+    local m = month   
+    local y  = year    
+    
+    log1(string.format("День:   %d", d))
+    log1(string.format("Месяц:  %d", m))
+    log1(string.format("Год:    %d", y))
+
+    local date_str = game_time:dateToString(game.CTime.DateToDay) 
+    log1("Дата в формате ДД.ММ.ГГГГ: " .. date_str)
+end</code></pre>
+
+    <h3 id="func_current_day">current_day / current_month / current_year</h3>
+    <pre><code class="language-lua">function current_day()
+    local game_time = game.get_game_time()
+    local year, month, day, hour, minute, second, ms = game_time:get()
+    return day
+end
+
+function current_month()
+    local game_time = game.get_game_time()
+    local year, month, day, hour, minute, second, ms = game_time:get()
+    return month
+end
+
+function current_year()
+    local game_time = game.get_game_time()
+    local year, month, day, hour, minute, second, ms = game_time:get()
+    return year
+end</code></pre>
+
+    <h3 id="weather_control">Управление погодой</h3>
+    <p class="desc-text">Взаимодействие с параметрами текущей погоды. Взаимодействовать скриптом можно только с параметрами которые описаны в CEnvDescriptor в lua_help.</p>
+    <pre><code class="language-lua">local env = level.environment()
+local env_desc = env:getCurrentWeather( idx )  
+env_desc.wind_velocity = factor
+
+Это загрузит секции погоды в Current[0] и Current[1]. Далее погода будет плавно меняться от Current[0] к Current[1].
+level.set_weather( weather, true )</code></pre>
+
+    <button class="back-to-top" id="backToTop" title="Наверх">↑</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+    <script>
+        (function() {
+            const toc = document.getElementById('toc');
+            const toggleBtn = document.getElementById('tocToggle');
+            const label = toggleBtn.querySelector('.label');
+            const STORAGE_KEY = 'toc_collapsed';
+
+            // Восстановление состояния из localStorage
+            if (localStorage.getItem(STORAGE_KEY) === 'true') {
+                toc.classList.add('collapsed');
+                label.textContent = 'Развернуть';
+            }
+
+            toggleBtn.addEventListener('click', function() {
+                toc.classList.toggle('collapsed');
+                const isCollapsed = toc.classList.contains('collapsed');
+                label.textContent = isCollapsed ? 'Развернуть' : 'Свернуть';
+                localStorage.setItem(STORAGE_KEY, isCollapsed);
+            });
+
+            // Кнопка наверх
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+    </script>
+</body>
+</html>

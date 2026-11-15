@@ -19,7 +19,7 @@
 если вызов через диалог/логику то sobj можно определить так:
     local sobj = alife():object(obj:id())
 
-Если вы увидите функции в которых фигурирует db.actor, но в аргументах (actor, obj), значит вместо db.actor можно указать obj и наоборот
+Если вы увидите функции в которых фигурирует db.actor, и в аргументах (actor, obj), значит вместо db.actor можно указать obj и наоборот
 
 function имя_функции(actor, obj)
 
@@ -194,12 +194,12 @@ function out_all_money(actor, obj)
 end
 --------------------------------------------------------------------------------------------------------------
 Получаем деньги от нпс
-function give_money(actor, obj)
+function take_money(actor, obj)
 	dialogs.relocate_money(obj, 3000, "in")
 end
 --------------------------------------------------------------------------------------------------------------
 Отдаем деньги нпс
-function give_3k_out(actor, obj)
+function give_money(actor, obj)
 	dialogs.relocate_money(obj, 3000, "out")
 end
 --------------------------------------------------------------------------------------------------------------
@@ -259,7 +259,7 @@ function spawn_to_inventory_npc(actor, obj)
 end
 --------------------------------------------------------------------------------------------------------------
 спавн себе в инвентарь, позволяет указать количество, для работы функций нужен sak.script из сборника, его копируем себе в gamedata\scripts\
-function nagrada()
+function sak_spawn_items()
 	sak.create_items_actor("medkit",3)
 end
 
@@ -321,6 +321,7 @@ treasure_manager.get_treasure_manager():give_treasure("new_esc_secret")
 treasure_manager.get_treasure_manager():check()
 --------------------------------------------------------------------------------------------------------------
 Завершить\провалить\пропустить квест. 0 - номер обжектива, можно подзадание вырубать
+
 	   level_tasks.set_task_state (task.completed, "mil_courier_job", 0)
 	   level_tasks.set_task_state (task.fail, "mil_courier_job", 0)
 	   level_tasks.set_task_state (task.skipped, "mil_courier_job", 0) -- OGSR
@@ -346,7 +347,7 @@ function rep_plus_100()
 end
 --------------------------------------------------------------------------------------------------------------
 Установка отношения группировки к нам, это не прибавка, а перезапись знаний как в game_relations.ltx
-function vrag_dolg(actor, obj)
+function set_community_goodwill(actor, obj)
 	relation_registry.set_community_goodwill ("группировка", db.actor:id(), - 5000)
 end
 
@@ -354,8 +355,31 @@ end
 	relation_registry.set_community_goodwill ("группировка", db.actor:id(), 5000)
 --------------------------------------------------------------------------------------------------------------
 Установить отношения с лагерем\гулагом вместо friend доступно neutral и enemy
-function set_relation(actor, obj)
+function set_gulag_relation(actor, obj)
     xr_gulag.setGulagRelation("esc_lager", game_object.friend, db.actor)
+end
+--------------------------------------------------------------------------------------------------------------
+Сделать нпс врагом гг
+function set_npc_relation (actor, obj)
+	local obj = level_object_by_name("esc_wolf")
+	obj:set_relation(game_object.enemy, db.actor)
+end
+
+другом game_object.friend
+
+нейтралом game_object.neutral
+
+
+Установить отношения между нпс
+    local npc1 = level_object_by_sid (704)
+    local npc2 = level_object_by_sid (705)
+    npc1:set_relation(game_object.enemy, npc2)
+    npc2:set_relation(game_object.enemy, npc1)
+--------------------------------------------------------------------------------------------------------------
+Установить отношения числом
+function set_number_goodwill (actor, obj)
+	local obj = level_object_by_name("esc_wolf")
+	obj:set_goodwill(-5000, db.actor)
 end
 --------------------------------------------------------------------------------------------------------------
 Использование/съедание предметов
@@ -375,40 +399,30 @@ function medic_magic_potion(actor, obj)
 end
 --------------------------------------------------------------------------------------------------------------
 ОГСР Установить ранг, деньги НПС
-function set_different(actor, obj)
+function set_different_stat(actor, obj)
 	local obj = level_object_by_name("esc_wolf")
 	obj:set_money(65000)
 	obj:set_character_rank(1000)
 end
 --------------------------------------------------------------------------------------------------------------
 Устанавливаем группировку
-function actor_set_community(actor, obj)
+function set_community(actor, obj)
 	db.actor:set_character_community("actor_dolg", 0, 0)
 end
+
+Поставить нпс группировку гг
+obj:set_character_community(db.actor:character_community(), 0, 0)
 --------------------------------------------------------------------------------------------------------------
-Сделать нпс врагом гг
-function set_relation_enemy (actor, obj)
-	local obj = level_object_by_name("esc_wolf")
-	obj:set_relation(game_object.enemy, db.actor)
+замена иконки гг или нпс
+function change_icon(actor, obj)
+	db.actor:set_character_icon("name")
 end
-
-другом
-	obj:set_relation(game_object.friend, db.actor)
-
-нейтралом	
-	obj:set_relation(game_object.neutral, db.actor)
-
-
-Установить отношения между нпс
-    local npc1 = level_object_by_sid (704)
-    local npc2 = level_object_by_sid (705)
-    npc1:set_relation(game_object.enemy, npc2)
-    npc2:set_relation(game_object.enemy, npc1)
 --------------------------------------------------------------------------------------------------------------
-Установить отношения числом
-function enemy (actor, obj)
-	local obj = level_object_by_name("esc_wolf")
-	obj:set_goodwill(-5000, db.actor)
+function change_name(actor, obj)	
+db.actor:get_inventory_owner():SetName( "treasure_test" )
+local sobj   = db.actor:get_alife_object()
+local trader = sobj:get_trader()
+trader.character_name = "treasure_test"
 end
 --------------------------------------------------------------------------------------------------------------
 Функция убивает главного героя
@@ -441,7 +455,7 @@ function hit_obj (actor, obj)
 end
 --------------------------------------------------------------------------------------------------------------
 Перевести объект в оффлайн
-function main0 ()
+function set_offline ()
 	local sobj = alife():object("esc_wolf")
 	alife():set_switch_online(sobj.id, false)
 end
@@ -454,12 +468,6 @@ end
 
 Запретить объекту переходить в оффлайн
 	alife():set_switch_offline(sobj.id, false)
-
-Заспавнить нпс, который не сможет уйти в оффлайн
-function spawn_not_switch_offline()
-	local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-	alife():set_switch_offline(sobj.id, false)
-end
 --------------------------------------------------------------------------------------------------------------
 Удаление объектов через логику
 function remove_object(actor, obj)
@@ -550,11 +558,6 @@ end
 function teleport_object()
 	local sobj = alife():object("esc_wolf")
 	alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,sobj.id)
-end
---------------------------------------------------------------------------------------------------------------
-замена иконки гг или нпс
-function change_icon(actor, obj)
-	db.actor:set_character_icon("name")
 end
 --------------------------------------------------------------------------------------------------------------
 Спавн объекта из all.spawn по имени(подразумевается, что объект был удален)
@@ -678,7 +681,7 @@ end
 	level.unblock_action(key_bindings.kTORCH)
 --------------------------------------------------------------------------------------------------------------
 ОГСР Таймер через level.add_call() 
-function timer() 
+function add_call_timer_set_pause() 
 	level.add_call(
 			function()
 				return true
@@ -693,7 +696,7 @@ end
 Аналог на оригинале
 
 Функция таймера "esc_timer" выполняющая функцию "kill_npc" из того же файла, где и лежит функция таймера, рассчёт в миллисекундах, таймер не будет  работать после перезагрузки. Даже если поставить на апдейт, то он будет сбрасываться в 0, поэтому  используйте  только в своих тестах.
-function esc_timer()
+function add_call_timer()
 	local iTimer = time_global() + 10*1000
 	local function check_timer()
 			 return time_global() > iTimer
@@ -735,7 +738,7 @@ utils.send_to_nearest_accessible_vertex(obj,107814)
 то есть передаём как удобно.	
 --------------------------------------------------------------------------------------------------------------
 вывод иконок в диалоге
-function main3231(actor, obj)
+function talk_icon(actor, obj)
 local test = 33
 local total = ""
 local task_texture, task_rect = get_texture_info("ui_iconsTotal_artefact")
