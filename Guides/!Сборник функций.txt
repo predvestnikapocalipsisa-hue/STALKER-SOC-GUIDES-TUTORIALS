@@ -1,4 +1,4 @@
-Базовые функции
+Определение нпс
 --------------------------------------------------------------------------------------------------------------
 Для функций ниже будем использовать следующие обозначения:
 	sobj - серверный объект
@@ -77,6 +77,19 @@ function alife_object_by_spawn( name )
 		end
 	end
 end
+--------------------------------------------------------------------------------------------------------------
+Один из способов выводить получившееся значение в смс
+function send_message(msg) 
+    news_manager.send_tip(db.actor, msg, nil, nil, 5000)  
+end
+
+Пример вызова
+	Имя_файла.send_message(tostring(значение))
+
+В ОГСР\ХЕ вывод инфы в лог\консоль
+	log1("коммент")
+	log1("коммент".. tostring(значение))
+	log1(tostring(значение))
 --------------------------------------------------------------------------------------------------------------
 ОГСР от 3.432 получение левел и гейм вертекс по имени локации, кладем в _g.script 
 function get_lv_gv(level_name, pos)
@@ -180,6 +193,63 @@ end
 function spawn_on_death_ogsr()
 	local sobj = alife():create("boar_weak",vector():set(-152.0,-18.0,-144.3),98126,45)
 	sobj:set_health(0)
+end
+--------------------------------------------------------------------------------------------------------------
+ОГСР Заспавнить нпс и задать логику
+function spawn_npc_with_custom_data()
+	local sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
+    sobj.custom_data =
+			"[logic]\n"..
+			"active = kamp\n"..
+			"[kamp]\n"..
+			"center_point = smart_terrain_kamp_1\n"
+end	
+--------------------------------------------------------------------------------------------------------------
+Исользование методов класса game_object при спавне нпс через скрипт
+
+Когда мы спавним нпс, его клиентская сторона образуется не сразу и использование методов класса game_object, т.е. клиентских приведет к вылету, поэтому есть такой вот способ, как без сейвлоадов сразу использовать клиентские методы на нашем нпс:
+function spawn_client_spawn_manager()
+	local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
+	level.client_spawn_manager():add(sobj.id, 65535,
+    function (id, obj)
+		obj:set_goodwill(-5000, db.actor)
+    end
+    )
+end
+
+можно чуть универсализировать функцию в _g.script
+function client_spawn(section, pos, lv, gv, func)
+    local sobj = alife():create(section, pos, lv, gv)
+    level.client_spawn_manager():add(sobj.id, 65535, function(id, obj) func(id, obj) end)
+end
+
+и вызов
+client_spawn("stalker",vector():set(-152.0,-18.0,-144.3),98126,45,function(id, obj)
+    obj:set_goodwill(-5000, db.actor) 
+	end)
+	
+Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне(зависит от switch_distance).
+
+В данной функции указываются координаты и секция вашего нпс, всё как обычно, а вот взаимодействие может быть разным, тут:
+obj:set_goodwill(-5000, db.actor)
+изменение отношения этого нпс к актору, параметр obj передаётся за счёт
+function(id, obj)
+поэтому структуру не менять, а само взаимодействие с obj можно сделать так:
+utils.send_to_nearest_accessible_vertex(obj,107814)
+то есть передаём как удобно.
+--------------------------------------------------------------------------------------------------------------
+Спавн объекта из all.spawn по имени(подразумевается, что объект был удален)
+function spawn_by_spawn_id()
+	local spawn_id = alife():spawn_id("esc_wolf")
+    alife():create(spawn_id)
+end
+--------------------------------------------------------------------------------------------------------------
+Спавн нпс с визуалом и оружием гг
+function cutscene_npc()
+        local wpn = db.actor:item_in_slot(2) 
+        local sobj = alife():create("нпс",vector():set(-152.0,-18.0,-144.3),98126,45)
+        sobj.visual_name = db.actor:get_visual_name()        
+        alife():create(wpn,vector(),0,0,sobj.id)
 end
 --------------------------------------------------------------------------------------------------------------
 выдача инфопоршн
@@ -560,20 +630,6 @@ function teleport_object()
 	alife():teleport_object("",vector():set(-129.5,-9.56,-147.3),122325,44,sobj.id)
 end
 --------------------------------------------------------------------------------------------------------------
-Спавн объекта из all.spawn по имени(подразумевается, что объект был удален)
-function spawn_by_spawn_id()
-	local spawn_id = alife():spawn_id("esc_wolf")
-    alife():create(spawn_id)
-end
---------------------------------------------------------------------------------------------------------------
-Спавн нпс с визуалом и оружием гг
-function cutscene_npc()
-        local wpn = db.actor:item_in_slot(2) 
-        local sobj = alife():create("нпс",vector():set(-152.0,-18.0,-144.3),98126,45)
-        sobj.visual_name = db.actor:get_visual_name()        
-        alife():create(wpn,vector(),0,0,sobj.id)
-end
---------------------------------------------------------------------------------------------------------------
 Создать вейпоинт, подробности смотреть на вики ОГСР, точки нужно удалять вместе с актором
 function create_point()
 	db.test_path = CPatrolPath()
@@ -586,17 +642,7 @@ end
 function remove_point()
 	local path = patrol( "smart_terrain_kamp_1" )
 	level.patrol_path_remove( "smart_terrain_kamp_1" )
-end
---------------------------------------------------------------------------------------------------------------
-ОГСР Заспавнить нпс и задать логику
-function spawn_npc_with_custom_data()
-	local sobj = alife():create("dolg_regular",vector():set(-152.0,-18.0,-144.3),98126,45)  
-    sobj.custom_data =
-			"[logic]\n"..
-			"active = kamp\n"..
-			"[kamp]\n"..
-			"center_point = smart_terrain_kamp_1\n"
-end						
+end					
 --------------------------------------------------------------------------------------------------------------
 Задать физику объекту
 function set_physics()
@@ -663,18 +709,29 @@ function change_visual(actor, obj)
     sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
 end
 --------------------------------------------------------------------------------------------------------------
-Один из способов выводить получившееся значение в смс
-function send_message(msg) 
-    news_manager.send_tip(db.actor, msg, nil, nil, 5000)  
+ОГСР мгновенная смена визуала нпс
+function change_visual_now()
+local sobj = alife():object("esc_wolf")
+  sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+  alife():set_switch_online(sobj.id, false)
+  level.add_call(
+      function() return true end,
+      function() alife():set_switch_online(sobj.id, true) end
+      ):set_pause( 1 )
 end
 
-Пример вызова
-	Имя_файла.send_message(tostring(значение))
+function change_visual_now2()
+local iTimer = time_global() + 1
+local sobj = alife():object("esc_wolf")
+  sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
+  alife():set_switch_online(sobj.id, false)
+  level.add_call(
+      function() return time_global() > iTimer end,
+      function() alife():set_switch_online(sobj.id, true) end
+      )
+end
 
-В ОГСР\ХЕ вывод инфы в лог\консоль
-	log1("коммент")
-	log1("коммент".. tostring(значение))
-	log1(tostring(значение))
+разница в реализации таймера, что тут что там функция слетает при перезагрузке
 --------------------------------------------------------------------------------------------------------------
 В ОГСР блокировка нажатия клавиш. kTORCH - фонарик
 	level.block_action(key_bindings.kTORCH)
@@ -702,40 +759,7 @@ function add_call_timer()
 			 return time_global() > iTimer
 		  end
 	level.add_call(check_timer, kill_npc)
-end
---------------------------------------------------------------------------------------------------------------
-Исользование методов класса game_object при спавне нпс через скрипт
-
-Когда мы спавним нпс, его клиентская сторона образуется не сразу и использование методов класса game_object, т.е. клиентских приведет к вылету, поэтому есть такой вот способ, как без сейвлоадов сразу использовать клиентские методы на нашем нпс:
-function spawn_client_spawn_manager()
-	local sobj = alife():create("stalker",vector():set(-152.0,-18.0,-144.3),98126,45)
-	level.client_spawn_manager():add(sobj.id, 65535,
-    function (id, obj)
-		obj:set_goodwill(-5000, db.actor)
-    end
-    )
-end
-
-можно чуть универсализировать функцию в _g.script
-function client_spawn(section, pos, lv, gv, func)
-    local sobj = alife():create(section, pos, lv, gv)
-    level.client_spawn_manager():add(sobj.id, 65535, function(id, obj) func(id, obj) end)
-end
-
-и вызов
-client_spawn("stalker",vector():set(-152.0,-18.0,-144.3),98126,45,function(id, obj)
-    obj:set_goodwill(-5000, db.actor) 
-	end)
-	
-Есть ещё нюансы, нпс должен быть  на расстоянии не более 140 метров от гг, иными словами в онлайне(зависит от switch_distance).
-
-В данной функции указываются координаты и секция вашего нпс, всё как обычно, а вот взаимодействие может быть разным, тут:
-obj:set_goodwill(-5000, db.actor)
-изменение отношения этого нпс к актору, параметр obj передаётся за счёт
-function(id, obj)
-поэтому структуру не менять, а само взаимодействие с obj можно сделать так:
-utils.send_to_nearest_accessible_vertex(obj,107814)
-то есть передаём как удобно.	
+end	
 --------------------------------------------------------------------------------------------------------------
 вывод иконок в диалоге
 function talk_icon(actor, obj)
@@ -876,26 +900,26 @@ function spawn_full_random()
 	alife():create(stalker_types[math.random(4)], vector():set(a.position.x,a.position.y,a.position.z), a.lv, a.gv)
 end
 --------------------------------------------------------------------------------------------------------------
--- Получаем удар в морду
+Получаем удар в морду
 function punch()
     local snd_obj = xr_sound.get_safe_sound_object([[affects\hit_fist]])
     snd_obj:play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 1.0)
     level.add_cam_effector("punch_effector.anm", 999, false, "")
 end
 --------------------------------------------------------------------------------------------------------------
--- Активация слота
+Активация слота
 function activate_slot()
 	db.actor:activate_slot(2)
 end
 --------------------------------------------------------------------------------------------------------------
--- запуск туториала\видео\текст
+запуск туториала\видео\текст
 function start_tutorial()
 	if xr_conditions.can_send_tutorial() then
 		game.start_tutorial("my_tutor")
 	end
 end
 --------------------------------------------------------------------------------------------------------------
--- Пост эффекты
+Пост эффекты
 --------------------------------------------------------------------------------------------------------------
 добавить облет с номером 1974
 level.add_cam_effector("camera_effects\\cut_scene1.anm", 1974, false, "")
@@ -934,30 +958,6 @@ function count_info()
 
     return count
 end
---------------------------------------------------------------------------------------------------------------
-ОГСР смена визуала нпс
-function change_visual_now()
-local sobj = alife():object("esc_wolf")
-  sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
-  alife():set_switch_online(sobj.id, false)
-  level.add_call(
-      function() return true end,
-      function() alife():set_switch_online(sobj.id, true) end
-      ):set_pause( 1 )
-end
-
-function change_visual_now2()
-local iTimer = time_global() + 1
-local sobj = alife():object("esc_wolf")
-  sobj.visual_name = "actors\\neytral\\stalker_neytral_rukzak_3"
-  alife():set_switch_online(sobj.id, false)
-  level.add_call(
-      function() return time_global() > iTimer end,
-      function() alife():set_switch_online(sobj.id, true) end
-      )
-end
-
-разница в реализации таймера, что тут что там функция слетает при перезагрузке
 --------------------------------------------------------------------------------------------------------------
 Функция для замены одной текстуры на другую. Работает только на огср. Изначально эта функция лежала на вики огср, после чего мы ее переместили в ray_features. А теперь я сделал из нее модуль
 function change_texture(texture1, texture2) -- texture1 это заменяемая текстура, texture2 это на что заменяем. Пути указывать по типу такого: "act\\act_arm_perchatka1" 
