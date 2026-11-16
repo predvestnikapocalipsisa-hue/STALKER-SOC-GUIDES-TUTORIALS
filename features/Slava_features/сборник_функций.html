@@ -132,8 +132,9 @@
             </button>
         </div>
         <div class="toc-content" id="tocContent">
-            <div class="toc-category">1. Базовые функции</div>
+            <div class="toc-category">1. Определение нпс</div>
             <ul>
+                <li><a href="#sign_npc">Обозначение obj и sobj <span class="toc-desc">Клиентский и серверный объект</span></a></li>
                 <li><a href="#func_level_object_by_name">level_object_by_name <span class="toc-desc">Клиентский объект по имени</span></a></li>
                 <li><a href="#func_level_object_by_spawn">level_object_by_spawn <span class="toc-desc">Клиентский объект, заспавненный скриптом</span></a></li>
                 <li><a href="#func_alife_object_by_spawn">alife_object_by_spawn <span class="toc-desc">Серверный объект, заспавненный скриптом</span></a></li>
@@ -270,7 +271,8 @@
         </div>
     </div>
 
-    <h2 id="base">1. Базовые функции</h2>
+    <h2 id="base">1. Определение нпс</h2>
+    <h3 id="sign_npc">Обозначение obj и sobj</h3>
     <p class="desc-text">Для функций ниже будем использовать следующие обозначения: <code>sobj</code> - серверный объект, <code>obj</code> - клиентский.</p>
     <p class="desc-text">по стори айди:</p>
 	<pre><code class="language-lua">local sobj = alife():story_object(14)
