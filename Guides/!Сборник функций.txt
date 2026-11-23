@@ -919,6 +919,28 @@ function start_tutorial()
 	end
 end
 --------------------------------------------------------------------------------------------------------------
+Вывод статика с текстм из статиик из ui_custom_msgs.xml, 5000 - 5 секунд
+function show_text()
+    local hud = get_hud()
+    hud:AddCustomStatic("my_static", true)
+    local st = hud:GetCustomStatic("my_static")
+    st:wnd():SetTextST("st_autosave") -- удалите строку если хотите указать текст в ui_custom_msgs.xml
+	local t0 = time_global() + 5000
+	level.add_call(
+		function() return time_global() >= t0 end,
+		function() hud:RemoveCustomStatic("my_static") end
+	)
+end
+
+в ui_custom_msgs.xml
+
+	<my_static  x="100" y="730" width="800" height="30">
+		<text font="graffiti22"  r="240" g="217" b="182" a="255" align="c"/>
+	</my_static>
+
+	если хотите указать текст прямо в статике
+		<text font="graffiti22"  r="240" g="217" b="182" a="255" align="c">st_autosave</text>
+--------------------------------------------------------------------------------------------------------------
 Пост эффекты
 --------------------------------------------------------------------------------------------------------------
 добавить облет с номером 1974
@@ -1071,4 +1093,81 @@ function current_year()
 
 	return year
 end
+--------------------------------------------------------------------------------------------------------------
+ОГСР Способ пометить все вейпоинты в игре, на их месте спавнится рестриктор с метка на него, для работы надо в misc закинуть файл с поинтами из all.spawn
+parse_names = function (s)
+  local t = {}
+  
+  for name in string.gfind(s, "([%w_%-.\\]+)%p*") do
+    table.insert(t, name)
+  end
+
+  return t
+end
+
+local filename = "misc\\way__level_unknown.ltx"
+
+function add_map_all_points()
+   local ini = ini_file(filename)
+    local jobs = {}
+
+    -- сначала собираем, потом спавним (не мешаем итератору)
+    ini:iterate_sections(function(sect)
+        if not ini:line_exist(sect, "points") then return end
+        local str = ini:r_string(sect, "points")
+        if not str or str == "" then return end
+
+        for _, name in ipairs(parse_names(str)) do
+            jobs[#jobs+1] = {
+                sect = sect,
+                name = name,
+                pos  = ini:r_vector(sect, name..":position"),
+                lv   = ini:r_u32(sect, name..":level_vertex_id"),
+                gv   = ini:r_u32(sect, name..":game_vertex_id"),
+            }
+        end
+    end)
+
+    for _, j in ipairs(jobs) do
+        local obj = alife():create("space_restrictor", j.pos, j.lv, j.gv)
+        if obj then
+            level.map_add_object_spot_ser(obj.id, "green_location", j.sect.." "..j.name)
+        end
+    end
+end
+
+В оригинале чуть сложнее, надо заполнять таблицу руками, parse_names тот же
+
+local filename = "misc\\way__level_unknown.ltx"
+
+local t = {
+  "sci_angar_zombied_kamp_1",
+  "sci_bandit_kamp_1",
+  "sci_bunker_guard_kamp_1",
+  "sci_bunker_guard_kamp_2",
+  "sci_bunker_guard_sleep_1",
+  "sci_bunker_guard_sleep_2",
+  "sci_bunker_guard_sleep_3",
+}
+
+function indicate()
+  local ini = ini_file(filename)
+  
+  for _,v in ipairs(t) do
+    local str = ini:r_string(v, "points")
+    log(str)
+    local p_names = parse_names( str )
+    for _,name in ipairs(p_names) do 
+      local lv = ini:r_u32(v, name..":level_vertex_id")
+      local gv = ini:r_u32(v, name..":game_vertex_id")
+      local pos = ini:r_vector(v, name..":position")
+      
+      local obj = alife():create("space_restrictor", pos, lv, gv)
+        
+      level.map_add_object_spot_ser(obj.id, "green_location", v.." "..name)
+    end
+  end
+end
+
+--------------------------------------------------------------------------------------------------------------
 -- -*- mode: lua; coding: windows-1251-dos -*-
