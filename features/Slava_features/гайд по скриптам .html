@@ -649,15 +649,7 @@ end</code></pre>
     <p>Чтобы это чудо себе поставить нужно открыть \gamedata\scripts\bind_stalker.script</p>
     <p>найти function actor_binder:update(delta)</p>
     <p>Вставляем:</p>
-    <pre><code class="language-lua">if self.timer1000 &lt; time_global() then
-self.timer1000 = time_global()+1
-dik_hot_keys.update()
-end</code></pre>
-    <p>И необходимо добавить параметр self.timer1000 = 0 в функцию function actor_binder:reinit()</p>
-    <p>Ещё есть пример:<br>
-    <a href="https://vk.com/@-226619903-testovaya-statya" style="color:#61afef;">https://vk.com/@-226619903-testovaya-statya</a></p>
-    <p>файлы<br>
-    <a href="https://drive.google.com/drive/folders/1UzgB239SlfY52QzXmvNgR3hH1DUmRkZq" style="color:#61afef;">https://drive.google.com/drive/folders/1UzgB239SlfY52QzXmvNgR3hH1DUmRkZq</a></p>
+    <pre><code class="language-lua">dik_hot_keys.update()</code></pre>
 
     <div class="divider"></div>
     <h2 id="sec-loops">ЦИКЛЫ for</h2>
@@ -765,7 +757,19 @@ end</code></pre>
     <pre><code class="language-lua">function actor_binder:update(delta)
 	object_binder.update(self, delta)
 
-	Имя_файла.main()</code></pre>
+	Имя_файла.main()	
+	
+Файл будет читаться каждую миллисекунду, чтобы оптимизировать можно сделать каждую секунду
+
+function actor_binder:update(delta)
+	object_binder.update(self, delta)
+
+	self.t1 = self.t1 or 0
+	if time_global() >= self.t1 then
+		self.t1 = time_global() + 1000
+			Имя_файла.main()
+	end</code></pre>
+	
     <p>функцию main оформляем также, как function proceed() из файла \gamedata\scripts\escape_tasks.script</p>
     <pre><code class="language-lua">function main()
 	if sak.have_item_namber("af_medusa",1) and not has_alife_info("tutorial_artefact_start") then		

@@ -802,6 +802,18 @@ function actor_binder:update(delta)
 	object_binder.update(self, delta)
 
 	Имя_файла.main()
+	
+	
+Файл будет читаться каждую миллисекунду, чтобы оптимизировать можно сделать каждую секунду
+
+function actor_binder:update(delta)
+	object_binder.update(self, delta)
+
+	self.t1 = self.t1 or 0
+	if time_global() >= self.t1 then
+		self.t1 = time_global() + 1000
+			Имя_файла.main()
+	end	
 
 функцию main оформляем также, как function proceed() из файла \gamedata\scripts\escape_tasks.script
 
