@@ -652,24 +652,7 @@ end
 найти function actor_binder:update(delta)
 
 Вставляем:
-
-if self.timer1000 < time_global() then
-self.timer1000 = time_global()+1
 dik_hot_keys.update()
-end
-
-
-И необходимо добавить параметр self.timer1000 = 0 в функцию function actor_binder:reinit()
-
-
-
-Ещё есть пример:
-https://vk.com/@-226619903-testovaya-statya
-
-файлы
-https://drive.google.com/drive/folders/1UzgB239SlfY52QzXmvNgR3hH1DUmRkZq
-
-
 
 --------------------------------------------------------------------------------------------------------------
 ЦИКЛЫ for
