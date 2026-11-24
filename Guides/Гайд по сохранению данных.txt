@@ -1,7 +1,85 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 Скрипты позволяют сохранять и загружать произвольные пользовательские данные. Это особенно полезно при создании квестов, где требуется хранить состояния NPC, настроек или других игровых флагов между сессиями.
 
-Начнем с современного, в ОГСР появилось нормально хранилище get_stored_vars()
+ОГСР Сохранение в ltx
+
+Хранилище, которое переживает новую игру
+
+Пишет и читает настройки прямо с диска, а не в сейв. Файл один, секций внутри сколько угодно.
+Путь: \gamedata\config\my_mod.ltx
+
+Апи:
+set("general", "player_name", "Стрелок")
+set("general", "hardcore", true)
+add("general", "kills")            -- +1, счётчик
+add("general", "money_spent", 500)
+
+local kills = get("general", "kills", 0)
+local name  = get("general", "player_name", "неизвестно")
+Тип определяется автоматом по значению/дефолту: строка, bool, число. Ключа нет — вернётся дефолт, а не вылет.
+
+Секции плодятся под что угодно:
+add("l01_escape", "artefacts_found", 1)
+set("stash_1234", "opened", true)
+
+Нюансы:
+- Каждый get/set открывает и парсит файл заново. В update каждый кадр не дёргать - держите значение в памяти, пишите по событию/таймеру.
+- Числа пишутся как float.
+- Файл должен существовать до первого чтения.
+
+для универсального использования можно добавить функции в _g.script
+
+local file = "my_mod.ltx"
+
+local function open(write)
+    local ini = ini_file(file, true)
+    if write then ini.readonly = false end
+    return ini
+end
+
+local reader = {
+    boolean = function(i,s,k) return i:r_bool(s,k)   end,
+    number  = function(i,s,k) return i:r_float(s,k)  end,
+    string  = function(i,s,k) return i:r_string(s,k) end,
+}
+local writer = {
+    boolean = function(i,s,k,v) i:w_bool(s,k,v)   end,
+    number  = function(i,s,k,v) i:w_float(s,k,v)  end,
+    string  = function(i,s,k,v) i:w_string(s,k,v) end,
+}
+
+-- чтение конкретного параметра, default задаёт и тип, и fallback
+function get(sect, key, default)
+    local ini = open(false)
+    if not ini:section_exist(sect) or not ini:line_exist(sect, key) then
+        return default
+    end
+    return (reader[type(default)] or reader.string)(ini, sect, key)
+end
+
+function set(sect, key, value)
+    local f = writer[type(value)]
+    if not f then return false end
+    local ini = open(true)
+    if not ini:section_exist(sect) then ini:append_section(sect) end
+    f(ini, sect, key, value)
+    ini:save()
+    return true
+end
+
+-- счётчик: прочитал, прибавил, записал
+function add(sect, key, delta, default)
+    local v = get(sect, key, default or 0) + (delta or 1)
+    set(sect, key, v)
+    return v
+end
+
+
+
+
+Сохранение в сейв
+
+В ОГСР появилось нормально хранилище get_stored_vars()
 Вот что написано на их вики:
 Хранилище скриптовых переменных (SCRIPT_VARS_STORAGE)
 Как использовать? Вот так вот:
