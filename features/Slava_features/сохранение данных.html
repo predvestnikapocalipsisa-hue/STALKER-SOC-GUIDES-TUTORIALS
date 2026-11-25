@@ -111,7 +111,7 @@
     <h2 id="sec-file-save">Сохранение данных, которые переживают новую игру</h2>
     <p>Хранит числовые значения в именах файлов: varname_VALUE.sta<br>
     Если передать строку "abc", tonumber вернет nil, и value станет 0.</p>
-
+    <p>В update каждый кадр не дёргать - держите значение в памяти, пишите по событию/таймеру.</p>
     <pre><code class="language-lua">local SAVES_DIR  = "$game_saves$"
 local FILE_MASK  = "%s_*.sta"       -- маска поиска: имяпеременной_число.sta
 local FILE_TMPL  = "%s_%d.sta"      -- шаблон имени: имяпеременной_значение.sta
