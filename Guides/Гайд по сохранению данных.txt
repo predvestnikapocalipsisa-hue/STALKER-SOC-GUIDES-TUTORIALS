@@ -87,9 +87,6 @@ fs_add_var("money_spent", 500)    -- +500
 Нюансы:
 - Каждый ltx_load_var/ltx_save_var открывает и парсит файл заново. В update каждый кадр не дёргать - держите значение в памяти, пишите по событию/таймеру.
 - Числа пишутся как float.
-- Файл должен существовать до первого чтения.
-
-Создаем: \gamedata\config\my_mod.ltx
 
 Использование:
 ltx_save_var("general", "player_name", "Стрелок")
@@ -111,6 +108,9 @@ local file = "my_mod.ltx"
 
 local function open(write)
     local ini = ini_file(file, true)
+	if not ini then 
+	ini_file:save_ini("gamedata\\config\\my_mod.ltx")
+	end	
     if write then ini.readonly = false end
     return ini
 end
@@ -185,11 +185,11 @@ local t = xvars.test( true )
 Ещё есть функции из сообщества для универсального использования
 
 if get_stored_vars then
-s_vars = get_stored_vars()
+xvars = get_stored_vars()
 end
 
 function xvars_load_var(var_name, def_val)
-  local val = s_vars[var_name]
+  local val = xvars[var_name]
   if not val then
     xvars_save_var(var_name, def_val)
     return def_val
@@ -201,19 +201,19 @@ function xvars_load_var(var_name, def_val)
 end
 
 function xvars_save_var(var_name, val)
-  s_vars[var_name] = val
+  xvars[var_name] = val
 end
 
-function xvars_delete_var(var_name, val)
-  s_vars[var_name] = nil
+function xvars_delete_var(var_name)
+  xvars[var_name] = nil
 end
 
 function xvars_inc_counter(p)
-	save_var(p,xvars_load_var(p,0)+1)
+	xvars_save_var(p,xvars_load_var(p,0)+1)
 end
 
 function xvars_dec_counter(p)
-	save_var(p,xvars_load_var(p,0)-1)
+	xvars_save_var(p,xvars_load_var(p,0)-1)
 end
 --------------------------------------------------------------------------------------------------------------
 🔹ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ🔹
@@ -235,7 +235,7 @@ end
 
 
 --' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
-function xvars_counter_greater(name, cnt)
+function xvars_check_counter(name, cnt)
 	if name and cnt then
 		local c = xvars_load_var(name, 0)
 		if c >= cnt then
@@ -249,11 +249,11 @@ end
 
 -- Пример использования
 function name()
-   return xvars_counter_greater("fff", 10)
+   return xvars_check_counter("fff", 10)
 end
 
 --работает аналогично, но без удаления счетчика
-function xvars_counter_greater2(name, cnt)
+function xvars_check_counter_no_delete(name, cnt)
 	if name and cnt then
 		local c = xvars_load_var(name, 0)
 		return c >= cnt
@@ -264,7 +264,7 @@ end
 
 
 --' Обработчик счётчика xvars, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
-function xvars_counter_handler(counter_name, counter_limit) 
+function xvars_increment_counter(counter_name, counter_limit) 
 	local cnt = xvars_load_var(counter_name, 0) + 1 
 	if cnt >= counter_limit then 
 		xvars_save_var(counter_name, nil) 
@@ -281,7 +281,7 @@ end
 function actor_binder:use_object(obj)  
   local s_obj = obj:section() 
     if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
-        if xvars_counter_handler("vodka_counter", 30) then
+        if xvars_increment_counter("vodka_counter", 30) then
             db.actor:give_info_portion("vodka_counter_info")
         end 
     end
@@ -290,19 +290,19 @@ end
 
 -- Счётчик уникальных подборов предмета, два раза подобрать один и тот же объект не прокатит
 
-function xvars_counter_handler_unic(obj, counter_name, counter_limit) 
+function xvars_increment_counter_unic(obj, counter_name, counter_limit) 
 	local flag_name = counter_name .. tostring(obj:id())
   
-    if s_vars[flag_name] then
+    if xvars[flag_name] then
         return false
     end  
   
-	s_vars[flag_name] = true  	
+	xvars[flag_name] = true  	
 	local cnt = xvars_load_var(counter_name, 0) + 1 	
   
 	if cnt >= counter_limit then 
 		xvars_save_var(counter_name, nil) 
-		xvars_save_var(flag_name, nil)
+		xvars[flag_name] = nil
 	return true 
 	else 
 		xvars_save_var(counter_name, cnt) 
@@ -353,9 +353,11 @@ se_stor.set("old_flag", nil)
 local val = se_stor.get(var_name, default_value)
 Если переменная не существует и default_value не задан — вернёт nil
 
-➤ Удобные глобальные функции (в _G)
+➤ Удобные глобальные функции (в _G берутся из lua_helper.script)
 delay_time = GetVar("noclip_delay_time", 30)  
 SetVar("noclip_delay_time", noclip_mode.delay_time)
+
+SetVar/GetVar — это алиасы на se_stor.set/se_stor.get
 
 💡 Зачем это нужно?
 Квестовые системы с сотнями флагов
@@ -403,7 +405,7 @@ end
 	se_stor_dec_counter("name_var")
 
 --' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибавлено 1
-function se_stor_counter_handler(counter_name, counter_limit) 
+function se_stor_increment_counter(counter_name, counter_limit) 
 	local cnt = GetVar(counter_name, 0) + 1 
 	if cnt >= counter_limit then 
 		SetVar(counter_name, nil) 
@@ -416,7 +418,7 @@ end
 
 
 --' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
-function se_stor_counter_greater(name, cnt)
+function se_stor_check_counter(name, cnt)
 	if name and cnt then
 		local c = GetVar(name, 0)
 		if c >= cnt then
@@ -430,11 +432,11 @@ end
 
 -- Пример использования
 function name()
-   return se_stor_counter_greater("fff", 10)
+   return se_stor_check_counter("fff", 10)
 end
 
 --работает аналогично, но без удаления
-function se_stor_counter_greater2(name, cnt)
+function se_stor_check_counter_no_delete(name, cnt)
 	if name and cnt then
 		local c = GetVar(name, 0)
 		return c >= cnt
@@ -535,7 +537,7 @@ pstor_set_value(name, cnt)
 
 
 --' Счётчик который можно использовать в квестах и любых проверках, после получения указанного числа - счётчик удаляется.
-function pstor_counter_handler(name, cnt)
+function pstor_check_counter(name, cnt)
 	if name and cnt then
 		local c = pstor_get_value(name, 0)
 		if c >= cnt then
@@ -553,7 +555,7 @@ function name()
 end
 
 --работает аналогично, но без удаления
-function pstor_counter_handler(name, cnt)
+function pstor_check_counter_no_delete(name, cnt)
 	if name and cnt then
 		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
 		return c >= cnt
@@ -563,7 +565,7 @@ function pstor_counter_handler(name, cnt)
 end
 
 --' Обработчик счётчика, ставится в те места, где функция даст тру, тогда к счётчику будет прибавлено 1
-function pstor_counter_handler(counter_name, counter_limit)
+function pstor_increment_counter(counter_name, counter_limit)
 	local cnt = pstor_get_value(counter_name, 0) + 1
 	if cnt >= counter_limit then
 		pstor_del_value(counter_name)
