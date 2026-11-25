@@ -1,33 +1,111 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 Скрипты позволяют сохранять и загружать произвольные пользовательские данные. Это особенно полезно при создании квестов, где требуется хранить состояния NPC, настроек или других игровых флагов между сессиями.
 
-ОГСР Сохранение в ltx
 
-Хранилище, которое переживает новую игру
+Сохранение данных, которые переживают новую игру
+Хранит числовые значения в именах файлов: varname_VALUE.sta
 
-Пишет и читает настройки прямо с диска, а не в сейв. Файл один, секций внутри сколько угодно.
-Путь: \gamedata\config\my_mod.ltx
+local SAVES_DIR  = "$game_saves$"
+local FILE_MASK  = "%s_*.sta"       -- маска поиска: имяпеременной_число.sta
+local FILE_TMPL  = "%s_%d.sta"      -- шаблон имени: имяпеременной_значение.sta
 
-Апи:
-set("general", "player_name", "Стрелок")
-set("general", "hardcore", true)
-add("general", "kills")            -- +1, счётчик
-add("general", "money_spent", 500)
+-- Санитизация имени: только буквы, цифры, подчёрки. Иначе FS может поехать.
+local function sanitize(name)
+    return (string.gsub(name, "[^%w_]", "_"))
+end
 
-local kills = get("general", "kills", 0)
-local name  = get("general", "player_name", "неизвестно")
-Тип определяется автоматом по значению/дефолту: строка, bool, число. Ключа нет — вернётся дефолт, а не вылет.
+-- Найти текущий файл переменной. Возвращает (полное_имя, значение) или (nil, nil).
+local function find_file(name)
+    local f = getFS()
+    local safe = sanitize(name)
+    local flist = f:file_list_open_ex(
+        SAVES_DIR,
+        bit_or(FS.FS_ListFiles, FS.FS_RootOnly),
+        string.format(FILE_MASK, safe)
+    )
+    if flist:Size() == 0 then return nil, nil end
 
-Секции плодятся под что угодно:
-add("l01_escape", "artefacts_found", 1)
-set("stash_1234", "opened", true)
+    local fname = flist:GetAt(0):NameFull()
+    -- парсим: varname_123.sta → 123
+    local _, _, val = string.find(fname, safe .. "_(%d+)%.sta")
+    return fname, tonumber(val)
+end
+
+-- Запись значения. Переименовывает старый файл или создаёт новый.
+function fs_save_var(name, value)
+    value = math.floor(tonumber(value) or 0)
+    local f = getFS()
+    local safe = sanitize(name)
+    local new_name = string.format(FILE_TMPL, safe, value)
+
+    local old_name, _ = find_file(name)
+    if old_name then
+        -- переименовываем старый файл в новый
+        f:file_rename(
+            f:update_path(SAVES_DIR, old_name),
+            f:update_path(SAVES_DIR, new_name),
+            true
+        )
+    else
+        -- файла нет — создаём пустой
+        local fh = f:w_open(SAVES_DIR, new_name)
+        if fh then f:w_close(fh) end
+    end
+    return value
+end
+
+-- Чтение значения. Если файла нет — возвращает default и НЕ создаёт файл.
+function fs_load_var(name, default)
+    local _, val = find_file(name)
+    return val ~= nil and val or (default or 0)
+end
+
+-- Инкремент на delta (по умолчанию +1). Возвращает новое значение.
+function fs_add_var(name, delta, default)
+    local cur = fs_load_var(name, default or 0)
+    return fs_save_var(name, cur + (delta or 1))
+end
+
+
+Использование:
+
+-- Запись
+fs_save_var("actor_deaths", 5)
+
+-- Чтение
+local deaths = fs_load_var("actor_deaths", 0)    -- вернёт 0 если нет
+
+-- Счётчик (как в оригинале)
+fs_add_var("actor_deaths")        -- +1, вернёт новое значение
+fs_add_var("money_spent", 500)    -- +500
+
+
+
+ОГСР Хранилище, которое переживает новую игру, сохранение идет в ltx
+
 
 Нюансы:
-- Каждый get/set открывает и парсит файл заново. В update каждый кадр не дёргать - держите значение в памяти, пишите по событию/таймеру.
+- Каждый ltx_load_var/ltx_save_var открывает и парсит файл заново. В update каждый кадр не дёргать - держите значение в памяти, пишите по событию/таймеру.
 - Числа пишутся как float.
 - Файл должен существовать до первого чтения.
 
-для универсального использования можно добавить функции в _g.script
+Создаем: \gamedata\config\my_mod.ltx
+
+Использование:
+ltx_save_var("general", "player_name", "Стрелок")
+ltx_save_var("general", "hardcore", true)
+ltx_add_var("general", "kills")            -- +1, счётчик
+ltx_add_var("general", "money_spent", 500)
+
+local kills = ltx_load_var("general", "kills", 0)
+local name  = ltx_load_var("general", "player_name", "неизвестно")
+Тип определяется автоматом по значению/дефолту: строка, bool, число. Ключа нет — вернётся дефолт, а не вылет.
+
+Секции плодятся под что угодно:
+ltx_add_var("l01_escape", "artefacts_found", 1)
+ltx_save_var("stash_1234", "opened", true)
+
+
 
 local file = "my_mod.ltx"
 
@@ -49,7 +127,7 @@ local writer = {
 }
 
 -- чтение конкретного параметра, default задаёт и тип, и fallback
-function get(sect, key, default)
+function ltx_load_var(sect, key, default)
     local ini = open(false)
     if not ini:section_exist(sect) or not ini:line_exist(sect, key) then
         return default
@@ -57,7 +135,7 @@ function get(sect, key, default)
     return (reader[type(default)] or reader.string)(ini, sect, key)
 end
 
-function set(sect, key, value)
+function ltx_save_var(sect, key, value)
     local f = writer[type(value)]
     if not f then return false end
     local ini = open(true)
@@ -68,9 +146,9 @@ function set(sect, key, value)
 end
 
 -- счётчик: прочитал, прибавил, записал
-function add(sect, key, delta, default)
-    local v = get(sect, key, default or 0) + (delta or 1)
-    set(sect, key, v)
+function ltx_add_var(sect, key, delta, default)
+    local v = ltx_load_var(sect, key, default or 0) + (delta or 1)
+    ltx_save_var(sect, key, v)
     return v
 end
 
@@ -102,17 +180,18 @@ local t = xvars.test( true )
 т.е. передать аргумент.
 
 
-
-Ещё есть функции из сообщества для универсального использования для этого можно добавить их в _g.script
 --------------------------------------------------------------------------------------------------------------
+
+Ещё есть функции из сообщества для универсального использования
+
 if get_stored_vars then
 s_vars = get_stored_vars()
 end
 
-function load_var(var_name, def_val)
+function xvars_load_var(var_name, def_val)
   local val = s_vars[var_name]
   if not val then
-    save_var(var_name, def_val)
+    xvars_save_var(var_name, def_val)
     return def_val
   end
     if type(val) == "userdata" then
@@ -121,20 +200,20 @@ function load_var(var_name, def_val)
   return val
 end
 
-function save_var(var_name, val)
+function xvars_save_var(var_name, val)
   s_vars[var_name] = val
 end
 
-function delete_var(var_name, val)
+function xvars_delete_var(var_name, val)
   s_vars[var_name] = nil
 end
 
-function inc_counter(p)
-	save_var(p,load_var(p,0)+1)
+function xvars_inc_counter(p)
+	save_var(p,xvars_load_var(p,0)+1)
 end
 
-function dec_counter(p)
-	save_var(p,load_var(p,0)-1)
+function xvars_dec_counter(p)
+	save_var(p,xvars_load_var(p,0)-1)
 end
 --------------------------------------------------------------------------------------------------------------
 🔹ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ🔹
@@ -144,23 +223,23 @@ end
 "name_var" это переменная, ей имя придумываем, а cnt это её значение
 
 Получить переменную
-    load_var("name_var", 0)
+    xvars_load_var("name_var", 0)
 
 Счётчики:
 
 Прибавить к указанному счётчику 1
-	inc_counter("name_var")
+	xvars_inc_counter("name_var")
 
 Отнять 1 от указанного счётчика
-	dec_counter("name_var")
+	xvars_dec_counter("name_var")
 
 
 --' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
 function xvars_counter_greater(name, cnt)
 	if name and cnt then
-		local c = load_var(name, 0)
+		local c = xvars_load_var(name, 0)
 		if c >= cnt then
-			save_var(name, nil)
+			xvars_save_var(name, nil)
 		return true
 		end
 	else
@@ -173,10 +252,10 @@ function name()
    return xvars_counter_greater("fff", 10)
 end
 
---работает аналогично, но без удаления
+--работает аналогично, но без удаления счетчика
 function xvars_counter_greater2(name, cnt)
 	if name and cnt then
-		local c = load_var(name, 0)
+		local c = xvars_load_var(name, 0)
 		return c >= cnt
 	else
 		return false
@@ -186,14 +265,14 @@ end
 
 --' Обработчик счётчика xvars, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
 function xvars_counter_handler(counter_name, counter_limit) 
-  local cnt = load_var(counter_name, 0) + 1 
-  if cnt >= counter_limit then 
-    save_var(counter_name, nil) 
+	local cnt = xvars_load_var(counter_name, 0) + 1 
+	if cnt >= counter_limit then 
+		xvars_save_var(counter_name, nil) 
     return true 
-  else 
-    save_var(counter_name, cnt) 
+	else 
+		xvars_save_var(counter_name, cnt) 
     return false 
-  end 
+	end 
 end
 
 -- Пример:
@@ -209,194 +288,29 @@ function actor_binder:use_object(obj)
 end
 
 
+-- Счётчик уникальных подборов предмета, два раза подобрать один и тот же объект не прокатит
 
-Далее пойдет инфа о pstor и se_stor
-
-🔹 Система pstor🔹
-В S.T.A.L.K.E.R. реализована простая, но мощная система, которая интегрирована в xr_logic.script и используется через хранилище актора (db.storage).
-
-🔹 Ray Kenkel: Небольшое хранилище важных данных, которые нужно сохранять, а не каждый раз пересоздавать. Условно говоря, если у НПС есть таймер, где описано что каждые 60 минут он обновит ассортимент, то без сохранения данных это бы значение сбрасывалось при перезагрузке. А так мы сохранили сколько уже осталось времени, а после загрузки вернули обратно это значение.
-
-🔹 Главный нюанс. Ограничение в 8 КБ на чанк сохранения
-Это жёсткое ограничение движка - вы не можете записать в один чанк более 8192 байт (8 КБ). Если попытаться превысить лимит при записи через packet:w_...() — игра аварийно завершится с ошибкой вида:
-assertion failed: size < 8192
---------------------------------------------------------------------------------------------------------------
-Как это работает под капотом?
-Данные хранятся в db.storage[npc_id].pstor — это таблица Lua.
-При сохранении игры (actor_binder:save) вызывается xr_logic.pstor_save_all(), который записывает все пары ключ-значение в бинарный поток.
-
-А при загрузке сохранения (actor_binder:load) данные автоматически восстанавливаются:
-xr_logic.pstor_load_all(self.object, reader)
-Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
-
-Поддерживаются только три типа:
-number - сохраняется как float
-string - как нуль-терминированная строка
-boolean - как булево значение
-
-
-Функции для работы с ПСТОР
-
-Сохранение значения
-xr_logic.pstor_store(obj, "variable_name", value)
-
-obj — объект, обычно db.actor (игрок).
-
-"variable_name" — имя переменной в виде строки ей имя придумываем сами.
-
-value — значение, может быть числом, строкой или булевым типом.
-
-
-Пример: 
-xr_logic.pstor_store(db.actor, "noclip_delay_time", 50)
-
-
-Загрузка значения
-local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)
-Если переменная не найдена в сохранении — вернётся default_value.
-
-Пример: 
-local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
-
-
--- прибавить к указанному счётчику актёра 1
-xr_effects.inc_counter(db.actor,n,{"name"})	
-
--- отнять от указанного счётчика актёра 1 
-xr_effects.dec_counter(db.actor,n,{"name"})	
-
-
-Для более лёгкого использования вставьте функции показанные ниже, в конец файла \gamedata\scripts\_g.script
-
--- получить переменную 
-function get_value(var_name, default_value)
-  return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
+function xvars_counter_handler_unic(obj, counter_name, counter_limit) 
+	local flag_name = counter_name .. tostring(obj:id())
+  
+    if s_vars[flag_name] then
+        return false
+    end  
+  
+	s_vars[flag_name] = true  	
+	local cnt = xvars_load_var(counter_name, 0) + 1 	
+  
+	if cnt >= counter_limit then 
+		xvars_save_var(counter_name, nil) 
+		xvars_save_var(flag_name, nil)
+	return true 
+	else 
+		xvars_save_var(counter_name, cnt) 
+	return false 
+	end 
 end
 
--- установить\сохранить переменную
-function set_value(counter_name, value)
-  xr_logic.pstor_store(db.actor, counter_name, value)
-end
-
--- удалить\очистить переменную
-function del_value(var_name)
-  if not db.actor then
-    abort("can't delete variable '%s', bacause actor is nil!", var_name)
-  end
-  local st = db.storage[db.actor:id()]
-  if st.pstor and st.pstor[var_name] then
-    st.pstor[var_name] = nil
-  end
-end
-
-Использование:
-get_value(name, 0)
-del_value(name)
-set_value(name, cnt)
-
-Либо в свой скрипт, НО тогда использование будет выглядеть так:
-Имя_файла.get_value(name, 0)
-Имя_файла.del_value(name)
-Имя_файла.set_value(name, cnt)
-
-
---' Счётчик который можно использовать в квестах и любых проверках, после получения указанного числа - счётчик удаляется.
-function counter_handler(name, cnt)
-	if name and cnt then
-		local c = get_value(name, 0)
-		if c >= cnt then
-			del_value(name)
-		return true
-		end
-	else
-		return false
-	end
-end
-
--- Пример использования
-function name()
-   return counter_handler("fff", 10)
-end
-
---работает аналогично, но без удаления
-function counter_handler(name, cnt)
-	if name and cnt then
-		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
-		return c >= cnt
-	else
-		return false
-	end
-end
-
---' Обработчик счётчика, ставится в те места, где функция даст тру, тогда к счётчику будет прибавлено 1
-function counter_handler(counter_name, counter_limit)
-  local cnt = get_value(counter_name, 0) + 1
-  if cnt >= counter_limit then
-    del_value(counter_name)
-    return true
-  else
-    set_value(counter_name, cnt)
-    return false
-  end
-end
-
-
-Ещё с оргинала в \gamedata\scripts\xr_effects.script есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять
-
-=inc_counter(имя_счетчика)
-создает счетчик и добавляет 1
-
-=dec_counter(имя_счетчика)
-создает счетчик и отнимает 1
-
-[logic]
-active = nil
-on_death = death
-
-[death]
-on_info = %=inc_counter(fff)%
-
-в \gamedata\scripts\xr_conditions.script есть counter_greater у него надо набить на 1 больше чем указано, такой нюанс
-
-=counter_greater(имя_счетчика:число)
-возвращает true, если значение указанного счётчика БОЛЬШЕ указанного числа
-
-Используются только в логике:
-
-в этом примере показана логика рестриктора, который проверяет значение счётчика, при выполнении вызывает функцию спавн_нпс
-[logic]
-active = sr_idle
-
-[sr_idle]
-on_info = {=counter_greater(my_counter:5)} %=spawn_npc%
-
-
-Более конкретный пример:
-работает схема моб хома в ней установлен "он_инфо", который проверяет значение счётчика 
-
-также в схеме есть проверка на хит, тем самым срабатывает он инфо и переключает схему в моб_хом2
-
-единственный нюанс, в том что проверка работает на указанное число +1, то есть в данном случае нужно ударить/выстрелить в моба 2 раза
-
-[logic]
-active = mob_home
-on_hit = hit
-
-[mob_home]
-"параметры схемы"
-on_info = {=counter_greater(my_counter:1)} mob_home2
-
-[mob_home2]
-"параметры схемы"
-
-[hit]
-on_info = %=inc_counter(my_counter)%
-
-
-
-
-🔹АЛЬТЕРНАТИВА С БОЛЬШИМИ ВОЗМОЖНОСТЯМИ🔹
-
+Хранилище от Artos - se_stor
 🗃️ se_stor — Расширенное хранилище данных для S.T.A.L.K.E.R. (МОДУЛИ Artos(lua_helper+m_netpk+m_timers+se_stor))
 se_stor — это продвинутая система хранения пользовательских данных в S.T.A.L.K.E.R., созданная сообществом (в частности по материалам, Malandrinus и xStream), и разработанная как альтернатива ограниченному pstor из xr_logic.script.
 
@@ -474,30 +388,30 @@ se_stor — это must-have для серьёзных модов S.T.A.L.K.E.R.
 
 Счётчики как в пстор:
 
-function inc_counter(p)
+function se_stor_inc_counter(p)
 	SetVar(p,GetVar(p,0)+1)
 end
 
-function dec_counter(p)
+function se_stor_dec_counter(p)
 	SetVar(p,GetVar(p,0)-1)
 end
 
 Прибавить к указанному счётчику 1
-	inc_counter("name_var")
+	se_stor_inc_counter("name_var")
 
 Отнять 1 от указанного счётчика
-	dec_counter("name_var")
+	se_stor_dec_counter("name_var")
 
 --' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибавлено 1
 function se_stor_counter_handler(counter_name, counter_limit) 
-  local cnt = GetVar(counter_name, 0) + 1 
-  if cnt >= counter_limit then 
-    SetVar(counter_name, nil) 
+	local cnt = GetVar(counter_name, 0) + 1 
+	if cnt >= counter_limit then 
+		SetVar(counter_name, nil) 
     return true 
-  else 
-    SetVar(counter_name, cnt) 
+	else 
+		SetVar(counter_name, cnt) 
     return false 
-  end 
+	end 
 end
 
 
@@ -528,3 +442,186 @@ function se_stor_counter_greater2(name, cnt)
 		return false
 	end
 end
+
+
+
+Далее пойдет инфа о pstor
+
+🔹 Система pstor🔹
+В S.T.A.L.K.E.R. реализована простая, но мощная система, которая интегрирована в xr_logic.script и используется через хранилище актора (db.storage).
+
+🔹 Ray Kenkel: Небольшое хранилище важных данных, которые нужно сохранять, а не каждый раз пересоздавать. Условно говоря, если у НПС есть таймер, где описано что каждые 60 минут он обновит ассортимент, то без сохранения данных это бы значение сбрасывалось при перезагрузке. А так мы сохранили сколько уже осталось времени, а после загрузки вернули обратно это значение.
+
+🔹 Главный нюанс. Ограничение в 8 КБ на чанк сохранения
+Это жёсткое ограничение движка - вы не можете записать в один чанк более 8192 байт (8 КБ). Если попытаться превысить лимит при записи через packet:w_...() — игра аварийно завершится с ошибкой вида:
+assertion failed: size < 8192
+--------------------------------------------------------------------------------------------------------------
+Как это работает под капотом?
+Данные хранятся в db.storage[npc_id].pstor — это таблица Lua.
+При сохранении игры (actor_binder:save) вызывается xr_logic.pstor_save_all(), который записывает все пары ключ-значение в бинарный поток.
+
+А при загрузке сохранения (actor_binder:load) данные автоматически восстанавливаются:
+xr_logic.pstor_load_all(self.object, reader)
+Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.
+
+Поддерживаются только три типа:
+number - сохраняется как float
+string - как нуль-терминированная строка
+boolean - как булево значение
+
+Функции для работы с ПСТОР
+
+Сохранение значения
+xr_logic.pstor_store(obj, "variable_name", value)
+
+obj — объект, обычно db.actor (игрок).
+
+"variable_name" — имя переменной в виде строки ей имя придумываем сами.
+
+value — значение, может быть числом, строкой или булевым типом.
+
+
+Пример: 
+xr_logic.pstor_store(db.actor, "noclip_delay_time", 50)
+
+
+Загрузка значения
+local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)
+Если переменная не найдена в сохранении — вернётся default_value.
+
+Пример: 
+local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)
+
+
+-- прибавить к указанному счётчику актёра 1
+xr_effects.inc_counter(db.actor,n,{"name"})	
+
+-- отнять от указанного счётчика актёра 1 
+xr_effects.dec_counter(db.actor,n,{"name"})	
+
+
+Для более лёгкого использования вставьте функции показанные ниже, в конец файла \gamedata\scripts\_g.script
+
+-- получить переменную 
+function pstor_get_value(var_name, default_value)
+  return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
+end
+
+-- установить\сохранить переменную
+function pstor_set_value(counter_name, value)
+  xr_logic.pstor_store(db.actor, counter_name, value)
+end
+
+-- удалить\очистить переменную
+function pstor_del_value(var_name)
+  if not db.actor then
+    abort("can't delete variable '%s', bacause actor is nil!", var_name)
+  end
+  local st = db.storage[db.actor:id()]
+  if st.pstor and st.pstor[var_name] then
+    st.pstor[var_name] = nil
+  end
+end
+
+Использование:
+pstor_get_value(name, 0)
+pstor_del_value(name)
+pstor_set_value(name, cnt)
+
+Либо в свой скрипт, НО тогда использование будет выглядеть так:
+Имя_файла.pstor_get_value(name, 0)
+Имя_файла.pstor_del_value(name)
+Имя_файла.pstor_set_value(name, cnt)
+
+
+--' Счётчик который можно использовать в квестах и любых проверках, после получения указанного числа - счётчик удаляется.
+function pstor_counter_handler(name, cnt)
+	if name and cnt then
+		local c = pstor_get_value(name, 0)
+		if c >= cnt then
+			pstor_del_value(name)
+		return true
+		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return pstor_counter_handler("fff", 10)
+end
+
+--работает аналогично, но без удаления
+function pstor_counter_handler(name, cnt)
+	if name and cnt then
+		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
+		return c >= cnt
+	else
+		return false
+	end
+end
+
+--' Обработчик счётчика, ставится в те места, где функция даст тру, тогда к счётчику будет прибавлено 1
+function pstor_counter_handler(counter_name, counter_limit)
+	local cnt = pstor_get_value(counter_name, 0) + 1
+	if cnt >= counter_limit then
+		pstor_del_value(counter_name)
+    return true
+	else
+		pstor_set_value(counter_name, cnt)
+    return false
+	end
+end
+
+
+Ещё с оргинала в \gamedata\scripts\xr_effects.script есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять
+
+=inc_counter(имя_счетчика)
+создает счетчик и добавляет 1
+
+=dec_counter(имя_счетчика)
+создает счетчик и отнимает 1
+
+[logic]
+active = nil
+on_death = death
+
+[death]
+on_info = %=inc_counter(fff)%
+
+в \gamedata\scripts\xr_conditions.script есть counter_greater у него надо набить на 1 больше чем указано, такой нюанс
+
+=counter_greater(имя_счетчика:число)
+возвращает true, если значение указанного счётчика БОЛЬШЕ указанного числа
+
+Используются только в логике:
+
+в этом примере показана логика рестриктора, который проверяет значение счётчика, при выполнении вызывает функцию спавн_нпс
+[logic]
+active = sr_idle
+
+[sr_idle]
+on_info = {=counter_greater(my_counter:5)} %=spawn_npc%
+
+
+Более конкретный пример:
+работает схема моб хома в ней установлен "он_инфо", который проверяет значение счётчика 
+
+также в схеме есть проверка на хит, тем самым срабатывает он инфо и переключает схему в моб_хом2
+
+единственный нюанс, в том что проверка работает на указанное число +1, то есть в данном случае нужно ударить/выстрелить в моба 2 раза
+
+[logic]
+active = mob_home
+on_hit = hit
+
+[mob_home]
+"параметры схемы"
+on_info = {=counter_greater(my_counter:1)} mob_home2
+
+[mob_home2]
+"параметры схемы"
+
+[hit]
+on_info = %=inc_counter(my_counter)%
