@@ -243,6 +243,7 @@
                 <li><a href="#func_punch">punch <span class="toc-desc">Получение удара в морду (звук + эффект)</span></a></li>
                 <li><a href="#func_activate_slot">activate_slot <span class="toc-desc">Активация слота</span></a></li>
                 <li><a href="#func_start_tutorial">start_tutorial <span class="toc-desc">Запуск туториала/видео/текста</span></a></li>
+                <li><a href="#func_show_text">show_text <span class="toc-desc">Вывод статика с текстм из статиик из ui_custom_msgs.xml, 5000 - 5 секунд</span></a></li>
                 <li><a href="#post_effects">Пост-эффекты <span class="toc-desc">Добавление/удаление camera и pp эффектов</span></a></li>
             </ul>
 
@@ -1028,6 +1029,43 @@ end</code></pre>
         game.start_tutorial("my_tutor")
     end
 end</code></pre>
+
+    <h3 id="func_show_text">show_text</h3>
+    <p class="desc-text">Вывод статика с текстм из статиик из ui_custom_msgs.xml, 5000 - 5 секунд.</p>
+    <pre><code class="language-lua">function show_text()
+    local hud = get_hud()
+    hud:AddCustomStatic("my_static", true)
+    local st = hud:GetCustomStatic("my_static")
+    st:wnd():SetTextST("st_autosave") -- удалите строку если хотите указать текст в ui_custom_msgs.xml
+	local t0 = time_global() + 5000
+	level.add_call(
+		function() return time_global() >= t0 end,
+		function() hud:RemoveCustomStatic("my_static") end
+	)
+end</code></pre>
+
+<h3 id="ui_custom_msgs_static">Элемент my_static в ui_custom_msgs.xml</h3>
+<p class="desc-text">Добавить в файл <code>ui_custom_msgs.xml</code>. Создаёт текстовый статик для отображения сообщений на экране (например, автосохранение, подсказки).</p>
+
+<pre><code class="language-xml">&lt;my_static  x="100" y="730" width="800" height="30"&gt;
+    &lt;text font="graffiti22"  r="240" g="217" b="182" a="255" align="c"/&gt;
+&lt;/my_static&gt;</code></pre>
+
+<p class="desc-text"><strong>Параметры:</strong></p>
+<ul>
+    <li><code>x, y</code> — координаты на экране</li>
+    <li><code>width, height</code> — размер области</li>
+    <li><code>font</code> — шрифт (graffiti22, letterica18 и т.д.)</li>
+    <li><code>r, g, b, a</code> — цвет текста в формате RGBA (0-255)</li>
+    <li><code>align="c"</code> — выравнивание по центру (l — лево, r — право, c — центр)</li>
+</ul>
+
+<p class="desc-text"><strong>Вариант с текстом прямо в статике</strong> (если хотите указать текст сразу, а не через скрипт):</p>
+
+<pre><code class="language-xml">&lt;my_static  x="100" y="730" width="800" height="30"&gt;
+    &lt;text font="graffiti22"  r="240" g="217" b="182" a="255" align="c"&gt;st_autosave&lt;/text&gt;
+&lt;/my_static&gt;</code></pre>
+
 
     <h3 id="post_effects">Пост эффекты</h3>
     <pre><code class="language-lua">-- добавить облет с номером 1974

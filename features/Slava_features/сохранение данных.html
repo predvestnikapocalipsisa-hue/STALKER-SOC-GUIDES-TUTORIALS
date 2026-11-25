@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Системы сохранения данных в S.T.A.L.K.E.R.</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #e0e0e0; max-width: 1200px; margin: 0 auto; padding: 15px; background-color: #1e1e1e; }
+        h1 { text-align: center; color: #61afef; border-bottom: 2px solid #61afef; padding-bottom: 10px; font-size: 1.5em; }
+        h2 { color: #98c379; margin-top: 40px; border-bottom: 1px solid #5c6370; padding-bottom: 5px; font-size: 1.3em; }
+        h3 { color: #e5c07b; font-family: "Consolas", "Monaco", monospace; background: #2c313a; padding: 8px 12px; border-radius: 6px; margin-top: 25px; border-left: 4px solid #e5c07b; font-size: 1.05em; word-break: break-all; overflow-wrap: break-word; }
+        h4 { color: #abb2bf; margin-top: 20px; font-size: 1.1em; }
+        
+        .toc { background: #282c34; padding: 15px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        .toc-header { display: flex; justify-content: space-between; align-items: center; }
+        .toc-header h2 { margin: 0; font-size: 1.2em; color: #61afef; border: none; }
+        .toc-toggle { background: #3e4451; border: 1px solid #5c6370; color: #abb2bf; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .toc-toggle:hover { background: #4b5263; color: #fff; }
+        .toc-toggle .arrow { display: inline-block; transition: transform 0.3s ease; font-size: 0.8em; }
+        .toc.collapsed .toc-toggle .arrow { transform: rotate(-90deg); }
+        
+        .toc-content { overflow: hidden; transition: max-height 0.5s ease, opacity 0.3s ease, margin 0.3s ease; max-height: 10000px; opacity: 1; margin-top: 15px; }
+        .toc.collapsed .toc-content { max-height: 0; opacity: 0; margin-top: 0; }
+        .toc.collapsed { padding: 8px 12px; margin-bottom: 10px; }
+        .toc.collapsed .toc-header h2 { font-size: 1em; }
+        .toc.collapsed .toc-toggle { padding: 3px 8px; font-size: 0.8em; }
+        .toc.collapsed .toc-toggle .label { display: none; }
+        
+        .toc-category { font-weight: bold; color: #98c379; margin-top: 12px; margin-bottom: 4px; font-size: 0.95em; }
+        .toc-category:first-child { margin-top: 0; }
+        .toc ul { list-style-type: none; padding-left: 12px; margin: 0; }
+        .toc li { margin: 3px 0; font-size: 0.85em; }
+        .toc a { text-decoration: none; color: #abb2bf; transition: color 0.2s; display: block; padding: 2px 0; word-break: break-word; }
+        .toc a:hover { color: #61afef; }
+        .toc-desc { color: #5c6370; font-size: 0.85em; margin-left: 4px; font-style: italic; display: block; }
+        
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            h1 { font-size: 1.3em; }
+            h2 { font-size: 1.15em; margin-top: 30px; }
+            h3 { font-size: 0.9em; padding: 6px 10px; }
+            .toc { padding: 12px; }
+            .toc-header h2 { font-size: 1.1em; }
+            .toc li { font-size: 0.8em; }
+            .toc-category { font-size: 0.9em; }
+            pre { font-size: 0.75em !important; padding: 10px !important; }
+        }
+        
+        .back-to-top {
+            position: fixed; bottom: 20px; right: 20px; background: #61afef; color: #1e1e1e;
+            width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer;
+            font-size: 1.2em; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 1000;
+        }
+        .back-to-top.visible { opacity: 1; visibility: visible; }
+        .back-to-top:hover { background: #528bff; transform: translateY(-2px); }
+        
+        pre { border-radius: 6px; margin: 10px 0 20px 0 !important; overflow-x: auto; }
+        code { font-family: "Consolas", "Monaco", monospace; }
+        p { margin-bottom: 10px; color: #abb2bf; }
+        .note { background: #3e4451; border-left: 4px solid #d19a66; padding: 10px; margin: 15px 0; border-radius: 4px; color: #e0e0e0; font-size: 0.95em; }
+        .divider { border-top: 1px dashed #5c6370; margin: 30px 0; }
+        .file-header { background: #21252b; color: #98c379; padding: 5px 10px; border-radius: 4px 4px 0 0; font-family: monospace; font-size: 0.9em; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Системы сохранения данных в S.T.A.L.K.E.R.</h1>
+
+    <div class="toc" id="toc">
+        <div class="toc-header">
+            <h2>Оглавление</h2>
+            <button class="toc-toggle" id="tocToggle" title="Свернуть/развернуть оглавление">
+                <span class="arrow">▼</span>
+                <span class="label">Свернуть</span>
+            </button>
+        </div>
+        <div class="toc-content" id="tocContent">
+            <div class="toc-category">1. Введение и файлы</div>
+            <ul>
+                <li><a href="#sec-intro">Введение</a></li>
+                <li><a href="#sec-file-save">Сохранение данных в файлы (.sta)</a></li>
+            </ul>
+            <div class="toc-category">2. Сохранение в LTX</div>
+            <ul>
+                <li><a href="#sec-ltx-save">ОГСР Хранилище в LTX</a></li>
+            </ul>
+            <div class="toc-category">3. Хранилище в сейве</div>
+            <ul>
+                <li><a href="#sec-stored-vars">get_stored_vars() (ОГСР)</a></li>
+                <li><a href="#sec-xvars">Универсальные функции сообщества (xvars)</a></li>
+            </ul>
+            <div class="toc-category">4. Расширенные системы</div>
+            <ul>
+                <li><a href="#sec-se-stor">se_stor (Artos)</a></li>
+            </ul>
+            <div class="toc-category">5. Стандартная система</div>
+            <ul>
+                <li><a href="#sec-pstor">Система pstor (xr_logic)</a></li>
+            </ul>
+        </div>
+    </div>
+
+    
+    <h2 id="sec-intro">Введение</h2>
+    <p>Скрипты позволяют сохранять и загружать произвольные пользовательские данные. Это особенно полезно при создании квестов, где требуется хранить состояния NPC, настроек или других игровых флагов между сессиями.</p>
+
+    <div class="divider"></div>
+    <h2 id="sec-file-save">Сохранение данных, которые переживают новую игру</h2>
+    <p>Хранит числовые значения в именах файлов: varname_VALUE.sta<br>
+    Если передать строку "abc", tonumber вернет nil, и value станет 0.</p>
+
+    <pre><code class="language-lua">local SAVES_DIR  = "$game_saves$"
+local FILE_MASK  = "%s_*.sta"       -- маска поиска: имяпеременной_число.sta
+local FILE_TMPL  = "%s_%d.sta"      -- шаблон имени: имяпеременной_значение.sta
+
+-- Санитизация имени: только буквы, цифры, подчёрки. Иначе FS может поехать.
+local function sanitize(name)
+    return (string.gsub(name, "[^%w_]", "_"))
+end
+
+-- Найти текущий файл переменной. Возвращает (полное_имя, значение) или (nil, nil).
+local function find_file(name)
+    local f = getFS()
+    local safe = sanitize(name)
+    local flist = f:file_list_open_ex(
+        SAVES_DIR,
+        bit_or(FS.FS_ListFiles, FS.FS_RootOnly),
+        string.format(FILE_MASK, safe)
+    )
+    if flist:Size() == 0 then return nil, nil end
+
+    local fname = flist:GetAt(0):NameFull()
+    -- парсим: varname_123.sta → 123
+    local _, _, val = string.find(fname, safe .. "_(%d+)%.sta")
+    return fname, tonumber(val)
+end
+
+-- Запись значения. Переименовывает старый файл или создаёт новый.
+function fs_save_var(name, value)
+    value = math.floor(tonumber(value) or 0)
+    local f = getFS()
+    local safe = sanitize(name)
+    local new_name = string.format(FILE_TMPL, safe, value)
+
+    local old_name, _ = find_file(name)
+    if old_name then
+        -- переименовываем старый файл в новый
+        f:file_rename(
+            f:update_path(SAVES_DIR, old_name),
+            f:update_path(SAVES_DIR, new_name),
+            true
+        )
+    else
+        -- файла нет — создаём пустой
+        local fh = f:w_open(SAVES_DIR, new_name)
+        if fh then f:w_close(fh) end
+    end
+    return value
+end
+
+-- Чтение значения. Если файла нет — возвращает default и НЕ создаёт файл.
+function fs_load_var(name, default)
+    local _, val = find_file(name)
+    return val ~= nil and val or (default or 0)
+end
+
+-- Инкремент на delta (по умолчанию +1). Возвращает новое значение.
+function fs_add_var(name, delta, default)
+    local cur = fs_load_var(name, default or 0)
+    return fs_save_var(name, cur + (delta or 1))
+end</code></pre>
+
+    <h3>Использование:</h3>
+    <pre><code class="language-lua">-- Запись
+fs_save_var("actor_deaths", 5)
+
+-- Чтение
+local deaths = fs_load_var("actor_deaths", 0)    -- вернёт 0 если нет
+
+-- Счётчик (как в оригинале)
+fs_add_var("actor_deaths")        -- +1, вернёт новое значение
+fs_add_var("money_spent", 500)    -- +500</code></pre>
+
+    <div class="divider"></div>
+    <h2 id="sec-ltx-save">ОГСР Хранилище, которое переживает новую игру, сохранение идет в ltx</h2>
+    
+    <div class="note">
+        <strong>Нюансы:</strong><br>
+        - Каждый ltx_load_var/ltx_save_var открывает и парсит файл заново. В update каждый кадр не дёргать - держите значение в памяти, пишите по событию/таймеру.<br>
+        - Числа пишутся как float.
+    </div>
+
+    <h3>Использование:</h3>
+    <pre><code class="language-lua">ltx_save_var("general", "player_name", "Стрелок")
+ltx_save_var("general", "hardcore", true)
+ltx_add_var("general", "kills")            -- +1, счётчик
+ltx_add_var("general", "money_spent", 500)
+
+local kills = ltx_load_var("general", "kills", 0)
+local name  = ltx_load_var("general", "player_name", "неизвестно")</code></pre>
+    <p>Тип определяется автоматом по значению/дефолту: строка, bool, число. Ключа нет — вернётся дефолт, а не вылет.</p>
+    <p>Секции плодятся под что угодно:</p>
+    <pre><code class="language-lua">ltx_add_var("l01_escape", "artefacts_found", 1)
+ltx_save_var("stash_1234", "opened", true)</code></pre>
+
+    <pre><code class="language-lua">local file = "my_mod.ltx"
+
+local function open(write)
+    local ini = ini_file(file, true)
+	if not ini then 
+	    ini_file:save_ini("gamedata\\config\\my_mod.ltx")
+	end	
+    if write then ini.readonly = false end
+    return ini
+end
+
+local reader = {
+    boolean = function(i,s,k) return i:r_bool(s,k)   end,
+    number  = function(i,s,k) return i:r_float(s,k)  end,
+    string  = function(i,s,k) return i:r_string(s,k) end,
+}
+local writer = {
+    boolean = function(i,s,k,v) i:w_bool(s,k,v)   end,
+    number  = function(i,s,k,v) i:w_float(s,k,v)  end,
+    string  = function(i,s,k,v) i:w_string(s,k,v) end,
+}
+
+-- чтение конкретного параметра, default задаёт и тип, и fallback
+function ltx_load_var(sect, key, default)
+    local ini = open(false)
+    if not ini:section_exist(sect) or not ini:line_exist(sect, key) then
+        return default
+    end
+    return (reader[type(default)] or reader.string)(ini, sect, key)
+end
+
+function ltx_save_var(sect, key, value)
+    local f = writer[type(value)]
+    if not f then return false end
+    local ini = open(true)
+    if not ini:section_exist(sect) then ini:append_section(sect) end
+    f(ini, sect, key, value)
+    ini:save()
+    return true
+end
+
+-- счётчик: прочитал, прибавил, записал
+function ltx_add_var(sect, key, delta, default)
+    local v = ltx_load_var(sect, key, default or 0) + (delta or 1)
+    ltx_save_var(sect, key, v)
+    return v
+end</code></pre>
+
+    <div class="divider"></div>
+    <h2 id="sec-stored-vars">Сохранение в сейв</h2>
+    <p>В ОГСР появилось нормально хранилище get_stored_vars()<br>
+    Вот что написано на их вики:<br>
+    <em>Хранилище скриптовых переменных (SCRIPT_VARS_STORAGE)</em><br>
+    Как использовать? Вот так вот:</p>
+
+    <pre><code class="language-lua">local xvars = get_stored_vars()
+xvars.test = 123
+xvars.test2 = {}
+xvars.test2.test1 = 456</code></pre>
+    <p>Всё просто, использовать, как стандартную таблицу. Есть пара особенностей. Хранить лучше только простые типы: строки, числа, таблицы и т.п, в том числе вложенные. Объекты, вектора, время и т.п., то, что является userdata, лучше не использовать.</p>
+    <p>Вторая особенность - списки. Для прямого доступа к элементам списка ничего делать не нужно, но если захочется с этим списком работать, как с настоящим списком, т.к. итерировать, к примеру, или подсунуть его в unpack(...), то его нужно превратить в lua таблицу. Например:</p>
+    <pre><code class="language-lua">xvars.test = { 1, 2, 3 }
+local t = xvars.test()
+for i, v in ipairs( t ) do
+end</code></pre>
+    <p>Операция выполнения, т.е. (), возвращает lua table, с которой уже можно делать, что угодно. По умолчанию, преобразование не рекурсивное, т.е. не затронет вложенные таблицы. Чтобы сделать его рекурсивным, нужно сделать вот так:</p>
+    <pre><code class="language-lua">local t = xvars.test( true )</code></pre>
+    <p>т.е. передать аргумент.</p>
+
+    <div class="divider"></div>
+    <p>Ещё есть функции из сообщества для универсального использования</p>
+    <pre><code class="language-lua">if get_stored_vars then
+xvars = get_stored_vars()
+end
+
+function xvars_load_var(var_name, def_val)
+  local val = xvars[var_name]
+  if not val then
+    xvars_save_var(var_name, def_val)
+    return def_val
+  end
+    if type(val) == "userdata" then
+        val = val(true)
+    end  
+  return val
+end
+
+function xvars_save_var(var_name, val)
+  xvars[var_name] = val
+end
+
+function xvars_delete_var(var_name)
+  xvars[var_name] = nil
+end
+
+function xvars_inc_counter(p)
+	xvars_save_var(p,xvars_load_var(p,0)+1)
+end
+
+function xvars_dec_counter(p)
+	xvars_save_var(p,xvars_load_var(p,0)-1)
+end</code></pre>
+
+    <div class="divider"></div>
+    <h2 id="sec-xvars">🔹ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ🔹</h2>
+    
+    <h3>Сохранить переменную</h3>
+    <pre><code class="language-lua">xvars_save_var("name_var", cnt)</code></pre>
+    <p>"name_var" это переменная, ей имя придумываем, а cnt это её значение</p>
+
+    <h3>Получить переменную</h3>
+    <pre><code class="language-lua">xvars_load_var("name_var", 0)</code></pre>
+
+    <h3>Счётчики:</h3>
+    <p>Прибавить к указанному счётчику 1</p>
+    <pre><code class="language-lua">xvars_inc_counter("name_var")</code></pre>
+    <p>Отнять 1 от указанного счётчика</p>
+    <pre><code class="language-lua">xvars_dec_counter("name_var")</code></pre>
+
+    <pre><code class="language-lua">--' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
+function xvars_check_counter(name, cnt)
+	if name and cnt then
+		local c = xvars_load_var(name, 0)
+		if c >= cnt then
+			xvars_save_var(name, nil)
+		return true
+		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return xvars_check_counter("fff", 10)
+end
+
+--работает аналогично, но без удаления счетчика
+function xvars_check_counter_no_delete(name, cnt)
+	if name and cnt then
+		local c = xvars_load_var(name, 0)
+		return c >= cnt
+	else
+		return false
+	end
+end
+
+--' Обработчик счётчика xvars, ставится в те места где функция даст тру, тогда к счётчику будет прибалено 1
+function xvars_increment_counter(counter_name, counter_limit) 
+	local cnt = xvars_load_var(counter_name, 0) + 1 
+	if cnt >= counter_limit then 
+		xvars_save_var(counter_name, nil) 
+        return true 
+	else 
+		xvars_save_var(counter_name, cnt) 
+        return false 
+	end 
+end
+
+-- Пример:
+-- коллбек на использование предметов(если выпита бутылка - к счётчику прибавляется 1, как только будет выпито 30 бутылок - будет выдан инфопоршн и счётчик удалится.
+
+function actor_binder:use_object(obj)  
+    local s_obj = obj:section() 
+    if s_obj == "vodka" and not has_alife_info("vodka_counter_info") then 
+        if xvars_increment_counter("vodka_counter", 30) then
+            db.actor:give_info_portion("vodka_counter_info")
+        end 
+    end
+end
+
+-- Счётчик уникальных подборов предмета, два раза подобрать один и тот же объект не прокатит
+
+function xvars_increment_counter_unic(obj, counter_name, counter_limit) 
+	local flag_name = counter_name .. tostring(obj:id())
+  
+    if xvars[flag_name] then
+        return false
+    end  
+  
+	xvars[flag_name] = true  	
+	local cnt = xvars_load_var(counter_name, 0) + 1 	
+  
+	if cnt >= counter_limit then 
+		xvars_save_var(counter_name, nil) 
+		xvars[flag_name] = nil
+	    return true 
+	else 
+		xvars_save_var(counter_name, cnt) 
+	    return false 
+	end 
+end</code></pre>
+
+    <div class="divider"></div>
+    <h2 id="sec-se-stor">Хранилище от Artos - se_stor</h2>
+    <h3>🗃️ se_stor — Расширенное хранилище данных для S.T.A.L.K.E.R. (МОДУЛИ Artos(lua_helper+m_netpk+m_timers+se_stor))</h3>
+    <p>se_stor — это продвинутая система хранения пользовательских данных в S.T.A.L.K.E.R., созданная сообществом (в частности по материалам, Malandrinus и xStream), и разработанная как альтернатива ограниченному pstor из xr_logic.script.</p>
+    <p>Она позволяет сохранять значительно больше данных, включая сложные типы (таблицы, векторы, временные метки), а также обходить ограничение в 8 КБ, присущее стандартному чанку актёра.</p>
+
+    <h4>🔧 Основные возможности</h4>
+    <p>✅ Поддерживаемые типы данных:</p>
+    <ul>
+        <li><strong>boolean</strong> → сохраняется как 1 байт</li>
+        <li><strong>number</strong> → всегда как float (4 байта). Для очень больших чисел рекомендуется преобразование в строку: ""..1234567890</li>
+        <li><strong>string</strong> → как null-terminated C-строка. Макс. длина: ~8000–16000 байт (в зависимости от контекста)</li>
+        <li><strong>table</strong> → только "простые" таблицы: Без метатаблиц, без рекурсии. Ключи и значения — только примитивы (number, string, boolean). Автоматическая сериализация в строку (возможно с сжатием)</li>
+        <li><strong>vector, CTime, binary chunk</strong> — специальные игровые типы</li>
+    </ul>
+    <div class="note">⚠️ <strong>Важно:</strong> при превышении лимита одного пакета (тоже ~8 КБ) сохранение упадёт — но se_stor может использовать несколько объектов-хранилищ, чтобы обойти это.</div>
+
+    <h4>🏗️ Архитектура</h4>
+    <ol>
+        <li>Специальный игровой объект CUST_ST (clsid.custom_storage)</li>
+        <li>Глобальная таблица storehouse. Все данные хранятся в общей таблице se_stor.storehouse. При сохранении — сериализуется и записывается в один или несколько custom_storage-объектов. При загрузке — восстанавливается автоматически</li>
+    </ol>
+
+    <h4>📥 Интерфейс API</h4>
+    <p>➤ <strong>Запись</strong><br>
+    <code>se_stor.set(var_name, value, f_check)</code><br>
+    var_name — имя переменной (строка)<br>
+    value — значение (любой поддерживаемый тип)<br>
+    f_check — (опционально) флаг проверки размера перед записью<br>
+    Чтобы удалить переменную — передайте nil как значение:</p>
+    <pre><code class="language-lua">se_stor.set("old_flag", nil)</code></pre>
+
+    <p>➤ <strong>Чтение</strong><br>
+    <code>local val = se_stor.get(var_name, default_value)</code><br>
+    Если переменная не существует и default_value не задан — вернёт nil</p>
+
+    <p>➤ <strong>Удобные глобальные функции (в _G берутся из lua_helper.script)</strong></p>
+    <pre><code class="language-lua">delay_time = GetVar("noclip_delay_time", 30)  
+SetVar("noclip_delay_time", noclip_mode.delay_time)</code></pre>
+    <p>SetVar/GetVar — это алиасы на se_stor.set/se_stor.get</p>
+
+    <h4>💡 Зачем это нужно?</h4>
+    <ul>
+        <li>Квестовые системы с сотнями флагов</li>
+        <li>Прогресс персонажа (скиллы, достижения, инвентарь вне рюкзака)</li>
+        <li>Динамические события, требующие хранения временных меток и состояний</li>
+        <li>Сложная экономика или репутационные системы</li>
+    </ul>
+    <p>Например, если вы хотите сохранить список убитых монстров по типам, или карту открытых локаций, pstor быстро исчерпает лимит — а se_stor справится легко.</p>
+
+    <div class="note">✅ <strong>Вывод</strong><br>
+    se_stor — это must-have для серьёзных модов S.T.A.L.K.E.R., где стандартного pstor недостаточно. Он открывает двери для:<br>
+    - Глубокой персонализации персонажа<br>
+    - Сложных сюжетных ветвлений<br>
+    - Сохранения состояния мира между сессиями<br>
+    При этом он остаётся совместимым с оригинальной архитектурой и использует те же механизмы сохранения, что и сама игра — просто "умнее".<br><br>
+    <strong>Совет:</strong> если вы пишете мод с большим количеством состояний — начинайте с se_stor сразу. Перенос с pstor потом будет болезненным.</div>
+
+    <h3>🔹ПРИМЕРЫ🔹</h3>
+    <p>Почти также как с пстор, только меньше возни и ненужных действий</p>
+    
+    <p>Сохранить переменную</p>
+    <pre><code class="language-lua">SetVar("name_var", cnt)</code></pre>
+    <p>"name_var" это переменная, ей имя придумываем, а cnt это её значение</p>
+
+    <p>Получить переменную</p>
+    <pre><code class="language-lua">GetVar("name_var", 0)</code></pre>
+
+    <p>Счётчики как в пстор:</p>
+    <pre><code class="language-lua">function se_stor_inc_counter(p)
+	SetVar(p,GetVar(p,0)+1)
+end
+
+function se_stor_dec_counter(p)
+	SetVar(p,GetVar(p,0)-1)
+end</code></pre>
+
+    <p>Прибавить к указанному счётчику 1</p>
+    <pre><code class="language-lua">se_stor_inc_counter("name_var")</code></pre>
+    <p>Отнять 1 от указанного счётчика</p>
+    <pre><code class="language-lua">se_stor_dec_counter("name_var")</code></pre>
+
+    <pre><code class="language-lua">--' Обработчик счётчика se_stor, ставится в те места где функция даст тру, тогда к счётчику будет прибавлено 1
+function se_stor_increment_counter(counter_name, counter_limit) 
+	local cnt = GetVar(counter_name, 0) + 1 
+	if cnt >= counter_limit then 
+		SetVar(counter_name, nil) 
+        return true 
+	else 
+		SetVar(counter_name, cnt) 
+        return false 
+	end 
+end
+
+--' Счётчик который можно использовать в квестах и любых проверках, после тру - обнуляется
+function se_stor_check_counter(name, cnt)
+	if name and cnt then
+		local c = GetVar(name, 0)
+		if c >= cnt then
+			SetVar(name, nil)
+		    return true
+		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return se_stor_check_counter("fff", 10)
+end
+
+--работает аналогично, но без удаления
+function se_stor_check_counter_no_delete(name, cnt)
+	if name and cnt then
+		local c = GetVar(name, 0)
+		return c >= cnt
+	else
+		return false
+	end
+end</code></pre>
+
+    <div class="divider"></div>
+    <h2 id="sec-pstor">Далее пойдет инфа о pstor</h2>
+    <h3>🔹 Система pstor 🔹</h3>
+    <p>В S.T.A.L.K.E.R. реализована простая, но мощная система, которая интегрирована в xr_logic.script и используется через хранилище актора (db.storage).</p>
+    
+    <div class="note">🔹 <strong>Ray Kenkel:</strong> Небольшое хранилище важных данных, которые нужно сохранять, а не каждый раз пересоздавать. Условно говоря, если у НПС есть таймер, где описано что каждые 60 минут он обновит ассортимент, то без сохранения данных это бы значение сбрасывалось при перезагрузке. А так мы сохранили сколько уже осталось времени, а после загрузки вернули обратно это значение.</div>
+
+    <div class="note">🔹 <strong>Главный нюанс. Ограничение в 8 КБ на чанк сохранения</strong><br>
+    Это жёсткое ограничение движка - вы не можете записать в один чанк более 8192 байт (8 КБ). Если попытаться превысить лимит при записи через packet:w_...() — игра аварийно завершится с ошибкой вида:<br>
+    <code>assertion failed: size &lt; 8192</code></div>
+
+    <h3>Как это работает под капотом?</h3>
+    <p>Данные хранятся в <code>db.storage[npc_id].pstor</code> — это таблица Lua.<br>
+    При сохранении игры (actor_binder:save) вызывается <code>xr_logic.pstor_save_all()</code>, который записывает все пары ключ-значение в бинарный поток.</p>
+    <p>А при загрузке сохранения (actor_binder:load) данные автоматически восстанавливаются:<br>
+    <code>xr_logic.pstor_load_all(self.object, reader)</code><br>
+    Таким образом, вам не нужно вручную перезаписывать значения после загрузки — всё происходит автоматически.</p>
+    
+    <p>Поддерживаются только три типа:</p>
+    <ul>
+        <li><strong>number</strong> - сохраняется как float</li>
+        <li><strong>string</strong> - как нуль-терминированная строка</li>
+        <li><strong>boolean</strong> - как булево значение</li>
+    </ul>
+
+    <h3>Функции для работы с ПСТОР</h3>
+    
+    <h4>Сохранение значения</h4>
+    <pre><code class="language-lua">xr_logic.pstor_store(obj, "variable_name", value)</code></pre>
+    <p>obj — объект, обычно db.actor (игрок).<br>
+    "variable_name" — имя переменной в виде строки ей имя придумываем сами.<br>
+    value — значение, может быть числом, строкой или булевым типом.</p>
+    <p>Пример:</p>
+    <pre><code class="language-lua">xr_logic.pstor_store(db.actor, "noclip_delay_time", 50)</code></pre>
+
+    <h4>Загрузка значения</h4>
+    <pre><code class="language-lua">local value = xr_logic.pstor_retrieve(obj, "variable_name", default_value)</code></pre>
+    <p>Если переменная не найдена в сохранении — вернётся default_value.</p>
+    <p>Пример:</p>
+    <pre><code class="language-lua">local delay = xr_logic.pstor_retrieve(db.actor, "noclip_delay_time", 100)</code></pre>
+
+    <pre><code class="language-lua">-- прибавить к указанному счётчику актёра 1
+xr_effects.inc_counter(db.actor,n,{"name"})	
+
+-- отнять от указанного счётчика актёра 1 
+xr_effects.dec_counter(db.actor,n,{"name"})</code></pre>
+
+    <p>Для более лёгкого использования вставьте функции показанные ниже, в конец файла \gamedata\scripts\_g.script</p>
+    <pre><code class="language-lua">-- получить переменную 
+function pstor_get_value(var_name, default_value)
+  return xr_logic.pstor_retrieve(db.actor, var_name, default_value)
+end
+
+-- установить\сохранить переменную
+function pstor_set_value(counter_name, value)
+  xr_logic.pstor_store(db.actor, counter_name, value)
+end
+
+-- удалить\очистить переменную
+function pstor_del_value(var_name)
+  if not db.actor then
+    abort("can't delete variable '%s', bacause actor is nil!", var_name)
+  end
+  local st = db.storage[db.actor:id()]
+  if st.pstor and st.pstor[var_name] then
+    st.pstor[var_name] = nil
+  end
+end</code></pre>
+
+    <p>Использование:</p>
+    <pre><code class="language-lua">pstor_get_value(name, 0)
+pstor_del_value(name)
+pstor_set_value(name, cnt)</code></pre>
+    <p>Либо в свой скрипт, НО тогда использование будет выглядеть так:</p>
+    <pre><code class="language-lua">Имя_файла.pstor_get_value(name, 0)
+Имя_файла.pstor_del_value(name)
+Имя_файла.pstor_set_value(name, cnt)</code></pre>
+
+    <pre><code class="language-lua">--' Счётчик который можно использовать в квестах и любых проверках, после получения указанного числа - счётчик удаляется.
+function pstor_check_counter(name, cnt)
+	if name and cnt then
+		local c = pstor_get_value(name, 0)
+		if c >= cnt then
+			pstor_del_value(name)
+		    return true
+		end
+	else
+		return false
+	end
+end
+
+-- Пример использования
+function name()
+   return pstor_check_counter("fff", 10)
+end
+
+--работает аналогично, но без удаления
+function pstor_check_counter_no_delete(name, cnt)
+	if name and cnt then
+		local c = xr_logic.pstor_retrieve(db.actor, name, 0)
+		return c >= cnt
+	else
+		return false
+	end
+end
+
+--' Обработчик счётчика, ставится в те места, где функция даст тру, тогда к счётчику будет прибавлено 1
+function pstor_increment_counter(counter_name, counter_limit)
+	local cnt = pstor_get_value(counter_name, 0) + 1
+	if cnt >= counter_limit then
+		pstor_del_value(counter_name)
+        return true
+	else
+		pstor_set_value(counter_name, cnt)
+        return false
+	end
+end</code></pre>
+
+    <p>Ещё с оргинала в \gamedata\scripts\xr_effects.script есть функции inc_counter и dec_counter, прибавить к указанному счётчику актёра 1 или отнять</p>
+    <pre><code class="language-lua">=inc_counter(имя_счетчика)</code></pre>
+    <p>создает счетчик и добавляет 1</p>
+    <pre><code class="language-lua">=dec_counter(имя_счетчика)</code></pre>
+    <p>создает счетчик и отнимает 1</p>
+
+    <p>в \gamedata\scripts\xr_conditions.script есть counter_greater у него надо набить на 1 больше чем указано, такой нюанс</p>
+    <pre><code class="language-lua">=counter_greater(имя_счетчика:число)</code></pre>
+    <p>возвращает true, если значение указанного счётчика БОЛЬШЕ указанного числа</p>
+
+    <p>Используются только в логике:</p>
+    <p>в этом примере показана логика рестриктора, который проверяет значение счётчика, при выполнении вызывает функцию спавн_нпс</p>
+    <pre><code class="language-ini">[logic]
+active = sr_idle
+
+[sr_idle]
+on_info = {=counter_greater(my_counter:5)} %=spawn_npc%</code></pre>
+
+    <p>Более конкретный пример:<br>
+    работает схема моб хома в ней установлен "он_инфо", который проверяет значение счётчика<br>
+    также в схеме есть проверка на хит, тем самым срабатывает он инфо и переключает схему в моб_хом2<br>
+    единственный нюанс, в том что проверка работает на указанное число +1, то есть в данном случае нужно ударить/выстрелить в моба 2 раза</p>
+
+    <pre><code class="language-ini">[logic]
+active = mob_home
+on_hit = hit
+
+[mob_home]
+"параметры схемы"
+on_info = {=counter_greater(my_counter:1)} mob_home2
+
+[mob_home2]
+"параметры схемы"
+
+[hit]
+on_info = %=inc_counter(my_counter)%</code></pre>
+
+    <button class="back-to-top" id="backToTop" title="Наверх">↑</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ini.min.js"></script>
+    <script>
+        (function() {
+            const toc = document.getElementById('toc');
+            const toggleBtn = document.getElementById('tocToggle');
+            const label = toggleBtn.querySelector('.label');
+            const STORAGE_KEY = 'toc_collapsed';
+
+            if (localStorage.getItem(STORAGE_KEY) === 'true') {
+                toc.classList.add('collapsed');
+                label.textContent = 'Развернуть';
+            }
+
+            toggleBtn.addEventListener('click', function() {
+                toc.classList.toggle('collapsed');
+                const isCollapsed = toc.classList.contains('collapsed');
+                label.textContent = isCollapsed ? 'Развернуть' : 'Свернуть';
+                localStorage.setItem(STORAGE_KEY, isCollapsed);
+            });
+
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTop.classList.add('visible');
+                } else {
+                    backToTop.classList.remove('visible');
+                }
+            });
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
+    </script>
+</body>
+</html>
