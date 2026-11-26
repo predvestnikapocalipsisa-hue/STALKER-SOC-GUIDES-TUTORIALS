@@ -156,6 +156,56 @@ function ltx_add_var(sect, key, delta, default)
     return v
 end
 
+Сохранение таблицы
+
+Примечания:
+Сохраняются только ключи-строки. Числовые ключи (как в массивах {1, 2, 3}) игнорируются.
+Поддерживаемые типы значений: boolean, number, string. Вложенные таблицы не сохраняются.
+При сохранении старая секция полностью удаляется и создаётся заново — это гарантирует отсутствие "мусора" от предыдущих записей.
+Функция open(write) берётся из предыдущего блока про LTX-хранилище (создание ini_file).
+
+function ltx_save_table(sect, tbl)
+    if type(tbl) ~= "table" then return false end
+    local ini = open(true)
+    if ini:section_exist(sect) then ini:remove_section(sect) end
+    ini:append_section(sect)
+    for k, v in pairs(tbl) do
+        if type(k) == "string" then
+            local t = type(v)
+            if     t == "boolean" then ini:w_bool(sect, k, v)
+            elseif t == "number"  then ini:w_float(sect, k, v)
+            elseif t == "string"  then ini:w_string(sect, k, v)
+            end
+        end
+    end
+    ini:save()
+    return true
+end
+
+Загрузка таблицы
+function ltx_load_table(sect, default)
+    local ini = open(false)
+    if not ini:section_exist(sect) then return default or {} end
+    local t = {}
+    for i = 0, ini:line_count(sect) - 1 do
+        local a, b, c = ini:r_line(sect, i)
+        local k, v = b, c
+        if c == nil then k, v = a, b end   -- r_line отдаёт 2 или 3 значения, зависит от билда
+        if k and k ~= "" then
+            if     v == "true"  then t[k] = true
+            elseif v == "false" then t[k] = false
+            else t[k] = tonumber(v) or v end
+        end
+    end
+    return t
+end
+
+Использование:
+ltx_save_table("stash_1234", { count = 3, opened = true })
+
+local t = ltx_load_table("stash_1234", {})
+t.count = t.count + 1
+ltx_save_table("stash_1234", t)
 
 
 
